@@ -6,10 +6,10 @@ const app = express();
 
 // Configuración de la conexión a MySQL
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',  // Usuario por defecto de MySQL en XAMPP
-  password: 'manu.kayn123',  // Deja esto vacío si no has configurado una contraseña para root
-  database: 'tpp3'  // Nombre de la base de datos que creaste en phpMyAdmin
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 // Conectar a MySQL
