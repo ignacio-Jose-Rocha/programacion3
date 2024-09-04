@@ -4,4 +4,5 @@ const router = express.Router();
 router.get('/clientes', usuariosController.getAllclientes);
 router.get("/clienteLogin", usuariosController.login);
 router.put("/actualizarCliente/:idUsuario", usuariosController.actualizarCliente);
+router.post("/crearCliente", usuariosController.crearCliente);
 module.exports = router;
