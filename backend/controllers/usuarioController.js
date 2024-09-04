@@ -30,7 +30,21 @@ exports.reclamo=async(req,res)=>{
   const {idUsuario, nombre,idTipoUsuario,idOficina}=req.body;
   
 }*/
-
+exports.crearCliente = async (req, res) => {
+  const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body
+  try {
+    const [usuarios] = await pool.query ("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?" , [correoElectronico, nombre, apellido])   
+    if (usuarios.length>0)
+    {
+      return res.status (400).json({error: 'Los datos ya estan cargados.'})
+    }
+      const [rows] = await pool.query ("INSERT INTO usuarios SET ? ", {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo})
+      res.json ({id:rows.insertId,nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo})
+  }
+  catch (error) {
+    console.log(error)
+      }
+}
 exports.actualizarCliente = async (req, res) => {
   const {idUsuario} = req.params;
   const {nombre, apellido,correoElectronico, contrasenia,idTipoUsuario,imagen, activo}   = req.body;
