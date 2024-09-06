@@ -1,10 +1,13 @@
-const express = require('express');
-const usuariosController = require('../controllers/usuarioController.js');
+import express from 'express';
+import { getAllclientes, login, actualizarCliente, getAllempleados, getAllAdministradores, crearCliente } from '../controllers/usuarioController.js';
+
 const router = express.Router();
-router.get('/clientes', usuariosController.getAllclientes);
-router.get('/empleados', usuariosController.getAllempleados);
-router.get('/administradores', usuariosController.getAllAdministradores);
-router.get("/clienteLogin", usuariosController.login);
-router.put("/actualizarCliente/:idUsuario", usuariosController.actualizarCliente);
-router.post("/crearCliente", usuariosController.crearCliente);
-module.exports = router;
+
+router.get('/clientes', getAllclientes);
+router.get('/empleados', getAllempleados);
+router.get('/administradores', getAllAdministradores);
+router.get("/clienteLogin", login);
+router.put("/actualizarCliente/:idUsuario", actualizarCliente);
+router.post("/crearCliente", crearCliente);
+
+export default router;
