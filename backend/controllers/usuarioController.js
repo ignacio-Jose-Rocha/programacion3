@@ -2,7 +2,7 @@ const pool = require('../config.js');
 
 exports.getAllclientes = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
@@ -11,16 +11,16 @@ exports.getAllclientes = async (req, res) => {
 };
 exports.getAllempleados = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
     res.json(rows);
   } catch (error) {
-    console.error('Error al obtener los usuarios:', error);
+    console.error('Error al obtener los usuarios:', error); 
     res.status(500).json({ error: 'Error al obtener los usuarios' });
   }
 };
 exports.getAllAdministradores = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
@@ -78,7 +78,7 @@ exports.actualizarCliente = async (req, res) => {
   const {nombre, apellido,correoElectronico, contrasenia,idTipoUsuario,imagen, activo}   = req.body;
   try{
     
-    const [rows]=await pool.query("update usuarios set nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? where idUsuario=? and  idTipoUsuario = 1",[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]);  
+    const [rows]=await pool.query("update usuarios set nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? where idUsuario=? and  idTipoUsuario = 3",[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]);  
     res.json({
       id:idUsuario,
       nombre,
@@ -92,5 +92,14 @@ exports.actualizarCliente = async (req, res) => {
   catch(error){
     console.log(Error);
 }
+}
 
+exports.eliminarEmpleado = async (req, res) => {
+  const = {activo} 
+  try {
+
+  }
+  catch {
+
+  }
 }
