@@ -10,9 +10,9 @@ import routerUsuario from './routes/usuariosRoutes.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Asegúrate de tener un puerto por defecto
+const PORT = process.env.PORT || 3000; 
 
-// Obtener __dirname en un módulo ES
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
