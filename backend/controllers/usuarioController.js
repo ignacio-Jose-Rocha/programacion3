@@ -9,7 +9,7 @@ export const getAllclientes = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los usuarios' });
   }
 };
-exports.getAllempleados = async (req, res) => {
+export const getAllempleados = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
     res.json(rows);
@@ -18,7 +18,7 @@ exports.getAllempleados = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los usuarios' });
   }
 };
-exports.getAllAdministradores = async (req, res) => {
+export const getAllAdministradores = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
     res.json(rows);
@@ -57,7 +57,7 @@ export const login = async (req, res) => {
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
 };
-exports.crearCliente = async (req, res) => {
+export const crearCliente = async (req, res) => {
   const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body
   try {
     const [usuarios] = await pool.query ("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?" , [correoElectronico, nombre, apellido])   
@@ -70,15 +70,9 @@ exports.crearCliente = async (req, res) => {
   }
   catch (error) {
     console.log(error)
-      }
-}
-exports.actualizarCliente = async (req, res) => {
-  const {idUsuario} = req.params;
-  const {nombre, apellido,correoElectronico, contrasenia,idTipoUsuario,imagen, activo}   = req.body;
-  try{
-    
-    const [rows]=await pool.query("update usuarios set nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? where idUsuario=? and  idTipoUsuario = 1",[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]);  
+  }
 };
+
 
 export const actualizarCliente = async (req, res) => {
   const { idUsuario } = req.params;
