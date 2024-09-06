@@ -2,7 +2,7 @@ const pool = require('../config.js');
 
 exports.getAllclientes = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
@@ -20,7 +20,7 @@ exports.getAllempleados = async (req, res) => {
 };
 exports.getAllAdministradores = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
+    const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
@@ -73,12 +73,37 @@ exports.crearCliente = async (req, res) => {
     console.log(error)
       }
 }
+exports.actualizarClienteAdmin = async (req, res) => {
+  const {idUsuarioModificado, idUsuarioModificador} = req.params;
+  const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body;
+
+  if (idUsuarioModificador != 1) {
+    return res.status(403).json({mensaje: "No tiene permiso para realizar esta acción"});
+  }
+
+  try {
+    const [rows] = await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
+    res.json({
+      id: idUsuarioModificado,
+      nombre,
+      apellido,
+      correoElectronico,
+      contrasenia,
+      idTipoUsuario,
+      imagen,
+      activo
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({mensaje: "Error al actualizar el usuario"});
+  }
+}
 exports.actualizarCliente = async (req, res) => {
   const {idUsuario} = req.params;
-  const {nombre, apellido,correoElectronico, contrasenia,idTipoUsuario,imagen, activo}   = req.body;
+  const {nombre, apellido,correoElectronico, contrasenia,idTipoUsuario,imagen}   = req.body;
   try{
     
-    const [rows]=await pool.query("update usuarios set nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? where idUsuario=? and  idTipoUsuario = 1",[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]);  
+    const [rows]=await pool.query("update usuarios set nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=? where idUsuario=? and  idTipoUsuario = 1",[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, idUsuario]);  
     res.json({
       id:idUsuario,
       nombre,
@@ -86,8 +111,7 @@ exports.actualizarCliente = async (req, res) => {
       correoElectronico,
       contrasenia,
       idTipoUsuario,
-      imagen,
-      activo})
+      imagen})
   } 
   catch(error){
     console.log(Error);

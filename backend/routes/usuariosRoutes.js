@@ -6,5 +6,6 @@ router.get('/empleados', usuariosController.getAllempleados);
 router.get('/administradores', usuariosController.getAllAdministradores);
 router.get("/clienteLogin", usuariosController.login);
 router.put("/actualizarCliente/:idUsuario", usuariosController.actualizarCliente);
+router.put("/actualizarClienteAdmin/:idUsuarioModificador/:idUsuarioModificado", usuariosController.actualizarClienteAdmin);
 router.post("/crearCliente", usuariosController.crearCliente);
 module.exports = router;
