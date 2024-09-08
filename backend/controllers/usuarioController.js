@@ -10,7 +10,59 @@ const UsuarioController = {
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
+  actualizarClienteAdmin: async (req, res) => {
+    const { idUsuarioModificado, idUsuarioModificador } = req.params;
+    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
 
+    let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
+    let usuarioModificador = resultados[0];
+    if (usuarioModificador && usuarioModificador.idTipoUsuario != 1) {
+      return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+    }
+
+    try {
+      await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
+      res.json({
+        id: idUsuarioModificado,
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario,
+        imagen,
+        activo
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ mensaje: "Error al actualizar el usuario" });
+    }
+  },
+  actualizarCliente: async (req, res) => {
+    const { idUsuario } = req.params;
+    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
+      
+    let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
+    let user = resultados[0];
+    if (user && user.idTipoUsuario != 3) {
+      return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+    }
+
+    try {
+      await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, idUsuario]);
+      res.json({
+        id: idUsuario,
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario,
+        imagen
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ mensaje: "Error al actualizar el cliente" });
+    }
+  },
   getAllempleados: async (req, res) => {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
@@ -72,30 +124,6 @@ const UsuarioController = {
       res.json({ id: rows.insertId, nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo });
     } catch (error) {
       console.log(error);
-    }
-  },
-
-  actualizarCliente: async (req, res) => {
-    const { idUsuario } = req.params;
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
-    try {
-      const [rows] = await pool.query(
-        'UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=? AND idTipoUsuario = 1',
-        [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]
-      );
-      res.json({
-        id: idUsuario,
-        nombre,
-        apellido,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario,
-        imagen,
-        activo
-      });
-    } catch (error) {
-      console.error('Error al actualizar el cliente:', error);
-      res.status(500).json({ error: 'Error al actualizar el cliente' });
     }
   }
 };
