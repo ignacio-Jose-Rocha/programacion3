@@ -43,6 +43,8 @@ const UsuarioController = {
     }
   },
   actualizarCliente: async (req, res) => {
+
+    try {
     const { idUsuario } = req.params;
     const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
       
@@ -52,7 +54,7 @@ const UsuarioController = {
       return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
     }
 
-    try {
+    
       await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, idUsuario]);
       res.json({
         id: idUsuario,
