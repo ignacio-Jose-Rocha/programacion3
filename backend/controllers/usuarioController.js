@@ -21,6 +21,9 @@ const UsuarioController = {
 
     let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
     let usuarioModificador = resultados[0];
+    if(!usuarioModificador){
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
     if (usuarioModificador && usuarioModificador.idTipoUsuario != 1) {
       return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
     }
