@@ -94,7 +94,7 @@ const UsuarioController = {
   login: async (req, res) => {
     const { correoElectronico, contrasenia } = req.body;
     console.log('Datos recibidos:', correoElectronico, contrasenia);
-
+    try {
     const tiempoActual = Date.now();
     const segundos = 60;
     if (ultimoTiempo[correoElectronico] && (tiempoActual - ultimoTiempo[correoElectronico]) < (segundos * 1000)) {
@@ -104,7 +104,7 @@ const UsuarioController = {
       });
     }
 
-    try {
+    
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE correoElectronico = ? AND contrasenia = ?', [correoElectronico, contrasenia]);
 
       if (rows.length > 0) {
