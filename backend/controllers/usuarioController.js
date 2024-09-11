@@ -9,24 +9,24 @@ const UsuarioController = {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
       res.json(rows);
-    } catch (error) {
+    }catch (error) {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
   actualizarClienteAdmin: async (req, res) => {
     try {
-    const { idUsuarioModificado, idUsuarioModificador } = req.params;
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
+      const { idUsuarioModificado, idUsuarioModificador } = req.params;
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
 
-    let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
-    let usuarioModificador = resultados[0];
-    if(!usuarioModificador){
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-    if (usuarioModificador && usuarioModificador.idTipoUsuario != 1) {
-      return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-    }
+      let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
+      let usuarioModificador = resultados[0];
+      if(!usuarioModificador){
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+      if (usuarioModificador && usuarioModificador.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
 
    
       await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
@@ -40,7 +40,7 @@ const UsuarioController = {
         imagen,
         activo
       });
-    } catch (error) {
+    }catch (error) {
       console.log(error);
       res.status(500).json({ mensaje: "Error al actualizar el usuario" });
     }
@@ -48,16 +48,14 @@ const UsuarioController = {
   actualizarCliente: async (req, res) => {
 
     try {
-    const { idUsuario } = req.params;
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
+      const { idUsuario } = req.params;
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
       
-    let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
-    let user = resultados[0];
-    if (user && user.idTipoUsuario != 3) {
-      return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-    }
-
-    
+      let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
+      let user = resultados[0];
+      if (user && user.idTipoUsuario != 3) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, idUsuario]);
       res.json({
         id: idUsuario,
@@ -77,7 +75,7 @@ const UsuarioController = {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
       res.json(rows);
-    } catch (error) {
+    }catch (error) {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
@@ -86,7 +84,7 @@ const UsuarioController = {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
       res.json(rows);
-    } catch (error) {
+    }catch (error) {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
@@ -95,14 +93,14 @@ const UsuarioController = {
     const { correoElectronico, contrasenia } = req.body;
     console.log('Datos recibidos:', correoElectronico, contrasenia);
     try {
-    const tiempoActual = Date.now();
-    const segundos = 60;
-    if (ultimoTiempo[correoElectronico] && (tiempoActual - ultimoTiempo[correoElectronico]) < (segundos * 1000)) {
-      return res.status(429).json({ 
-        success: false, 
-        message: 'Ya has iniciado sesión recientemente. Inténtalo de nuevo más tarde.' 
-      });
-    }
+      const tiempoActual = Date.now();
+      const segundos = 60;
+      if (ultimoTiempo[correoElectronico] && (tiempoActual - ultimoTiempo[correoElectronico]) < (segundos * 1000)) {
+        return res.status(429).json({ 
+          success: false, 
+          message: 'Ya has iniciado sesión recientemente. Inténtalo de nuevo más tarde.' 
+        });
+      }
 
     
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE correoElectronico = ? AND contrasenia = ?', [correoElectronico, contrasenia]);
@@ -131,7 +129,7 @@ const UsuarioController = {
       } else {
         res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
       }
-    } catch (error) {
+    }catch (error) {
       console.error('Error al iniciar sesión:', error);
       res.status(500).json({ error: 'Error al iniciar sesión' });
     }
