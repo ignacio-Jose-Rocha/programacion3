@@ -20,7 +20,6 @@ const reclamoController = {
             return res.status(400).json({ error: 'Los datos ya están cargados.' });
           }
           if(reclamo.idTipoUsuario === 3){
-            console.log(reclamos2);
             const [rows] = await pool.query("INSERT INTO reclamos SET ?", {asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador});
             res.json({ id: rows.insertId, asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador});
           }
@@ -28,21 +27,21 @@ const reclamoController = {
             return res.status(400).json({ error: "error, tipo de usuario no tiene permitido crear reclamos" });
           }
         }catch (error) {
-          console.log(error);
+          return res.status(400).json({ error: "error al crear reclamo" });
         }
       },
 
-    obtenerReclamoId: async (req,res) => {
-      const {idUsuario} = req.params;
-      console.log(idUsuario);
-      try{
-        const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
-        console.log(rows);
-        res.json(rows)
-      }
-      catch{
-        console.log('error')
-      }
+      obtenerReclamoId: async (req,res) => {
+          const {idUsuario} = req.params;
+        console.log(idUsuario);
+        try{
+          const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
+          console.log(rows);
+          res.json(rows)
+        }
+        catch{
+          return res.status(400).json({ error: "error al obtener tipo de reclamo" });
+        }
     },
 
     
