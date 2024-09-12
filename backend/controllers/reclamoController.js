@@ -33,6 +33,9 @@ const reclamoController = {
         }
       },
 
+<<<<<<< HEAD
+      
+=======
     obtenerReclamoId: async (req,res) => {
       const {idUsuario} = req.params;
       console.log(idUsuario);
@@ -46,6 +49,7 @@ const reclamoController = {
       }
     },
 
+>>>>>>> 2780783d743e189f342a74a99f84aa11632159c8
     
 
 }
