@@ -8,7 +8,7 @@ router.get('/empleados', UsuarioController.getAllempleados);
 router.get('/administradores', UsuarioController.getAllAdministradores);
 router.get("/clienteLogin", UsuarioController.login);
 router.put("/actualizarCliente/:idUsuario", UsuarioController.actualizarCliente);
-router.put("/actualizarClienteAdmin/:idUsuarioModificador/:idUsuarioModificado", UsuarioController.actualizarClienteAdmin);
+router.put("/actualizarClienteAdmin/:idUsuarioModificado/:idUsuarioModificador", UsuarioController.actualizarClienteAdmin);
 router.post("/crearCliente", UsuarioController.crearCliente);
 
 export default router;
