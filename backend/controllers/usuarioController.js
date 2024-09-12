@@ -19,14 +19,17 @@ const UsuarioController = {
         const { idUsuarioModificado, idUsuarioModificador } = req.params;
         const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
 
-        let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
-        let usuarioModificador = resultados[0];
-        if(!usuarioModificador){
-          return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        if (usuarioModificador && usuarioModificador.idTipoUsuario != 1) {
-          return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-        }
+      let [[usuarioModificador]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
+      let [[usuarioModificado]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificado]);
+      if(!usuarioModificado){
+        return res.status(404).json({ error: 'Usuario a modificar no encontrado' });
+      }
+      if(!usuarioModificador){
+        return res.status(404).json({ error: 'Usuario modificador no encontrado' });
+      }
+      if (usuarioModificador.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
 
     
         await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
@@ -46,13 +49,12 @@ const UsuarioController = {
       }
     },
   actualizarCliente: async (req, res) => {
-
     try {
       const { idUsuario } = req.params;
-      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen} = req.body;
       
-      let [resultados, campos] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
-      let user = resultados[0];
+      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
+      console.log(user)
       if (user && user.idTipoUsuario != 3) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
@@ -135,7 +137,6 @@ const UsuarioController = {
     }
   }
 ,
-
 
   crearCliente: async (req, res) => {
     const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
