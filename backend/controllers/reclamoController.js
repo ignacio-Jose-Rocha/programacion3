@@ -32,23 +32,19 @@ const reclamoController = {
         }
       },
 
-<<<<<<< HEAD
-      
-=======
-    obtenerReclamoId: async (req,res) => {
-      const {idUsuario} = req.params;
-      console.log(idUsuario);
-      try{
-        const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
-        console.log(rows);
-        res.json(rows)
-      }
-      catch{
-        console.log('error')
-      }
+      obtenerReclamoId: async (req,res) => {
+        const {idUsuario} = req.params;
+        console.log(idUsuario);
+        try{
+          const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
+          console.log(rows);
+          res.json(rows)
+        }
+        catch{
+          console.log('error')
+        }
     },
 
->>>>>>> 2780783d743e189f342a74a99f84aa11632159c8
     
 
 }
