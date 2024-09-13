@@ -1,8 +1,8 @@
 import pool from '../config.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-
 dotenv.config();
+
 const ultimoTiempo = {};
 const UsuarioController = {
   getAllclientes: async (req, res) => {
@@ -14,40 +14,41 @@ const UsuarioController = {
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
-    actualizarClienteAdmin: async (req, res) => {
-      try {
-        const { idUsuarioModificado, idUsuarioModificador } = req.params;
-        const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
 
-      let [[usuarioModificador]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
-      let [[usuarioModificado]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificado]);
-      if(!usuarioModificado){
-        return res.status(404).json({ error: 'Usuario a modificar no encontrado' });
-      }
-      if(!usuarioModificador){
-        return res.status(404).json({ error: 'Usuario modificador no encontrado' });
-      }
-      if (usuarioModificador.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
+  getAllempleados: async (req, res) => {
+    try {
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
+      res.json(rows);
+    }catch (error) {
+      console.error('Error al obtener los usuarios:', error);
+      res.status(500).json({ error: 'Error al obtener los usuarios' });
+    }
+  },
 
-    
-        await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
-        res.json({
-          id: idUsuarioModificado,
-          nombre,
-          apellido,
-          correoElectronico,
-          contrasenia,
-          idTipoUsuario,
-          imagen,
-          activo
-        });
-      }catch (error) {
-        console.log(error);
-        res.status(500).json({ mensaje: "Error al actualizar el usuario" });
+  getAllAdministradores: async (req, res) => {
+    try {
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
+      res.json(rows);
+    }catch (error) {
+      console.error('Error al obtener los usuarios:', error);
+      res.status(500).json({ error: 'Error al obtener los usuarios' });
+    }
+  },
+
+  crearCliente: async (req, res) => {
+    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
+    try {
+      const [usuarios] = await pool.query("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?", [correoElectronico, nombre, apellido]);
+      if (usuarios.length > 0) {
+        return res.status(400).json({ error: 'Los datos ya están cargados.' });
       }
-    },
+      const [rows] = await pool.query("INSERT INTO usuarios SET ?", { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo });
+      res.json({ id: rows.insertId, nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo });
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
   actualizarCliente: async (req, res) => {
     try {
       const { idUsuario } = req.params;
@@ -73,24 +74,7 @@ const UsuarioController = {
       res.status(500).json({ mensaje: "Error al actualizar el cliente" });
     }
   },
-  getAllempleados: async (req, res) => {
-    try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
-      res.json(rows);
-    }catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
-    }
-  },
-  getAllAdministradores: async (req, res) => {
-    try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
-      res.json(rows);
-    }catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
-    }
-  },
+  
   login: async (req, res) => {
     const { correoElectronico, contrasenia } = req.body;
     console.log('Datos recibidos:', correoElectronico, contrasenia);
@@ -135,22 +119,43 @@ const UsuarioController = {
       console.error('Error al iniciar sesión:', error);
       res.status(500).json({ error: 'Error al iniciar sesión' });
     }
-  }
-,
+  },
 
-  crearCliente: async (req, res) => {
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
+  actualizarClienteAdmin: async (req, res) => {
     try {
-      const [usuarios] = await pool.query("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?", [correoElectronico, nombre, apellido]);
-      if (usuarios.length > 0) {
-        return res.status(400).json({ error: 'Los datos ya están cargados.' });
+      const { idUsuarioModificado, idUsuarioModificador } = req.params;
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
+
+      let [[usuarioModificador]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]);
+      let [[usuarioModificado]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificado]);
+      if(!usuarioModificado){
+        return res.status(404).json({ error: 'Usuario a modificar no encontrado' });
       }
-      const [rows] = await pool.query("INSERT INTO usuarios SET ?", { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo });
-      res.json({ id: rows.insertId, nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo });
-    } catch (error) {
+      if(!usuarioModificador){
+        return res.status(404).json({ error: 'Usuario modificador no encontrado' });
+      }
+      if (usuarioModificador.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
+
+   
+      await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=?", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuarioModificado]);
+      res.json({
+        id: idUsuarioModificado,
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario,
+        imagen,
+        activo
+      });
+    }catch (error) {
       console.log(error);
+      res.status(500).json({ mensaje: "Error al actualizar el usuario" });
     }
-  }
+  },
+  
 };
 
 export default UsuarioController;

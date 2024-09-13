@@ -16,11 +16,11 @@ const reclamoController = {
         try { 
           const [reclamos] = await pool.query("SELECT * FROM reclamos WHERE idUsuarioCreador=? AND idReclamoTipo=? AND idReclamoEstado=? AND asunto=?", [idUsuarioCreador, idReclamoTipo, idReclamoEstado, asunto]);
           const [[reclamo]] = await pool.query("SELECT idTipoUsuario FROM usuarios where idUsuario=?",[idUsuarioCreador])
+          console.log(reclamo)
           if (reclamos.length > 0) {
             return res.status(400).json({ error: 'Los datos ya están cargados.' });
           }
           if(reclamo.idTipoUsuario === 3){
-            console.log(reclamos2);
             const [rows] = await pool.query("INSERT INTO reclamos SET ?", {asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador});
             res.json({ id: rows.insertId, asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador});
           }
@@ -28,24 +28,25 @@ const reclamoController = {
             return res.status(400).json({ error: "error, tipo de usuario no tiene permitido crear reclamos" });
           }
         }catch (error) {
-          console.log(error);
+          return res.status(400).json({ error: "error al crear reclamo" });
         }
       },
 
-    obtenerReclamoId: async (req,res) => {
-      const {idUsuario} = req.params;
-      console.log(idUsuario);
-      try{
-        const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
-        console.log(rows);
-        res.json(rows)
-      }
-      catch{
-        console.log('error')
-      }
-    },
-
-    
+      obtenerReclamoId: async (req,res) => {
+        const {idUsuario} = req.params;
+        try{
+          const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
+          if(rows.length === 0){
+            return res.status(400).json({ error: "No se encontro el reclamo" });
+          }
+          console.log(rows);
+          res.json(rows)
+        }
+        catch{
+          return res.status(400).json({ error: "error al obtener tipo de reclamo" });
+        }
+      },
+       
 
 }
 
