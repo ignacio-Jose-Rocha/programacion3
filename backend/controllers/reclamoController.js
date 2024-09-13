@@ -16,6 +16,7 @@ const reclamoController = {
         try {
           const [reclamos] = await pool.query("SELECT * FROM reclamos WHERE idUsuarioCreador=? AND idReclamoTipo=? AND idReclamoEstado=? AND asunto=?", [idUsuarioCreador, idReclamoTipo, idReclamoEstado, asunto]);
           const [[reclamo]] = await pool.query("SELECT idTipoUsuario FROM usuarios where idUsuario=?",[idUsuarioCreador])
+          console.log(reclamo)
           if (reclamos.length > 0) {
             return res.status(400).json({ error: 'Los datos ya están cargados.' });
           }
@@ -32,10 +33,12 @@ const reclamoController = {
       },
 
       obtenerReclamoId: async (req,res) => {
-          const {idUsuario} = req.params;
-        console.log(idUsuario);
+        const {idUsuario} = req.params;
         try{
           const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
+          if(rows.length === 0){
+            return res.status(400).json({ error: "No se encontro el reclamo" });
+          }
           console.log(rows);
           res.json(rows)
         }
