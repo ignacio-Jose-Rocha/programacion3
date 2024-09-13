@@ -11,4 +11,5 @@ router.put("/actualizarCliente/:idUsuario", UsuarioController.actualizarCliente)
 router.put("/actualizarClienteAdmin/:idUsuarioModificado/:idUsuarioModificador", UsuarioController.actualizarClienteAdmin);
 router.post("/crearCliente", UsuarioController.crearCliente);
 
+
 export default router;

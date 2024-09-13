@@ -2,7 +2,7 @@ import pool from '../config.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config();g
 const ultimoTiempo = {};
 const UsuarioController = {
   getAllclientes: async (req, res) => {
