@@ -45,20 +45,8 @@ const reclamoController = {
         catch{
           return res.status(400).json({ error: "error al obtener tipo de reclamo" });
         }
-      obtenerReclamoId: async (req,res) => {
-        const {idUsuario} = req.params;
-        console.log(idUsuario);
-        try{
-          const[rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
-          console.log(rows);
-          res.json(rows)
-        }
-        catch{
-          console.log('error')
-        }
-    },
-
-    
+      },
+       
 
 }
 
