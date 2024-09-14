@@ -174,9 +174,30 @@ const UsuarioController = {
       console.error('Error al borrar el usuario:', error);
       res.status(500).json({ error: 'Error al borrar el usuario' });
     }
-  }
+  },
 
-  
+  actualizarAdminAdmin: async (req, res) => {
+    try {
+        const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body
+        const {idUsuario} = req.params
+        let [[usuario]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario =?', [idUsuario])
+        if (usuario.activo != 1){
+          return res.status(400).json ({ error: 'Esta inactivo, maquina'});
+        }
+          if (usuario.idTipoUsuario != 1){
+          return res.status(400).json ({ error: 'No tenes permisos capo'});
+        }
+        await pool.query ('UPDATE usuarios SET nombre =?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idusuario=?',[nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo, idUsuario]);
+        res.json({id:idUsuario, nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo});
+
+    } 
+    catch(error) {
+      console.error('Error al actualizar el admin:', error);
+      res.status(500).json({ error: 'Error al actualizar el admin' });
+    }
+    
+  }
+ 
 };
 
 export default UsuarioController;
