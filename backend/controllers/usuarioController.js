@@ -7,7 +7,7 @@ const ultimoTiempo = {};
 const UsuarioController = {
   getAllclientes: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1');
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
       res.json(rows);
     }catch (error) {
       console.error('Error al obtener los usuarios:', error);
@@ -17,7 +17,7 @@ const UsuarioController = {
 
   getAllempleados: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2');
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
       res.json(rows);
     }catch (error) {
       console.error('Error al obtener los usuarios:', error);
@@ -27,7 +27,7 @@ const UsuarioController = {
 
   getAllAdministradores: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3');
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
       res.json(rows);
     }catch (error) {
       console.error('Error al obtener los usuarios:', error);
@@ -52,11 +52,13 @@ const UsuarioController = {
   actualizarCliente: async (req, res) => {
     try {
       const { idUsuario } = req.params;
-      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen} = req.body;
-      
-      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen} = req.body; 
+      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ? and activo = 1', [idUsuario]);
       console.log(user)
-      if (user && user.idTipoUsuario != 3) {
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado o está inactivo' });
+      }
+      if (user.idTipoUsuario != 3) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, idUsuario]);
@@ -156,32 +158,24 @@ const UsuarioController = {
     }
   },
 
-  actualizarAdminAdmin: async (req, res) => {
-    try {
-      const { idUsuario } = req.params;
-      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body;
-      console.log(idUsuario)
-      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
-      
-      if (user && user.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+  borrarUsuario: async (req, res) => {
+    try{
+      const {idUsuario} = req.params;
+      let [[usuario]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario])
+      if(!usuario){
+        return res.status(404).json({ error: 'Usuario a borrar no encontrado' });
       }
-      await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=? AND idTipoUsuario = 1", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo , idUsuario]);
-      res.json({
-        id: idUsuario,
-        nombre,
-        apellido,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario,
-        imagen,
-        activo
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ mensaje: "Error al actualizar el cliente" });
+
+      await pool.query("UPDATE usuarios SET activo=0 WHERE idUsuario=?", [idUsuario]);
+
+      res.json({ mensaje: 'Usuario desactivado correctamente' });
     }
-  },
+    catch (error){
+      console.error('Error al borrar el usuario:', error);
+      res.status(500).json({ error: 'Error al borrar el usuario' });
+    }
+  }
+
   
 };
 
