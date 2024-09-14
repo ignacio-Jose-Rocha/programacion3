@@ -155,6 +155,33 @@ const UsuarioController = {
       res.status(500).json({ mensaje: "Error al actualizar el usuario" });
     }
   },
+
+  actualizarAdminAdmin: async (req, res) => {
+    try {
+      const { idUsuario } = req.params;
+      const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo} = req.body;
+      console.log(idUsuario)
+      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario]);
+      
+      if (user && user.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
+      await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, idTipoUsuario=?, imagen=?, activo=? WHERE idUsuario=? AND idTipoUsuario = 1", [nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo , idUsuario]);
+      res.json({
+        id: idUsuario,
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario,
+        imagen,
+        activo
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ mensaje: "Error al actualizar el cliente" });
+    }
+  },
   
 };
 
