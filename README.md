@@ -24,5 +24,5 @@ DB_USER=nombre_usuario
 DB_PASSWORD=contraseña_personal  
 DB_NAME=nombre_database_proyecto  
 DB_CONNECTION_LIMIT=10  
-DB_QUEUE_LIMIT=0  
+DB_QUEUE_LIMIT=0 
 

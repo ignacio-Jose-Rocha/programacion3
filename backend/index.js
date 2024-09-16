@@ -42,5 +42,5 @@ app.use((err, req, res, next) => {
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor Express escuchando en el puerto ${PORT}`);
+  console.log(`Servidor Express escuchando en el puerto ${PORT} oaa`);
 });
