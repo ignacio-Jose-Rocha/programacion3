@@ -4,8 +4,9 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import routerUsuario from './routes/usuariosRoutes.js';
-import routerReclamos from './routes/reclamosRoutes.js'
+import routerCliente from './routes/clienteRoutes.js';
+import routerEmpleado from './routes/empleadoRoutes.js'
+import routerAdmin from './routes/adminRoutes.js'
 
 // Cargar variables de entorno
 dotenv.config();
@@ -26,8 +27,9 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas
-app.use('/usuarios', routerUsuario);
-app.use('/reclamos', routerReclamos)
+app.use('/cliente', routerCliente);
+app.use('/empleado', routerEmpleado);
+app.use('/admin', routerAdmin);
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
