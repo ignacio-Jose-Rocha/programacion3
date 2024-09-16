@@ -5,6 +5,8 @@ dotenv.config();
 
 const ultimoTiempo = {};
 const UsuarioController = {
+
+  //COMIENZO DE DEVOLUCIÓN DE USUARIOS
   getAllclientes: async (req, res) => {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
@@ -24,7 +26,7 @@ const UsuarioController = {
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
-
+  
   getAllAdministradores: async (req, res) => {
     try {
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
@@ -34,7 +36,9 @@ const UsuarioController = {
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
+  //FIN DE DEVOLUCIÓN DE USUARIOS
 
+  //
   crearCliente: async (req, res) => {
     const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
     try {
@@ -173,6 +177,45 @@ const UsuarioController = {
     catch (error){
       console.error('Error al borrar el usuario:', error);
       res.status(500).json({ error: 'Error al borrar el usuario' });
+    }
+  },
+
+ //EMPLEADO ATIENDE RECLAMOS Y CAMBIA EL ESTADO
+  ActualizarEstadoReclamo: async (req, res) =>{
+    const estadoReclamo = {
+      1: "Creado",
+      2: "En proceso",
+      3: "Cancelado",
+      4: "Finalizado"
+    };
+
+    const { idCliente, nuevoEstado } = req.params;
+    const estadoNumerico = parseInt(nuevoEstado, 10);
+
+      if (!estadoReclamo[estadoNumerico]) {
+        return res.status(400).json({ error: "El estado proporcionado no es válido. Debe ser un número entre 1 y 4." });
+      }
+      console.log(estadoReclamo[estadoNumerico]);
+
+    try{
+      const [resultado] = await pool.query('UPDATE reclamos SET idReclamoEstado = ? WHERE idUsuarioCreador = ?', [nuevoEstado, idCliente]);
+      if (resultado.affectedRows === 0) {
+        return res.status(400).json({ error: "No se encontró el reclamo para este usuario" });
+      }
+      res.json({ mensaje: 'Reclamo estado modificado éxitosamente' });
+
+      //const [[usuario]] = await pool.query('SELECT email FROM usuarios WHERE idUsuario = ?', [idCliente]);
+
+      //if (!usuario) {
+        //return res.status(400).json({ error: "No se encontró el usuario" });
+      //}
+
+      //const estadoDescripcion = estadoReclamo[nuevoEstado] || "Estado desconocido";
+
+      //await enviarNotificacionReclamo(usuario.email, estadoDescripcion);
+    }
+    catch(error){
+      res.status(500).json({ error: 'Error al modificar estado' });
     }
   }
 
