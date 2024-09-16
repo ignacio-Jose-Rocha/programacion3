@@ -7,7 +7,7 @@ router.get('/clientes', ClienteController.getAllclientes);
 router.get("/clienteLogin", ClienteController.login);
 router.put("/actualizarCliente/:idUsuario", ClienteController.actualizarCliente);
 router.post("/crearCliente", ClienteController.crearCliente);
-router.get('/obtenerReclamo', ClienteController.getAllreclamos);
+router.get('/obtenerReclamos', ClienteController.getAllreclamos);
 router.post('/crearReclamo', ClienteController.crearReclamo);
 router.get('/obtenerReclamo/:idUsuario', ClienteController.obtenerReclamoId);
 router.get('/obtenerReclamoEstado/:idCliente', ClienteController.obtenerReclamoEstado);
