@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import routerUsuario from './routes/usuariosRoutes.js';
+import routerReclamos from './routes/reclamosRoutes.js'
 
 // Cargar variables de entorno
 dotenv.config();
@@ -26,6 +27,7 @@ app.use(morgan('dev'));
 
 // Rutas
 app.use('/usuarios', routerUsuario);
+app.use('/reclamos', routerReclamos)
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -38,5 +40,5 @@ app.use((err, req, res, next) => {
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor Express escuchando en el puerto ${PORT}`);
+  console.log(`Servidor Express escuchando en el puerto ${PORT} oaa`);
 });
