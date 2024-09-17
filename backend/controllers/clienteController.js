@@ -69,7 +69,7 @@ const ClienteController = {
         return res.status(400).json({ error: "No se encontro el reclamo" });
       }
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
     }
     catch{
       return res.status(400).json({ error: "error al obtener tipo de reclamo" });

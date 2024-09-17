@@ -64,6 +64,6 @@ const AdminController = {
       res.status(500).json({ error: 'Error al borrar el usuario' });
     }
   }
-}
+};
 
 export default AdminController;

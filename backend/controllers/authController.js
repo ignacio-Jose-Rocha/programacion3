@@ -48,6 +48,6 @@ const login = async (req, res) => {
       console.error('Error al iniciar sesión:', error);
       res.status(500).json({ error: 'Error al iniciar sesión' });
     }
-}
+};
 
 export {login};
