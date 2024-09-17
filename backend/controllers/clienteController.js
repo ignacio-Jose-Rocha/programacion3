@@ -60,6 +60,25 @@ const ClienteController = {
     }
   },
 
+  cancelarReclamo: async (req, res) => {
+    const{idCliente, idReclamo} = req.params;
+    try{
+      const [[reclamo]] = await pool.query("SELECT * FROM reclamos WHERE idUsuarioCreador=? AND idReclamo=?", [idCliente, idReclamo]);
+      console.log(reclamo)
+      if(!reclamo){
+        return res.status(400).json({ error: "No se encontro el reclamo" });
+      }
+      if(reclamo.idReclamoEstado === 3){
+        return res.status(400).json({ error: "Su reclamo ya ha sido cancelado" });
+      }
+      await pool.query("UPDATE reclamos SET idReclamoEstado=3 where idUsuarioCreador = ? AND idReclamo=?",[idCliente, idReclamo]);
+      res.status(200).json("reclamo cancelado con exito")
+    }
+    catch(error){
+      return res.status(400).json({ error: "Error al cancelar reclamo" });
+    }
+  },
+
 
   obtenerReclamoId: async (req,res) => {
     const {idUsuario} = req.params;
@@ -81,15 +100,15 @@ const ClienteController = {
     try{
       const[[rows]] = await pool.query('SELECT idUsuario, idTipoUsuario FROM usuarios WHERE idUsuario = ?', [idCliente]);
       console.log(rows);
-      if(rows.length === 0){
+      if(!rows){
         return res.status(400).json({ error: "No se encontro el reclamo" });
       }
       if(rows.idTipoUsuario != 3){
         return res.status(400).json({ error: "Usuario no es de tipo cliente" });
       }
        
-      const[[reclamo]] = await pool.query('SELECT idReclamoEstado FROM reclamos where idUsuarioCreador=?', [idCliente])
-      if (!reclamo) {
+      const[reclamos] = await pool.query('SELECT idReclamo, asunto, idReclamoEstado FROM reclamos where idUsuarioCreador=?', [idCliente])
+      if (reclamos.length === 0) {
         return res.status(400).json({ error: "No se encontró ningún reclamo para este cliente" });
       }
 
@@ -100,12 +119,17 @@ const ClienteController = {
         4: "Finalizado"
       };
 
-      const estadoDescripcion = estadoReclamo[reclamo.idReclamoEstado] || "Estado desconocido";
+      const reclamoEstado = reclamos.map(reclamos => ({
+        idReclamo: reclamos.idReclamo,
+        asunto: reclamos.asunto,
+        estado: estadoReclamo[reclamos.idReclamoEstado] || "Estado desconocido"
+      }));
+
+      console.log(reclamos);
       res.json({
         idCliente: idCliente,
-        estadoReclamo: estadoDescripcion
+        reclamos: reclamoEstado
       });
-      console.log(reclamo);
     }
     catch{
       return res.status(400).json({ error: "error al obtener tipo de reclamo" });
