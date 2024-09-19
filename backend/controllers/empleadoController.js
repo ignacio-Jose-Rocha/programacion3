@@ -27,30 +27,35 @@ const EmpleadoController = {
 
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
-    console.log(idEmpleado); 
+    console.log(idEmpleado);
+
     try {
-      const [[oficina]] = await pool.query('SELECT idOficina FROM usuariosOficinas WHERE idUsuario=?', [idEmpleado]);
-      if(!oficina){
-        return res.status(400).json({ error: `El empleado con ID ${idEmpleado} no tiene asignada oficina`});
+      // Consulta optimizada con JOIN para obtener el idOficina, tipo de reclamo y los detalles de los reclamos
+      const [reclamos] = await pool.query(`
+        SELECT o.nombre, r.asunto, r.descripcion, r.fechaCreado
+        FROM usuariosOficinas uo
+        JOIN oficinas o ON uo.idOficina = o.idOficina
+        JOIN reclamosTipo rt ON o.idReclamoTipo = rt.idReclamoTipo
+        JOIN reclamos r ON rt.idReclamoTipo = r.idReclamoTipo
+        WHERE uo.idUsuario = ?`, [idEmpleado]);
+
+      // Si no se encontraron reclamos
+      if (reclamos.length === 0) {
+        return res.status(400).json({ error: `No se encontraron reclamos para la oficina asignada al empleado con ID ${idEmpleado}` });
       }
-      console.log(oficina);
-      const [[reclamoTipo]] = await pool.query('SELECT idReclamoTipo FROM oficinas WHERE idOficina=?', [oficina.idOficina]);
-      console.log(reclamoTipo);
-      const[reclamos] = await pool.query('SELECT * FROM reclamos WHERE idReclamoTipo=?',[reclamoTipo.idReclamoTipo]);
-      if(reclamos.length === 0) {
-        return res.status(400).json({ error: `La oficina ${[oficina.idOficina]} no tiene reclamos de tipo ${[reclamoTipo.idReclamoTipo]} asignados` });
-      }
+
       console.log(reclamos);
-    
+
+      // Respuesta JSON con los reclamos encontrados
       res.json({
         reclamos: reclamos,
-      }); 
+      });
 
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error al listar los reclamos de la oficina' });
     }
-    catch (error) {
-      res.status(500).json({ error: 'Error al listar reclamos oficina' });
-    }
-  },
+},
 
 
   //Agregar validacion de que no modifique varios reclamos de un mismo usuario, pasar tambien idReclamo a modificar
