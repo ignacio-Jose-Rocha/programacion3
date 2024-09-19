@@ -10,8 +10,8 @@ const login = async (req, res) => {
     console.log('Datos recibidos:', correoElectronico, contrasenia);
     try {
       const tiempoActual = Date.now();
-      const segundos = 60;
-      if (ultimoTiempo[correoElectronico] && (tiempoActual - ultimoTiempo[correoElectronico]) < (segundos * 1000)) {
+      const segundos = 60000;
+      if (ultimoTiempo[correoElectronico] && (tiempoActual - ultimoTiempo[correoElectronico]) < (segundos)) {
         return res.status(429).json({ 
           success: false, 
           message: 'Ya has iniciado sesión recientemente. Inténtalo de nuevo más tarde.' 
