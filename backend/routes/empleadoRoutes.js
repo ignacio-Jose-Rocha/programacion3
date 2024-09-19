@@ -1,6 +1,7 @@
 import express from 'express';
 import EmpleadoController from '../controllers/empleadoController.js';
 
+
 const router = express.Router();
 
 router.get('/empleados', EmpleadoController.getAllEmpleados);
