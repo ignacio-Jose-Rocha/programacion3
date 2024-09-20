@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/administradores', AdminController.getAllAdministradores);
 router.get("/adminLogin", AdminController.login);
-router.put("/actualizarClienteAdmin/:idUsuarioModificado/:idUsuarioModificador", AdminController.actualizarClienteAdmin);
-router.post("/borrarUsuario/:idUsuario", AdminController.borrarUsuario);
+router.put("/actualizarUsuario/:idUsuarioModificado/:idUsuarioModificador", AdminController.actualizarUsuario);
+router.put("/borrarUsuario/:idUsuario", AdminController.borrarUsuario);
 
 export default router;

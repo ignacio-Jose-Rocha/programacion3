@@ -16,7 +16,6 @@ const EmpleadoController = {
 
   getAllEmpleados: async (req, res) => {
     try {
-      console.log('hola')
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
       res.json(rows);
     } catch (error) {
@@ -58,8 +57,6 @@ const EmpleadoController = {
   },
 
 
-  //Agregar validacion de que no modifique varios reclamos de un mismo usuario, pasar tambien idReclamo a modificar
-  //Y Avisar que numero de reclamo es el que cambio
   ActualizarEstadoReclamo: async (req, res) => {
     const estadoReclamo = {
       1: "Creado",
@@ -78,12 +75,16 @@ const EmpleadoController = {
 
     try {
       const [[reclamo]] = await pool.query(
-        'SELECT r.idReclamo, u.correoElectronico, u.nombre FROM reclamos r JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?',
+        'SELECT r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre FROM reclamos r JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?',
         [idReclamo, idCliente]
       );
-
+   
       if (!reclamo) {
         return res.status(404).json({ error: "No se encontró el reclamo para este usuario." });
+      }
+
+      if(reclamo.idReclamoEstado === 3){
+        return res.status(404).json({ error: "El cliente cancelo el reclamo." });
       }
 
       const [resultado] = await pool.query('UPDATE reclamos SET idReclamoEstado = ? WHERE idReclamo = ? AND idUsuarioCreador = ?',
@@ -101,11 +102,10 @@ const EmpleadoController = {
       const plantilla = fs.readFileSync(path.join(backendDir + '/utiles/handlebars/plantilla.hbs'), 'utf-8');
       const template = handlebars.compile(plantilla);
 
-      console.log(template);
-
       const datos = {
         cliente: reclamo.nombre, 
-        estadoReclamo: estadoReclamo[estadoNumerico]
+        estadoReclamo: estadoReclamo[estadoNumerico],
+        reclamoId: idCliente
       }
 
       // a mi plantilla le paso la información que quiero mandar
@@ -115,7 +115,7 @@ const EmpleadoController = {
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: process.env.CORREO, // no olvidar definir en el .env
+          user: process.env.CORREO, 
           pass: process.env.CLAVE
         }
       });
