@@ -27,9 +27,9 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas
-app.use('/cliente', routerCliente);
-app.use('/empleado', routerEmpleado);
-app.use('/admin', routerAdmin);
+app.use('/clientes', routerCliente);
+app.use('/empleados', routerEmpleado);
+app.use('/admins', routerAdmin);
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
