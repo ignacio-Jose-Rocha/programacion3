@@ -2,7 +2,7 @@ import pool from '../config.js';
 import { login as authLogin } from './authController.js';
 import jwt from 'jsonwebtoken';
 
-let globalIdTipoUsuario; 
+let globalIdTipoUsuario;
 
 const AdminController = {
   login: async (req, res) => {
@@ -30,7 +30,7 @@ const AdminController = {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
-  },
+  },  
 
   actualizarClienteAdmin: async (req, res) => {
     try {

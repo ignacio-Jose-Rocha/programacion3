@@ -72,7 +72,6 @@ const ClienteController = {
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
   },
-
   crearReclamo: async (req, res) => {
     const { asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador } = req.body;
 
