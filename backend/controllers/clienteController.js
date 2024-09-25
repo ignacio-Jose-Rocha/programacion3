@@ -7,23 +7,20 @@ const ClienteController = {
     login(req, res);
   },
 
-  getAllclientes: async (req, res) => {
-    try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
-      res.json(rows);
-    } catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
-    }
-  },
-
   crearCliente: async (req, res) => {
-    const { nombre, apellido, correoElectronico, contrasenia, imagen, activo } = req.body;
+    const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
     if (!nombre || !apellido || !correoElectronico || !contrasenia) {
-      return res.status(400).json({ error: 'Faltan datos requeridos.' });
+      const errores = [];
+      if (!nombre) errores.push("nombre");
+      if (!apellido) errores.push("apellido");
+      if (!correoElectronico) errores.push("correoElectronico");
+      if (!contrasenia) errores.push("contraseña");
+
+      return res.status(400).json({ error: `Faltan los siguientes datos requeridos: ${errores.join(', ')}` });
     }
 
     const idTipoUsuario = 3; //por defecto va a ser de tipo cliente
+    const activo = 1;
 
     try {
       const [usuarios] = await pool.query("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?", [correoElectronico, nombre, apellido]);
@@ -44,9 +41,9 @@ const ClienteController = {
           activo
         });
 
-      console.log(rows);
-      res.json
+      res.status(200).json
         ({
+          message: "Cliente creado con éxito",
           id: rows.insertId,
           nombre,
           apellido,
@@ -63,36 +60,58 @@ const ClienteController = {
     }
   },
 
-  getAllreclamos: async (req, res) => {
-    try {
-      const [rows] = await pool.query('SELECT * FROM reclamos');
-      res.json(rows);
-    } catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
-    }
-  },
+  //ver el tema del jsonwebtoken para que no tenga que enviar el idUsuarioCreador y sea automatico
   crearReclamo: async (req, res) => {
-    const { asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador } = req.body;
+    const { asunto, descripcion, idUsuarioCreador } = req.body;
+
+    if (!asunto || !descripcion) {
+      return res.status(400).json({ error: 'Asunto y descripción son obligatorios.' });
+    }
+
+    const fechaCreado = new Date();
 
     try {
       const [result] = await pool.query(`
             SELECT 
-                (SELECT COUNT(*) FROM reclamos WHERE idUsuarioCreador=? AND idReclamoTipo=? AND idReclamoEstado=? AND asunto=?) AS existeReclamo,
+                (SELECT COUNT(*) FROM reclamos WHERE idUsuarioCreador=? AND asunto=?) AS existeReclamo,
                 (SELECT idTipoUsuario FROM usuarios WHERE idUsuario=?) AS idTipoUsuario
-        `, [idUsuarioCreador, idReclamoTipo, idReclamoEstado, asunto, idUsuarioCreador]);
+        `, [idUsuarioCreador, asunto, idUsuarioCreador]);
 
       const { existeReclamo, idTipoUsuario } = result[0];
 
       if (existeReclamo > 0) {
-        return res.status(400).json({ error: 'Los datos ya están cargados.' });
+        return res.status(400).json({ error: 'Este reclamo ya existe.' });
       }
 
-      if (idTipoUsuario === 3) {
-        const [rows] = await pool.query("INSERT INTO reclamos SET ?", { asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador });
-        res.json({ id: rows.insertId, asunto, descripcion, fechaCreado, fechaFinalizado, fechaCancelado, idReclamoEstado, idReclamoTipo, idUsuarioCreador, idUsuarioFinalizador });
+      if (idTipoUsuario === 3) {  
+        const idReclamoEstado = 1;  
+
+        // Obtener el idReclamoTipo desde el front 
+        const { idReclamoTipo } = req.body; // El cliente selecciona el tipo de reclamo
+        if(!idReclamoTipo){
+          return res.status(400).json({ error: 'Es necesario enviar el tipo de reclamo.' });
+        }
+
+        const [rows] = await pool.query("INSERT INTO reclamos SET ?", {
+          asunto,
+          descripcion,
+          fechaCreado,
+          idReclamoEstado,
+          idReclamoTipo,
+          idUsuarioCreador
+        });
+
+        res.json({
+          id: rows.insertId,
+          asunto,
+          descripcion,
+          fechaCreado,
+          idReclamoEstado,
+          idReclamoTipo,
+          idUsuarioCreador
+        });
       } else {
-        return res.status(400).json({ error: "error, tipo de usuario no tiene permitido crear reclamos" });
+        return res.status(400).json({ error: "Este usuario no tiene permiso para crear reclamos." });
       }
     } catch (error) {
       console.error('Error al crear reclamo:', error);
@@ -100,6 +119,15 @@ const ClienteController = {
     }
   },
 
+  listarTiposReclamos: async (req, res) => {
+    try {
+      const [tiposReclamos] = await pool.query("SELECT idReclamoTipo, descripcion FROM reclamostipo WHERE activo = 1");
+      res.json(tiposReclamos);
+    } catch (error) {
+      console.error('Error al listar tipos de reclamos:', error);
+      return res.status(500).json({ error: "Error al listar tipos de reclamos" });
+    }
+  },
 
   cancelarReclamo: async (req, res) => {
     const { idCliente, idReclamo } = req.params;
@@ -187,12 +215,12 @@ const ClienteController = {
     const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
 
     try {
-      if (!nombre || !apellido || !correoElectronico) {
-        return res.status(400).json({ error: 'Faltan datos requeridos' });
+      if (!nombre && !apellido && !correoElectronico && !contrasenia && !imagen) {
+        return res.status(400).json({ error: 'No se proporcionaron datos para actualizar' });
       }
 
-      let [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ? AND activo = 1', [idUsuario]);
-
+      // Verifica si el usuario existe y es activo
+      const [[user]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ? AND activo = 1', [idUsuario]);
       if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado o está inactivo' });
       }
@@ -201,13 +229,38 @@ const ClienteController = {
         return res.status(403).json({ error: 'No tienes permisos para realizar esta operación' });
       }
 
-      if (contrasenia) { //si se envia una nueva contraseña la encripto
-        const hashedPassword = await bcrypt.hash(contrasenia, 10);
-        await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, contrasenia=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, hashedPassword, imagen, idUsuario]);
-      } else {
-        // Si no hay nueva contraseña, se actualizan solo los demás campos
-        await pool.query("UPDATE usuarios SET nombre=?, apellido=?, correoElectronico=?, imagen=? WHERE idUsuario=? AND idTipoUsuario = 3", [nombre, apellido, correoElectronico, imagen, idUsuario]);
+      const camposActualizar = [];
+      const valoresActualizar = [];
+
+      if (nombre) {
+        camposActualizar.push("nombre=?");
+        valoresActualizar.push(nombre);
       }
+      if (apellido) {
+        camposActualizar.push("apellido=?");
+        valoresActualizar.push(apellido);
+      }
+      if (correoElectronico) {
+        camposActualizar.push("correoElectronico=?");
+        valoresActualizar.push(correoElectronico);
+      }
+      if (contrasenia) {
+        const hashedPassword = await bcrypt.hash(contrasenia, 10);
+        camposActualizar.push("contrasenia=?");
+        valoresActualizar.push(hashedPassword);
+      }
+      if (imagen) {
+        camposActualizar.push("imagen=?");
+        valoresActualizar.push(imagen);
+      }
+
+      if (camposActualizar.length === 0) {
+        return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
+      }
+
+      const query = `UPDATE usuarios SET ${camposActualizar.join(', ')} WHERE idUsuario=? AND idTipoUsuario = 3`;
+      valoresActualizar.push(idUsuario);
+      await pool.query(query, valoresActualizar);
 
       res.json({
         id: idUsuario,
@@ -216,9 +269,7 @@ const ClienteController = {
         correoElectronico,
         imagen
       });
-
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error al actualizar el cliente:', error);
       res.status(500).json({ mensaje: "Error al actualizar el cliente" });
     }
