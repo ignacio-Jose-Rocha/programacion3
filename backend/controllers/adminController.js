@@ -1,37 +1,32 @@
 import pool from '../config.js';
-import { login } from './authController.js';
+import { login as loginFunc } from './authController.js';
 import bcrypt from 'bcrypt';
 import PDFDocument from 'pdfkit';
+import jwt from 'jsonwebtoken';
+
+let tokenD;
+
+const login = async (req, res) => {
+  tokenD = await loginFunc(req, res);
+};
 
 const AdminController = {
-  login: async (req, res) => {
-    await authLogin(req, res);
-    const token = req.headers['autorizacion'];
-    if (token) {
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (!err) {
-          globalIdTipoUsuario = decoded.idTipoUsuario;
-          console.log('globalIdTipoUsuario:', globalIdTipoUsuario);
-          res.json({ globalIdTipoUsuario });
-        } else {
-          res.status(500).json({ message: 'Error al verificar el token' });
-        }
-      });
-    } else {  
-      res.status(403).json({ message: 'No hay token' });
-    }
-  },
+  login,
 
   getAllAdministradores: async (req, res) => {
     try {
-      const [rows] = await pool.query(`SELECT * FROM usuarios WHERE idTipoUsuario = 1 AND activo = 1 AND idTipoUsuario = ${globalIdTipoUsuario}`);
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
+      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
       res.json(rows);
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
-  },  
+  },
 
   getAllEmpleados: async (req, res) => {
     try {
@@ -254,7 +249,7 @@ const AdminController = {
         return res.status(404).json({ error: 'Usuario modificador no encontrado' });
       }
       if (usuarioModificador.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operaciÃ³n' });
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
 
       // Encriptar contraseña si existe
