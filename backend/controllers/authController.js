@@ -1,6 +1,7 @@
 import pool from '../config.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
 dotenv.config();
 
 const ultimoTiempo = {};
@@ -37,7 +38,6 @@ const login = async (req, res) => {
 
       if (contraseniaCorrecta) {
         const payload = {
-          nombre: usuario.nombre,
           idTipoUsuario: usuario.idTipoUsuario
         };
 
@@ -50,11 +50,13 @@ const login = async (req, res) => {
           message: 'Inicio de sesión exitoso.',
           token,
           usuario: {
-            nombre: usuario.nombre,
-            idTipoUsuario: usuario.idTipoUsuario,
-            correoElectronico: usuario.correoElectronico
+            idTipoUsuario: usuario.idTipoUsuario
           }
+          
         });
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Token descomprimido:', decodedToken);
+        return token;
       } else {
         res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
       }
@@ -67,4 +69,5 @@ const login = async (req, res) => {
   }
 };
 
-export {login};
+export { login };
+
