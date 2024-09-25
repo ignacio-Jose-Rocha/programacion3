@@ -1,7 +1,6 @@
 import pool from '../config.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
 dotenv.config();
 
 const ultimoTiempo = {};
@@ -68,4 +67,4 @@ const login = async (req, res) => {
   }
 };
 
-export { login };
+export {login};
