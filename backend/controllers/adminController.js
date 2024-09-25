@@ -1,19 +1,28 @@
 import pool from '../config.js';
-import { login } from './authController.js';
+import { login as loginFunc } from './authController.js';
 import bcrypt from 'bcrypt';
 import PDFDocument from 'pdfkit';
+import jwt from 'jsonwebtoken';
+
+let tokenD;
+
+const login = async (req, res) => {
+  tokenD = await loginFunc(req, res);
+};
 
 const AdminController = {
-  login: (req, res) => {
-    login(req, res);
-  },
+  login,
 
   getAllAdministradores: async (req, res) => {
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
       res.json(rows);
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error al obtener los usuarios:', error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
@@ -107,45 +116,6 @@ const AdminController = {
     }
   },
 
-  crearUsuario: async (req, res) => {
-    const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
-    try {
-      const [usuario] = await pool.query(
-        "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?", [correoElectronico]
-      );
-
-      if (usuario.length > 0) {
-        return res.status(400).json({ error: 'El usuario esta cargado.' });
-      }
-
-      const hashedPassword = await bcrypt.hash(contrasenia, 10);
-      const activo = 1
-    
-      const [rows] = await pool.query("INSERT INTO usuarios SET ?",
-        {
-          nombre,
-          apellido,
-          correoElectronico,
-          contrasenia: hashedPassword,
-          idTipoUsuario,
-          imagen,
-          activo
-        });
-
-      res.json({
-        id: rows.insertId,
-        nombre,
-        correoElectronico,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Error al crear el usuario.' });
-    }
-  },
-
   crearReclamoTipo: async (req, res) => {
     const { descripcion, activo = 1 } = req.body;
     if (!descripcion) {
@@ -220,6 +190,45 @@ const AdminController = {
         error: 'Error al desactivar tipo de reclamo',
         details: error.message
       });
+    }
+  },
+
+  crearUsuario: async (req, res) => {
+    const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
+    try {
+      const [usuario] = await pool.query(
+        "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?", [correoElectronico]
+      );
+
+      if (usuario.length > 0) {
+        return res.status(400).json({ error: 'El usuario esta cargado.' });
+      }
+
+      const hashedPassword = await bcrypt.hash(contrasenia, 10);
+      const activo = 1
+    
+      const [rows] = await pool.query("INSERT INTO usuarios SET ?",
+        {
+          nombre,
+          apellido,
+          correoElectronico,
+          contrasenia: hashedPassword,
+          idTipoUsuario,
+          imagen,
+          activo
+        });
+
+      res.json({
+        id: rows.insertId,
+        nombre,
+        correoElectronico,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error al crear el usuario.' });
     }
   },
 
@@ -332,9 +341,8 @@ const AdminController = {
   },
 
   asignarEmpleadoAOficina: async (req, res) => {
-    const { idUsuario, idOficina } = req.body; // Los IDs vendrán en el cuerpo de la solicitud
+    const { idUsuario, idOficina } = req.body; 
     try {
-      // Consulta para insertar la relación entre el usuario y la oficina
       const query = 'INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)';
       const result = await pool.query(query, [idUsuario, idOficina]);
 
@@ -346,9 +354,8 @@ const AdminController = {
   },
 
   eliminarEmpleadoDeOficina: async (req, res) => {
-    const { idUsuario } = req.params; // El id del usuario a eliminar vendrá por la URL
+    const { idUsuario } = req.params; 
     try {
-      // Consulta para actualizar el estado a inactivo
       const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
       const result = await pool.query(query, [idUsuario]);
 
