@@ -1,20 +1,23 @@
-import { useState } from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import Navbar from './components/navbar';
-import './App.css'
+
+import Navbar from './components/Inicio/Navbar';
+import Card from './components/Inicio/Card';
+import Carousel from './components/Inicio/Carousel';
+import Footer from './components/Inicio/Footer';
+import Cards from './components/Nosotros/Cards.jsx'
+import SobreNosotrosText from './components/Nosotros/sobreNosotrosText.jsx';
+import './index.css'; // Asegúrate de que esto esté presente para cargar Tailwind CSS.
 
 function App() {
-
   return (
     <>
       <Navbar />
-      <h1>Programacion 3</h1>
-      <p className="read-the-docs">
-        Sistema de gestion de autos
-      </p>
+      <Carousel />
+      <SobreNosotrosText />
+      <Cards />
+      <Card />
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
