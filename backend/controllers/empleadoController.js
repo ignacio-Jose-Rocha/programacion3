@@ -2,21 +2,34 @@ import pool from '../config.js';
 import dotenv from 'dotenv';
 import handlebars from 'handlebars';
 import nodemailer from 'nodemailer';
-import { login } from './authController.js';
+import { login as loginFunc } from './authController.js';
+import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+let tokenD;
+
+const login = async (req, res) => {
+  tokenD = await loginFunc(req, res);
+};
+
 const EmpleadoController = {
-  login: (req, res) => {
-    login(req, res);
-  },
+  login,
 
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 2) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       // Consulta optimizada con JOIN para obtener el idOficina, tipo de reclamo y los detalles de los reclamos
       const [reclamos] = await pool.query(`
         SELECT o.nombre, r.asunto, r.descripcion, r.fechaCreado
@@ -44,6 +57,9 @@ const EmpleadoController = {
 
 
   ActualizarEstadoReclamo: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     const estadoReclamo = {
       1: "Creado",
       2: "En proceso",
@@ -59,6 +75,11 @@ const EmpleadoController = {
     }
 
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 2) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [[reclamo]] = await pool.query(
         'SELECT r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre FROM reclamos r JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?',
         [idReclamo, idCliente]

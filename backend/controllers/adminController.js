@@ -14,12 +14,16 @@ const AdminController = {
   login,
 
   getAllAdministradores: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
+      
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
       res.json(rows);
     } catch (error) {
@@ -29,7 +33,15 @@ const AdminController = {
   },
 
   getAllEmpleados: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
       res.json(rows);
     }
@@ -40,7 +52,15 @@ const AdminController = {
   },
 
   getAllClientes: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
       res.json(rows);
     }
@@ -51,7 +71,15 @@ const AdminController = {
   },
 
   getAllReclamos: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [rows] = await pool.query('SELECT * FROM reclamos');
       res.json(rows);
     }
@@ -62,8 +90,16 @@ const AdminController = {
   },
 
   getAllReclamosTipo: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
-      const [rows] = await pool.query('SELECT * FROM reclamostipo WHERE activo = 1');
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
+      const [rows] = await pool.query('SELECT * FROM reclamos_tipo WHERE activo = 1');
       res.json(rows);
     }
     catch (error) {
@@ -73,7 +109,15 @@ const AdminController = {
   },
 
   getAllOficinas: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [rows] = await pool.query('SELECT * FROM oficinas WHERE activo = 1');
       res.json(rows);
     }
@@ -85,7 +129,15 @@ const AdminController = {
 
   getEmpleadosByOficina: async (req, res) => {
     const { idOficina } = req.params; // El id de la oficina vendrá por la URL
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const query = `
         SELECT u.nombre, u.apellido, u.idUsuario
         FROM usuarios AS u
@@ -103,7 +155,15 @@ const AdminController = {
   },
 
   getEstadisticasCompletas: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [resultados] = await pool.query('CALL obtenerEstadisticasCompletas()');
 
       const totalReclamos = resultados[0];  // Primer conjunto: total de reclamos
@@ -118,10 +178,18 @@ const AdminController = {
 
   crearReclamoTipo: async (req, res) => {
     const { descripcion, activo = 1 } = req.body;
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     if (!descripcion) {
       return res.status(400).json({ error: 'Falta ingresas la descripción del raclamo' });
     }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [[reclamosTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE descripcion=?", [descripcion]);
       if (reclamosTipo !== 0) {
         return res.status(400).json({ error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}` });
@@ -143,7 +211,15 @@ const AdminController = {
   actualizarReclamoTipo: async (req, res) => {
     const { idReclamoTipo } = req.params;
     const { descripcion } = req.body;
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [[reclamoTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE idReclamoTipo=?", [idReclamoTipo])
       if (!reclamoTipo) {
         return res.status(404).json({ error: 'Reclamo a actualizar no encontrado' });
@@ -165,8 +241,15 @@ const AdminController = {
 
   borrarReclamoTipo: async (req, res) => {
     const { idReclamoTipo } = req.params;
-
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [[reclamoTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE idReclamoTipo = ?", [idReclamoTipo]);
 
       if (!reclamoTipo) {
@@ -195,7 +278,15 @@ const AdminController = {
 
   crearUsuario: async (req, res) => {
     const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const [usuario] = await pool.query(
         "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?", [correoElectronico]
       );
@@ -233,7 +324,15 @@ const AdminController = {
   },
 
   actualizarUsuario: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const { idUsuarioModificado, idUsuarioModificador } = req.params;
       let { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
 
@@ -308,7 +407,15 @@ const AdminController = {
   },
 
   borrarUsuario: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const { idUsuario } = req.params;
       const [[usuario]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario])
       if (!usuario) {
@@ -342,7 +449,15 @@ const AdminController = {
 
   asignarEmpleadoAOficina: async (req, res) => {
     const { idUsuario, idOficina } = req.body; 
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const query = 'INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)';
       const result = await pool.query(query, [idUsuario, idOficina]);
 
@@ -355,7 +470,15 @@ const AdminController = {
 
   eliminarEmpleadoDeOficina: async (req, res) => {
     const { idUsuario } = req.params; 
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
       const result = await pool.query(query, [idUsuario]);
 
@@ -371,7 +494,15 @@ const AdminController = {
   },
 
   descargarReclamosPDF: async (req, res) => {
+    if (!tokenD) {
+      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
+    }
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 1) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       // Realizar la consulta de los reclamos
       const [reclamos] = await pool.query('SELECT * FROM reclamos');
 
