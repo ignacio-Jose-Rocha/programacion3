@@ -38,7 +38,7 @@ const CardComponent = () => {
         animate={{ x: isVisible ? 0 : "-100%", opacity: isVisible ? 1 : 0 }} // Al entrar en pantalla
         transition={{ duration: 0.9 }} // Duración de la animación
       >
-      <Typography variant="h2" className="mb-2 text-customBlue">
+      <Typography variant="h2" className="mb-2 text-customBlue text-center">
         Institución: Seguimiento de Reclamos y Garantías
       </Typography>
         <Typography color="gray" className="font-normal">

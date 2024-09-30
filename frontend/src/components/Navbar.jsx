@@ -1,5 +1,6 @@
 import React from "react";
-import carIcon from "../../assets/iconNav.png";
+import carIcon from "../assets/iconNav.png";
+import PropTypes from "prop-types";
 import {
   Navbar,
   Collapse,
@@ -8,7 +9,7 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 
-export function StickyNavbar() {
+export function StickyNavbar({ onLoginClick }) {
   const [openNav, setOpenNav] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
 
@@ -23,7 +24,7 @@ export function StickyNavbar() {
   }, []);
 
   const handleScroll = () => {
-    setIsSticky(window.scrollY > 0); // Cambia a `true` si se hace scroll
+    setIsSticky(window.scrollY > 0);
   };
 
   React.useEffect(() => {
@@ -35,7 +36,7 @@ export function StickyNavbar() {
 
   const handleSmoothScroll = (event, href) => {
     event.preventDefault();
-    const offset = 80; // Ajusta este valor para que el desplazamiento sea más arriba
+    const offset = 80;
     const element = document.querySelector(href);
     const elementPosition = element.getBoundingClientRect().top;
     const offsetPosition = elementPosition + window.pageYOffset - offset;
@@ -64,9 +65,10 @@ export function StickyNavbar() {
           <a
             href={href}
             onClick={(e) => handleSmoothScroll(e, href)}
-            className="font-bold relative flex items-center px-4 py-2 text-gray-800 hover:text-white transition-all duration-300 ease-in-out hover:bg-customBlueOpacity hover:rounded-md"
+            className="color-text-darkGray font-bold relative flex items-center px-4 py-2 text-customBlue-800 transition-all duration-300 ease-in-out group"
           >
             {text}
+            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-customBlue transition-all duration-500 ease-in-out group-hover:w-full"></span>
           </a>
         </Typography>
       ))}
@@ -88,7 +90,7 @@ export function StickyNavbar() {
           <img
             src={carIcon}
             alt="Car Icon"
-            className="w-8 h-8 text-customBlue mr-1" // Ajusta el tamaño según necesites
+            className="w-8 h-8 text-customBlue mr-1"
           />
           <span className="text-customBlue font-bold text-2xl">CAR</span>{" "}
           <span className="text-customRed font-bold text-sm">DEALERSHOP</span>
@@ -96,6 +98,7 @@ export function StickyNavbar() {
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>
           <Button
+            onClick={onLoginClick}
             size="sm"
             className="hidden lg:inline-block bg-customBlue text-white border-2 border-customBlue focus:outline-none px-4 py-2 rounded-full shadow-lg"
           >
@@ -143,6 +146,7 @@ export function StickyNavbar() {
       <Collapse open={openNav}>
         {navList}
         <Button
+          onClick={onLoginClick} // Agrega el manejador de clic aquí
           fullWidth
           variant="text"
           size="sm"
@@ -154,5 +158,9 @@ export function StickyNavbar() {
     </Navbar>
   );
 }
+
+StickyNavbar.propTypes = {
+  onLoginClick: PropTypes.func.isRequired,
+};
 
 export default StickyNavbar;
