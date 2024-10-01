@@ -23,7 +23,7 @@ const TextoInstitucion = () => {
   return (
     <motion.div
       ref={textRef}
-      className="mx-auto max-w-2xl text-center"
+      className="mx-auto max-w-2xl"
       initial={{ x: "-100%", opacity: 0 }} // Posición inicial fuera de la pantalla
       animate={{ x: isVisible ? 0 : "-100%", opacity: isVisible ? 1 : 0 }} // Cuando es visible
       transition={{
@@ -31,20 +31,15 @@ const TextoInstitucion = () => {
         ease: "easeOut", // Cambia a una función de easing más suave
       }}
     >
-      <h2 className="text-4xl font-bold text-customBlue">Institución: Seguimiento de Reclamos y Garantías</h2>
-      <p className="mt-3 text-lg">
-        Nuestra institución se compromete a ofrecer un servicio al cliente
-        excepcional, brindando a nuestros usuarios la posibilidad de gestionar
-        sus reclamos y verificar el estado de estos de manera sencilla y rápida.
-        Tras la compra de un auto o la contratación de un servicio técnico, los
-        clientes pueden acceder a nuestra plataforma en línea, donde encontrarán
-        un espacio dedicado a sus reclamos. Aquí, podrán visualizar el historial
-        de sus solicitudes, revisar el estado actual de cada reclamo y recibir
-        actualizaciones en tiempo real. Esto garantiza que cada cliente esté
-        siempre informado sobre el proceso de resolución, ofreciendo tranquilidad
-        y confianza en el servicio postventa. Nuestro objetivo es asegurar que
-        cada experiencia sea satisfactoria y que nuestros clientes se sientan
-        respaldados en todo momento.
+      <h2 className="text-4xl font-bold text-customBlue text-center">
+        Nuestros Últimos Modelos
+      </h2>
+      <p className="mt-3 text-lg text-center">
+        Descubre nuestra selección exclusiva de los modelos más recientes,
+        diseñados para ofrecer lo último en innovación, confort y estilo. Nos
+        enorgullecemos de brindar vehículos que cumplen con los más altos
+        estándares de calidad y tecnología avanzada, adaptados a tus necesidades
+        y preferencias.
       </p>
     </motion.div>
   );

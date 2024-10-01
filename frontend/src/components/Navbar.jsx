@@ -92,8 +92,8 @@ export function StickyNavbar({ onLoginClick }) {
             alt="Car Icon"
             className="w-8 h-8 text-customBlue mr-1"
           />
-          <span className="text-customBlue font-bold text-2xl">CAR</span>{" "}
-          <span className="text-customRed font-bold text-sm">DEALERSHOP</span>
+          <span className="text-customBlue font-bold text-2xl">GAMA</span>{" "}
+          <span className="text-customRed font-bold text-sm">CENTER</span>
         </Typography>
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>

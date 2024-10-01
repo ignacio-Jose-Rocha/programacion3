@@ -4,6 +4,7 @@ import galery2 from "../../assets/galery2.jpg";
 import galery3 from "../../assets/galery3.jpg";
 import galery4 from "../../assets/galery4.jpg";
 import galery5 from "../../assets/galery5.jpg";
+import TextoModelos from "./modelosText"; // Importa el nuevo componente
 
 // Función para precargar las imágenes
 const preloadImages = (images) => {
@@ -34,29 +35,34 @@ export function FeaturedImageGallery() {
   }, [data]);
 
   return (
-    <div className="mx-auto max-w-5xl">
-      {/* Imagen principal */}
-      <div>
-        <img
-          className="h-auto w-full max-w-full rounded-lg object-cover object-center"
-          src={active}
-          alt="Active gallery image"
-        />
+    <div id="modelos-section">
+      <div className="mx-auto max-w-screen-md py-8">
+        <TextoModelos />
       </div>
+      <div className="mx-auto max-w-5xl">
+        {/* Imagen principal */}
+        <div>
+          <img
+            className="h-auto w-full max-w-full rounded-lg object-cover object-center"
+            src={active}
+            alt="Active gallery image"
+          />
+        </div>
 
-      {/* Miniaturas de imágenes */}
-      <div className="grid grid-cols-5 gap-2 justify-items-center mt-5">
-        {data.map(({ imgelink }, index) => (
-          <div key={index}>
-            <img
-              onClick={() => setActive(imgelink)}
-              src={imgelink}
-              className="h-20 max-w-full cursor-pointer rounded-lg object-cover object-center"
-              alt={`gallery-thumbnail-${index}`}
-              loading="lazy" // Carga diferida para mejorar la eficiencia
-            />
-          </div>
-        ))}
+        {/* Miniaturas de imágenes */}
+        <div className="grid grid-cols-5 gap-2 justify-items-center mt-5">
+          {data.map(({ imgelink }, index) => (
+            <div key={index}>
+              <img
+                onClick={() => setActive(imgelink)}
+                src={imgelink}
+                className="h-20 max-w-full cursor-pointer rounded-lg object-cover object-center"
+                alt={`gallery-thumbnail-${index}`}
+                loading="lazy" // Carga diferida para mejorar la eficiencia
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

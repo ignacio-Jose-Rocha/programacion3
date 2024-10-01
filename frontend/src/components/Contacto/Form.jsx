@@ -11,7 +11,7 @@ const TextareaVariants = () => {
         <div className="flex w-96 flex-col gap-6">
           <Textarea
             variant="static"
-            label="Ingrese su mail"
+            label="Email"
             placeholder="Ingrese su correo electrónico"
           />
           <Textarea

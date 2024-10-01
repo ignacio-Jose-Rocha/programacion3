@@ -1,4 +1,7 @@
 import { Typography } from "@material-tailwind/react";
+import instagram from "../assets/instagram.png";
+import facebook from "../assets/facebook.png";
+import whatsapp from "../assets/whatsapp.png";
 
 const SITEMAP = [
   {
@@ -36,7 +39,13 @@ export function FooterWithSitemap() {
               </Typography>
               <ul className="space-y-1">
                 {links.map((link, key) => (
-                  <Typography key={key} as="li" className="font-normal text-white"> {/* Cambia a text-white */}
+                  <Typography
+                    key={key}
+                    as="li"
+                    className="font-normal text-white"
+                  >
+                    {" "}
+                    {/* Cambia a text-white */}
                     <a
                       href="#"
                       className="inline-block py-1 pr-2 transition-transform hover:scale-105 text-white hover:text-gray-300" // Cambia a text-white y añade hover:text-gray-300
@@ -49,13 +58,43 @@ export function FooterWithSitemap() {
             </div>
           ))}
         </div>
-        <div className="flex w-full flex-col items-center justify-center border-t border-blue-gray-50 py-4 md:flex-row md:justify-between">
+        <div className="flex w-full flex-col items-center justify-between border-t border-blue-gray-50 py-4 md:flex-row">
+          {/* Texto de derechos reservados */}
           <Typography
             variant="small"
             className="mb-4 text-center font-normal text-white md:mb-0" // Cambia a text-white
           >
-            &copy; {currentYear} <a href="https://material-tailwind.com/" className="text-white hover:text-gray-300">Material Tailwind</a>. Todos los Derechos Reservados. {/* Cambia a text-white */}
+            &copy; {currentYear}{" "}
+            <a href="#" className="text-white hover:text-gray-300">
+              GAMAcenter
+            </a>
+            . Todos los Derechos Reservados.
           </Typography>
+
+          {/* Contenedor de iconos sociales */}
+          <div className="flex space-x-3">
+            <a href="#" aria-label="Whatssap">
+              <img
+                src={whatsapp}
+                alt="WhatsApp"
+                className="w-6 h-6 hover:opacity-80"
+              />
+            </a>
+            <a href="#" aria-label="Instagram">
+              <img
+                src={instagram}
+                alt="Instagram"
+                className="w-6 h-6 hover:opacity-80"
+              />
+            </a>
+            <a href="#" aria-label="Facebook">
+              <img
+                src={facebook}
+                alt="Facebook"
+                className="w-6 h-6 hover:opacity-80"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

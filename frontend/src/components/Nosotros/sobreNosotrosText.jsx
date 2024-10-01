@@ -30,7 +30,7 @@ export function AboutUs() {
         transition={{ duration: 0.9 }} // Duración de la animación
       >
         <h2 className="text-2xl font-bold text-customBlue">Sobre Nosotros</h2>
-        <p className="mt-4 text-lg">
+        <p className="mt-3 text-lg">
           Somos una empresa comprometida con la excelencia, dedicada a brindar
           los mejores servicios y soluciones a nuestros clientes. Nuestra misión
           es superar las expectativas a través de la innovación y la atención al
