@@ -37,8 +37,8 @@ function App() {
           <Cards />
           <div id="institucion">
             <Card />
-            <Galery />
           </div>
+          <Galery />
           <div id="contacto">
             <Contacto />
           </div>
