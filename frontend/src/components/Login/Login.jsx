@@ -14,7 +14,7 @@ const LoginForm = ({ onClose }) => {
       className="flex justify-center items-center h-screen bg-darkGray" 
     >
       <div className="relative w-[500px] h-[500px] rounded-[60px_5px] overflow-hidden shadow-2xl">
-        <div className="absolute top-[-75%] left-[-75%] w-[650px] h-[700px] bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-600 animate-move-colors" />
+        <div className="absolute top-[-75%] left-[-75%] w-[650px] h-[700px] bg-gradient-to-r from-yellow-400 via-blue-400 to-purple-600 animate-move-colors" />
         
         <form 
           className="relative z-10 inset-1 bg-gray-900 rounded-[50px_5px] p-10 shadow-xl" 
@@ -41,7 +41,7 @@ const LoginForm = ({ onClose }) => {
               type="text"
               placeholder="Ingrese su nombre"
               required
-              className="w-full mt-1 bg-gray-800 border border-gray-700 focus:border-pink-500 focus:ring-pink-400 rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
+              className="w-full mt-1 bg-gray-800 rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
             />
           </div>
 
@@ -53,7 +53,7 @@ const LoginForm = ({ onClose }) => {
               type="password"
               placeholder="Ingrese su contraseña"
               required
-              className="w-full mt-1 bg-gray-800 border border-gray-700 focus:border-pink-500 focus:ring-pink-400 rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
+              className="w-full mt-1 bg-gray-800  rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
             />
           </div>
 
@@ -61,13 +61,13 @@ const LoginForm = ({ onClose }) => {
             <input
               type="submit"
               value="Iniciar"
-              className="w-full bg-pink-500 text-white p-3 rounded-md cursor-pointer hover:bg-pink-600 transition duration-300"
+              className="w-full bg-blue-500 text-white p-3 rounded-md cursor-pointer hover:bg-blue-600 transition duration-300"
             />
           </div>
 
           <p className="text-center text-gray-400">
             Desea registrarse?{" "}
-            <a href="#" className="text-pink-500 hover:underline">Registrarse</a>
+            <a href="#" className="text-blue-500 hover:underline">Registrarse</a>
           </p>
         </form>
       </div>
