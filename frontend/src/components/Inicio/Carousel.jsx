@@ -1,7 +1,8 @@
 import { Carousel, Typography, Button } from "@material-tailwind/react";
-import carousel1 from "../../assets/modalcar1.jpg";
-import carousel2 from "../../assets/modalcar2.jpg";
-import carousel3 from "../../assets/modalcar3.jpg";
+import carousel1 from "../../assets/Carousel/modalCar1.jpg";
+import carousel2 from "../../assets/Carousel/modalCar2.jpg";
+import carousel3 from "../../assets/Carousel/modalCar3.jpg";
+
 
 export function CarouselWithContent() {
   const scrollToModelos = () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import carIcon from "../assets/iconNav.png";
+import carIcon from "../../assets/Navbar/iconNav.png";
 import PropTypes from "prop-types";
 import {
   Navbar,

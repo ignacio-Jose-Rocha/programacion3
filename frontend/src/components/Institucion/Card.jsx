@@ -1,5 +1,5 @@
 import { Card } from "@material-tailwind/react";
-import institucional from "../../assets/Institucional.jpg";
+import institucional from "../../assets/Institucion/Institucional.jpg";
 import TextoInstitucion from "./institucionText"; // Importa el nuevo componente
 
 const CardComponent = () => {

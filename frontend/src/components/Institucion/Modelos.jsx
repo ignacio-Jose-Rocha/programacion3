@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
-import galery1 from "../../assets/galery1.jpg";
-import galery2 from "../../assets/galery2.jpg";
-import galery3 from "../../assets/galery3.jpg";
-import galery4 from "../../assets/galery4.jpg";
-import galery5 from "../../assets/galery5.jpg";
+import galery1 from "../../assets/Galeria/galery1.jpg";
+import galery2 from "../../assets/Galeria/galery2.jpg";
+import galery3 from "../../assets/Galeria/galery3.jpg";
+import galery4 from "../../assets/Galeria/galery4.jpg";
+import galery5 from "../../assets/Galeria/galery5.jpg";
 import TextoModelos from "./modelosText"; // Importa el nuevo componente
 
 // Función para precargar las imágenes

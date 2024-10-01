@@ -1,12 +1,12 @@
 import { useState } from "react"; // Importa useState
 import Login from "./components/Login/Login.jsx";
-import Navbar from "./components/Navbar.jsx";
+import Navbar from "./components/Navbar/Navbar.jsx";
 import Carousel from "./components/Inicio/Carousel";
 import Cards from "./components/Nosotros/Cards.jsx";
 import SobreNosotrosText from "./components/Nosotros/sobreNosotrosText.jsx";
 import Card from "./components/Institucion/Card";
 import Galery from "./components/Institucion/Modelos.jsx";
-import Footer from "./components/Footer.jsx";
+import Footer from "./components/Footer/Footer.jsx";
 import Contacto from "./components/Contacto/Form.jsx";
 import "./index.css"; // Asegúrate de que esto esté presente para cargar Tailwind CSS.
 

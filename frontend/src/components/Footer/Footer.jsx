@@ -1,7 +1,7 @@
 import { Typography } from "@material-tailwind/react";
-import instagram from "../assets/instagram.png";
-import facebook from "../assets/facebook.png";
-import whatsapp from "../assets/whatsapp.png";
+import instagram from "../../assets/Footer/instagram.png";
+import facebook from "../../assets/Footer/facebook.png";
+import whatsapp from "../../assets/Footer/whatsapp.png";
 
 const SITEMAP = [
   {
