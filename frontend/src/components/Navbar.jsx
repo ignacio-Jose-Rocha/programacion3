@@ -12,9 +12,11 @@ import {
 export function StickyNavbar({ onLoginClick }) {
   const [openNav, setOpenNav] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 960);
 
   React.useEffect(() => {
     const handleResize = () => {
+      setIsMobile(window.innerWidth < 960);
       if (window.innerWidth >= 960) {
         setOpenNav(false);
       }
@@ -68,7 +70,9 @@ export function StickyNavbar({ onLoginClick }) {
             className="color-text-darkGray font-bold relative flex items-center px-4 py-2 text-customBlue-800 transition-all duration-300 ease-in-out group"
           >
             {text}
-            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-customBlue transition-all duration-500 ease-in-out group-hover:w-full"></span>
+            {!isMobile && ( // Renderiza el span solo si no es mobile
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-customBlue transition-all duration-500 ease-in-out group-hover:w-full"></span>
+            )}
           </a>
         </Typography>
       ))}
@@ -98,12 +102,12 @@ export function StickyNavbar({ onLoginClick }) {
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>
           <Button
-            onClick={onLoginClick}
-            size="sm"
-            className="hidden lg:inline-block bg-customBlue text-white border-2 border-customBlue focus:outline-none px-4 py-2 rounded-full shadow-lg"
-          >
-            <span className="font-semibold">Iniciar Sesión</span>
-          </Button>
+  onClick={onLoginClick}
+  size="sm"
+  className="hidden lg:inline-block bg-customBlue text-white border-2 border-customBlue focus:outline-none px-4 py-2 rounded-full shadow transition-all duration-200 ease-in-out hover:bg-blue-700 hover:border-blue-700"
+>
+  <span className="font-semibold">Iniciar Sesión</span>
+</Button>
           <IconButton
             variant="text"
             className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
@@ -146,13 +150,13 @@ export function StickyNavbar({ onLoginClick }) {
       <Collapse open={openNav}>
         {navList}
         <Button
-          onClick={onLoginClick} // Agrega el manejador de clic aquí
+          onClick={onLoginClick}
           fullWidth
           variant="text"
           size="sm"
-          className="lg:hidden bg-customBlue text-white border-2 border-customBlue px-4 py-2 rounded-full shadow-lg"
+          className="lg:hidden bg-customBlue text-white border-2 border-customBlue px-4 py-2 rounded-full "
         >
-          Log In
+          Iniciar sesion
         </Button>
       </Collapse>
     </Navbar>
