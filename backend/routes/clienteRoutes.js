@@ -3,7 +3,7 @@ import ClienteController from '../controllers/clienteController.js';
 
 const router = express.Router();
 
-// Autenticación de cliente 
+// Login de cliente 
 router.post("/clientes/login", ClienteController.login);
 
 // Obtener tipos de reclamos

@@ -11,7 +11,6 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
     e.preventDefault();
 
     try {
-      // Llamar a la API de autenticación
       const response = await axios.post(
         "http://localhost:3000/clientes/clientes/login",
         {
@@ -19,15 +18,13 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
           contrasenia: password,
         }
       );
-
+  
       const data = response.data;
-
+  
       if (data.success) {
-        // Almacena el token en el localStorage
         localStorage.setItem("authToken", data.token); // Guarda el token en localStorage
-        onLoginSuccess(data.token); // Pasa el token a la función de éxito
+        onLoginSuccess(data.token, data.usuario); // Pasa el token y el idTipoUsuario
       } else {
-        // Maneja el error de login
         alert(data.message || "Error de autenticación");
       }
     } catch (error) {

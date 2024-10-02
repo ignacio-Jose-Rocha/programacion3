@@ -4,7 +4,7 @@ import EmpleadoController from '../controllers/empleadoController.js';
 
 const router = express.Router();
 
-// Login del empleado (POST para mayor seguridad)
+// Login del empleado
 router.post("/empleados/login", EmpleadoController.login);
 
 // Obtener reclamos asociados a la oficina del empleado
