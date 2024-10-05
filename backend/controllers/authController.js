@@ -21,9 +21,14 @@ const login = async (req, res) => {
 
     // Primero, buscar el usuario por correo electrónico
     const [rows] = await pool.query('SELECT * FROM usuarios WHERE correoElectronico = ?', [correoElectronico]);
-
+    
     if (rows.length > 0) {
       const usuario = rows[0];
+
+      // Verificar si el usuario está activo
+      if(usuario.activo == 0) {
+        return res.status(401).json({ success: false, message: 'Usuario inactivo' });
+      }
 
       // Verificar si la contraseña está encriptada o no
       let contraseniaCorrecta = false;
@@ -55,13 +60,14 @@ const login = async (req, res) => {
           
         });
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token descomprimido:', decodedToken);
+        console.log('Token descomprimido:', decodedToken);
         return token;
       } else {
         res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
       }
     } else {
       res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
+      
     }
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
@@ -70,4 +76,3 @@ const login = async (req, res) => {
 };
 
 export { login };
-
