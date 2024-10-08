@@ -1,8 +1,8 @@
-import pool from '../config.js';
 import { login as loginFunc } from './authController.js';
 import bcrypt from 'bcrypt';
 import PDFDocument from 'pdfkit';
 import jwt from 'jsonwebtoken';
+import AdminDB from '../database/adminDB.js';
 
 let tokenD;
 
@@ -20,7 +20,7 @@ const AdminController = {
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
+      const rows = await AdminDB.getAllAdministradoresDB();
       res.json(rows);
     } catch (error) {
       console.error('Error al obtener los usuarios:', error);
@@ -30,7 +30,7 @@ const AdminController = {
 
   getAllEmpleados: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
+      const rows = await AdminDB.getAllEmpleadosDB();
       res.json(rows);
     }
     catch (error) {
@@ -41,7 +41,7 @@ const AdminController = {
 
   getAllClientes: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 3 and activo = 1');
+      const rows = await AdminDB.getAllClientesDB();
       res.json(rows);
     }
     catch (error) {
@@ -52,7 +52,7 @@ const AdminController = {
 
   getAllReclamos: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM reclamos');
+      const rows = await AdminDB.getAllReclamosDB();
       res.json(rows);
     }
     catch (error) {
@@ -63,10 +63,10 @@ const AdminController = {
 
   getAllReclamosTipo: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM reclamostipo WHERE activo = 1');
+      const rows = await AdminDB.getAllReclamosTipoDB();
       res.json(rows);
     }
-    catch (error) {
+    catch (error) { 
       console.error('Error al obtener los tipos de reclamos', error);
       res.status(500).json({ error: 'Error al obtener los tipos de reclamos' });
     }
@@ -74,7 +74,7 @@ const AdminController = {
 
   getAllOficinas: async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM oficinas WHERE activo = 1');
+      const rows = await AdminDB.getAllOficinasDB();
       res.json(rows);
     }
     catch (error) {
@@ -86,12 +86,7 @@ const AdminController = {
   getEmpleadosByOficina: async (req, res) => {
     const { idOficina } = req.params; // El id de la oficina vendrá por la URL
     try {
-      const query = `
-        SELECT u.nombre, u.apellido, u.idUsuario
-        FROM usuarios AS u
-        INNER JOIN usuariosOficinas AS uo ON u.idUsuario = uo.idUsuario
-        WHERE uo.idOficina = ? AND uo.activo = 1`;
-      const [rows] = await pool.query(query, [idOficina]);
+      const rows = await AdminDB.getEmpleadosByOficinaDB(idOficina);
       if (rows.length === 0) {
         return res.status(400).json({ error: 'Oficinas sin empleados asignados' });
       }
@@ -104,7 +99,7 @@ const AdminController = {
 
   getEstadisticasCompletas: async (req, res) => {
     try {
-      const [resultados] = await pool.query('CALL obtenerEstadisticasCompletas()');
+      const resultados = await AdminDB.getEstadisticasCompletasDB();
 
       const totalReclamos = resultados[0];  // Primer conjunto: total de reclamos
       const reclamosPorEstado = resultados[1];  // Segundo conjunto: reclamos por estado
@@ -127,7 +122,7 @@ const AdminController = {
         return res.status(400).json({ error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}` });
       }
 
-      const [rows] = await pool.query("INSERT INTO reclamostipo SET ?", { descripcion, activo });
+      const rows = await AdminDB.crearReclamoTipoDB(descripcion, activo );
 
       res.status(200).json({
         message: "Tipo de reclamo creado con éxito",
@@ -151,7 +146,7 @@ const AdminController = {
       if (!descripcion) {
         return res.status(400).json({ error: 'No se envio modificación alguna' });
       }
-      await pool.query('UPDATE reclamostipo SET descripcion=? WHERE idReclamoTipo= ?', [descripcion, idReclamoTipo]);
+      await AdminDB.actualizarReclamoTipoDB(idReclamoTipo, descripcion);
       res.status(200).json({
         message: "Actualizacion de reclamo tipo con éxito",
         id: reclamoTipo.id,
@@ -177,7 +172,7 @@ const AdminController = {
         return res.status(400).json({ error: 'El reclamo tipo ya estaba desactivado' });
       }
 
-      await pool.query('UPDATE reclamostipo SET activo = 0 WHERE idReclamoTipo = ?', [idReclamoTipo]);
+      await AdminDB.borrarReclamoTipoDB(idReclamoTipo);
 
       res.status(200).json({
         message: "Reclamo tipo desactivado con éxito",
@@ -206,24 +201,24 @@ const AdminController = {
 
       const hashedPassword = await bcrypt.hash(contrasenia, 10);
       const activo = 1
-    
-      const [rows] = await pool.query("INSERT INTO usuarios SET ?",
-        {
-          nombre,
-          apellido,
-          correoElectronico,
-          contrasenia: hashedPassword,
-          idTipoUsuario,
-          imagen,
-          activo
-        });
+
+      const user = {
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia: hashedPassword,
+        idTipoUsuario,
+        imagen,
+        activo
+      };
+
+      const rows = await AdminDB.crearUsuarioDB(user);
 
       res.json({
+        message: 'Usuario creado con éxito',
         id: rows.insertId,
         nombre,
         correoElectronico,
-        correoElectronico,
-        contrasenia,
         idTipoUsuario
       });
     } catch (error) {
@@ -271,9 +266,7 @@ const AdminController = {
       if (typeof activo !== 'undefined') camposAActualizar.push('activo = ?'), valores.push(activo);
 
       if (camposAActualizar.length > 0) {
-        const query = `UPDATE usuarios SET ${camposAActualizar.join(', ')} WHERE idUsuario = ?`;
-        valores.push(idUsuarioModificado);
-        await pool.query(query, valores);
+        await AdminDB.actualizarUsuarioDB(idUsuarioModificado, camposAActualizar, valores)
       }
       else {
         return res.status(400).json({ mensaje: 'No hay datos a modificar.' });
@@ -319,7 +312,7 @@ const AdminController = {
         return res.status(400).json({ mensaje: 'El usuario ya estaba desactivado' });
       }
 
-      await pool.query("UPDATE usuarios SET activo = 0 WHERE idUsuario = ?", [idUsuario]);
+      await AdminDB.borrarUsuarioDB(idUsuario);
 
       let tipoUsuario;
       if (usuario.idTipoUsuario === 3) {
@@ -340,35 +333,34 @@ const AdminController = {
     }
   },
 
+  //agregar validacion de q exista el empleado a agregar y sea de idTipo 2 sino no corresponde
   asignarEmpleadoAOficina: async (req, res) => {
     const { idUsuario, idOficina } = req.body; 
     try {
-      const query = 'INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)';
-      const result = await pool.query(query, [idUsuario, idOficina]);
-
-      res.json({ message: 'Empleado asignado a la oficina correctamente', id: result.insertId });
+        const idAsignacion = await AdminDB.asignarEmpleadoDB(idUsuario, idOficina); 
+        res.json({ message: 'Empleado asignado a la oficina correctamente', id: idAsignacion });
     } catch (error) {
-      console.error('Error al asignar el empleado a la oficina', error);
-      res.status(500).json({ error: 'Error al asignar el empleado a la oficina' });
+        console.error('Error al asignar el empleado a la oficina', error);
+        res.status(500).json({ error: error.message }); 
     }
   },
 
   eliminarEmpleadoDeOficina: async (req, res) => {
-    const { idUsuario } = req.params; 
+    const { idUsuario } = req.params;
     try {
-      const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
-      const result = await pool.query(query, [idUsuario]);
-
+      const result = await AdminDB.eliminarEmpleadoDeOficinaDB(idUsuario);
+  
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: 'Usuario no encontrado en la oficina' });
       }
-
+  
       res.json({ message: 'Usuario desactivado de la oficina correctamente' });
     } catch (error) {
       console.error('Error al desactivar el usuario de la oficina', error);
       res.status(500).json({ error: 'Error al desactivar el usuario de la oficina' });
     }
   },
+  
 
   descargarReclamosPDF: async (req, res) => {
     try {

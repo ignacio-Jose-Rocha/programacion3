@@ -4,7 +4,7 @@ import ClienteController from '../controllers/clienteController.js';
 const router = express.Router();
 
 // Login de cliente 
-router.post("/clientes/login", ClienteController.login);
+router.post("/login", ClienteController.login);
 
 // Obtener tipos de reclamos
 router.get("/tipos-reclamos", ClienteController.listarTiposReclamos);
@@ -15,14 +15,14 @@ router.get('/reclamos/usuario/:idUsuario', ClienteController.obtenerReclamoId);
 router.get('/reclamos/estado/:idCliente', ClienteController.obtenerReclamoEstado);
 
 // Crear nuevo cliente y reclamo
-router.post("/clientes", ClienteController.crearCliente);
-router.post('/reclamos', ClienteController.crearReclamo);
+router.post("/cliente", ClienteController.crearCliente);
+router.post('/reclamo', ClienteController.crearReclamo);
 
 // Cancelar reclamo por ID de cliente y reclamo
-router.post("/clientes/:idCliente/reclamos/:idReclamo/cancelar", ClienteController.cancelarReclamo);
+router.post("/:idCliente/reclamos/:idReclamo/cancelar", ClienteController.cancelarReclamo);
 
 // Actualizar cliente
-router.put("/clientes/:idUsuario", ClienteController.actualizarCliente);
+router.put("/:idUsuario/actualizar", ClienteController.actualizarCliente);
 
 
 export default router;

@@ -4,7 +4,7 @@ import AdminController from '../controllers/adminController.js';
 const router = express.Router();
 
 // Login del administrador
-router.post("/administradores/login", AdminController.login);
+router.post("/login", AdminController.login);
 
 // Obtener todos los administradores, clientes, empleados, reclamos, tipos de reclamos, oficinas, estadísticas, y PDF de reclamos
 router.get('/administradores', AdminController.getAllAdministradores);
