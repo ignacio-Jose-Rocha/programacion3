@@ -114,6 +114,25 @@ redisClient.on('error', (err) => {
   console.error('Error en Redis:', err);
 });
 
+
+const redisClient = redis.createClient({
+  url: 'redis://127.0.0.1:6379'
+});
+
+// Conectar al servidor Redis
+redisClient.connect().catch(err => {
+  console.error('Error al conectar a Redis:', err);
+});
+
+redisClient.on('connect', () => {
+  console.log('Conectado a Redis');
+});
+
+// Manejar errores
+redisClient.on('error', (err) => {
+  console.error('Error en Redis:', err);
+});
+
 // Configurar CORS para permitir solicitudes solo desde el frontend
 app.use(cors({
   origin: 'http://localhost:5173', // Permite solo este origen
