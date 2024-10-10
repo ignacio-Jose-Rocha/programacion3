@@ -3,7 +3,9 @@ import { login } from './authController.js';
 import ClienteDB from '../database/clienteDB.js';
 
 const ClienteController = {
-  login,
+  login: (req, res) => {
+    login(req, res);
+  },
 
 
   crearCliente: async (req, res) => {
