@@ -20,16 +20,16 @@ Este comando instalara las depedencias necesarias.
 Para la conexion con la base de datos: 
 Crear un archivo .env en la carpeta Backend con las credenciales de su conexion en Workbench teniendo este modelo:
 
-####DB_HOST=localhost  
-####DB_USER=nombre_usuario  
-####DB_PASSWORD=contraseña_personal  
-####DB_NAME=nombre_database_proyecto  
-####DB_CONNECTION_LIMIT=10  
-####DB_QUEUE_LIMIT=0
-####JWT_SECRET=clave_secreta_jwt
-####CORREO=correo_electronico
-####CLAVE=contraseña_aplicación_gmail
-####PORT=puerto_servidor
+#### DB_HOST=localhost  
+#### DB_USER=nombre_usuario  
+#### DB_PASSWORD=contraseña_personal  
+#### DB_NAME=nombre_database_proyecto  
+#### DB_CONNECTION_LIMIT=10  
+#### DB_QUEUE_LIMIT=0
+#### JWT_SECRET=clave_secreta_jwt
+#### CORREO=correo_electronico
+#### CLAVE=contraseña_aplicación_gmail
+#### PORT=puerto_servidor
 
 Se utiliza correo y clave, generados por gmail en contraseñas de aplicación para el uso correspondiente de envios de mails mediante nodemailer
 
