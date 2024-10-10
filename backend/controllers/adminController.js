@@ -13,9 +13,7 @@ const AdminController = {
   },
 
   getAllAdministradores: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const cacheKey = "administradores"; // Definir una clave para Redis
 
@@ -41,9 +39,7 @@ const AdminController = {
   },
 
   getAllEmpleados: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const cacheKey = "empleados"; 
       const cachedData = await redisClient.get(cacheKey);
@@ -62,9 +58,7 @@ const AdminController = {
   },
 
   getAllClientes: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const cacheKey = "clientes";
       const cachedData = await redisClient.get(cacheKey);
@@ -162,9 +156,7 @@ const AdminController = {
   },
 
   getEstadisticasCompletas: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const resultados = await AdminDB.getEstadisticasCompletasDB();
 
@@ -185,9 +177,7 @@ const AdminController = {
 
   crearReclamoTipo: async (req, res) => {
     const { descripcion, activo = 1 } = req.body;
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+ 
     if (!descripcion) {
       return res
         .status(400)
@@ -226,9 +216,7 @@ const AdminController = {
   actualizarReclamoTipo: async (req, res) => {
     const { idReclamoTipo } = req.params;
     const { descripcion } = req.body;
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+    
     try {
       const [[reclamoTipo]] = await pool.query(
         "SELECT * FROM reclamostipo WHERE idReclamoTipo=?",
@@ -262,9 +250,7 @@ const AdminController = {
 
   borrarReclamoTipo: async (req, res) => {
     const { idReclamoTipo } = req.params;
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const [[reclamoTipo]] = await pool.query(
         "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
@@ -351,9 +337,7 @@ const AdminController = {
   },
 
   actualizarUsuario: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
@@ -460,9 +444,7 @@ const AdminController = {
   },
 
   borrarUsuario: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
@@ -545,9 +527,7 @@ const AdminController = {
   },
 
   descargarReclamosPDF: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
