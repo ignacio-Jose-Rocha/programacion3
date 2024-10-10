@@ -32,6 +32,11 @@ const login = async (req, res) => {
     if (rows.length > 0) {
       const usuario = rows[0];
 
+      // Verificar que el usuario está activo
+      if(usuario.activo == 0) {
+        return res.status(401).json({ success: false, message: 'Usuario inactivo' });
+      }
+
       // Verificar si la contraseña está encriptada o no
       let contraseniaCorrecta = false;
 
