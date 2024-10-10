@@ -1,17 +1,6 @@
 import bcrypt from 'bcrypt';
-<<<<<<< HEAD
-import { login as loginFunc } from './authController.js';
-import jwt from 'jsonwebtoken';
-
-let tokenD;
-
-const login = async (req, res) => {
-  tokenD = await loginFunc(req, res);
-};
-=======
 import { login } from './authController.js';
 import ClienteDB from '../database/clienteDB.js';
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
 const ClienteController = {
   login,
@@ -36,16 +25,7 @@ const ClienteController = {
     const activo = 1;
 
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [usuarios] = await pool.query("SELECT * FROM usuarios WHERE correoElectronico=? AND nombre=? AND apellido=?", [correoElectronico, nombre, apellido]);
-=======
       const usuarios = await ClienteDB.buscarUsuarioDB(correoElectronico, nombre, apellido);
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       if (usuarios.length > 0) {
         return res.status(400).json({ error: 'Los datos ya están cargados.' });
       }
@@ -79,15 +59,8 @@ const ClienteController = {
   },
 
   crearReclamo: async (req, res) => {
-<<<<<<< HEAD
-    const { asunto, descripcion, idUsuarioCreador } = req.body;
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
-=======
     const { asunto, descripcion, idUsuarioCreador, idReclamoTipo } = req.body;
 
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
     if (!asunto || !descripcion) {
       return res.status(400).json({ error: 'Asunto y descripción son obligatorios.' });
     }
@@ -98,22 +71,7 @@ const ClienteController = {
     const fechaCreado = new Date();
 
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [result] = await pool.query(`
-            SELECT 
-                (SELECT COUNT(*) FROM reclamos WHERE idUsuarioCreador=? AND asunto=?) AS existeReclamo,
-                (SELECT idTipoUsuario FROM usuarios WHERE idUsuario=?) AS idTipoUsuario
-        `, [idUsuarioCreador, asunto, idUsuarioCreador]);
-
-      const { existeReclamo, idTipoUsuario } = result[0];
-=======
       const { existeReclamo, idTipoUsuario } = await ClienteDB.buscarReclamoPorUsuarioYAsuntoDB(idUsuarioCreador, asunto);
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
       if (existeReclamo > 0) {
         return res.status(400).json({ error: 'Este reclamo ya existe.' });
@@ -153,16 +111,7 @@ const ClienteController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [tiposReclamos] = await pool.query("SELECT idReclamosTipo, descripcion FROM reclamos_tipo WHERE activo = 1");
-=======
       const [tiposReclamos] = await ClienteDB.obtenerTiposDeReclamosDB();
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       res.json(tiposReclamos);
     } catch (error) {
       console.error('Error al listar tipos de reclamos:', error);
@@ -176,16 +125,7 @@ const ClienteController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [[reclamo]] = await pool.query("SELECT * FROM reclamos WHERE idUsuarioCreador=? AND idReclamo=?", [idCliente, idReclamo]);
-=======
       const [[reclamo]] = await ClienteDB.buscarReclamoPorIdDB(idCliente, idReclamo);
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       console.log(reclamo)
       if (!reclamo) {
         return res.status(400).json({ error: "No se encontro el reclamo" });
@@ -211,16 +151,7 @@ const ClienteController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [rows] = await pool.query('SELECT * FROM reclamos WHERE idUsuarioCreador=?', [idUsuario]);
-=======
       const [rows] = await ClienteDB.obtenerReclamosPorUsuarioDB(idUsuario)
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
       if (rows.length === 0) {
         return res.status(404).json({ error: "No se encontró el reclamo" });
@@ -240,16 +171,7 @@ const ClienteController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 3) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [[usuario]] = await pool.query('SELECT idUsuario, idTipoUsuario FROM usuarios WHERE idUsuario = ?', [idCliente]);
-=======
       const [[usuario]] = await ClienteDB.obtenerUsuarioPorIdDB(idCliente)
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       if (!usuario || !usuario.idTipoUsuario) {
         return res.status(404).json({ error: "No se encontró el cliente" });
       }
