@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import pool from '../config.js';
-import dotenv from 'dotenv';
-import handlebars from 'handlebars';
-import nodemailer from 'nodemailer';
-import { login as loginFunc } from './authController.js';
-import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-=======
 import dotenv from "dotenv";
 import handlebars from "handlebars";
 import nodemailer from "nodemailer";
@@ -17,7 +6,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import EmpleadoDB from "../database/empleadoDB.js";
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
 dotenv.config();
 
@@ -36,23 +24,7 @@ const EmpleadoController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 2) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      // Consulta optimizada con JOIN para obtener el idOficina, tipo de reclamo y los detalles de los reclamos
-      const [reclamos] = await pool.query(`
-        SELECT o.nombre, r.asunto, r.descripcion, r.fechaCreado
-        FROM usuariosOficinas uo
-        JOIN oficinas o ON uo.idOficina = o.idOficina
-        JOIN reclamosTipo rt ON o.idReclamoTipo = rt.idReclamoTipo
-        JOIN reclamos r ON rt.idReclamoTipo = r.idReclamoTipo
-        WHERE uo.idUsuario = ?`, [idEmpleado]);
-=======
       const reclamos = await EmpleadoDB.obtenerReclamosPorOficinaDB(idEmpleado);
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
       if (reclamos.length === 0) {
         return res.status(400).json({
@@ -91,20 +63,9 @@ const EmpleadoController = {
     }
 
     try {
-<<<<<<< HEAD
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 2) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
-      const [[reclamo]] = await pool.query(
-        'SELECT r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre FROM reclamos r JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?',
-        [idReclamo, idCliente]
-=======
       const reclamo = await EmpleadoDB.obtenerReclamoPorClienteYReclamoDB(
         idReclamo,
         idCliente
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       );
 
       if (!reclamo) {

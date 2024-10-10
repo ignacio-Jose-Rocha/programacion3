@@ -24,16 +24,11 @@ const login = async (req, res) => {
     }
 
     // Primero, buscar el usuario por correo electrónico
-<<<<<<< HEAD
-    const [rows] = await pool.query('SELECT * FROM usuarios WHERE correoElectronico = ?', [correoElectronico]);
-    
-=======
     const [rows] = await pool.query(
       "SELECT * FROM usuarios WHERE correoElectronico = ?",
       [correoElectronico]
     );
 
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
     if (rows.length > 0) {
       const usuario = rows[0];
 
@@ -41,6 +36,8 @@ const login = async (req, res) => {
       if(usuario.activo == 0) {
         return res.status(401).json({ success: false, message: 'Usuario inactivo' });
       }
+
+
 
       // Verificar si la contraseña está encriptada o no
       let contraseniaCorrecta = false;
@@ -79,11 +76,7 @@ const login = async (req, res) => {
           },
         });
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-<<<<<<< HEAD
-        console.log('Token descomprimido:', decodedToken);
-=======
         console.log("Token descomprimido:", decodedToken);
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
         return token;
       } else {
         res
@@ -91,14 +84,9 @@ const login = async (req, res) => {
           .json({ success: false, message: "Correo o contraseña incorrectos" });
       }
     } else {
-<<<<<<< HEAD
-      res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
-      
-=======
       res
         .status(401)
         .json({ success: false, message: "Correo o contraseña incorrectos" });
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
     }
   } catch (error) {
     console.error("Error al iniciar sesión:", error);
@@ -106,8 +94,4 @@ const login = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 export { login };
-=======
-export { login };
->>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
