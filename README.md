@@ -42,7 +42,7 @@ Para iniciar el servidor en modo desarrollo (con nodemon):
 
 ## Dependencias importantes 📦
 
-### express: Framework web para Node.js.
+#### express: Framework web para Node.js.
 ### mysql2: Conector para trabajar con MySQL.
 ### jsonwebtoken: Manejo de autenticación con tokens JWT.
 ### bcrypt: Para encriptar y verificar contraseñas.
