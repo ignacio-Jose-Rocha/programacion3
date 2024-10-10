@@ -9,7 +9,7 @@ import EmpleadoDB from "../database/empleadoDB.js";
 
 dotenv.config();
 
-let tokenD;
+
 
 const login = async (req, res) => {
   tokenD = await loginFunc(req, res);
@@ -20,9 +20,7 @@ const EmpleadoController = {
 
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     try {
       const reclamos = await EmpleadoDB.obtenerReclamosPorOficinaDB(idEmpleado);
 
@@ -42,9 +40,7 @@ const EmpleadoController = {
   },
 
   ActualizarEstadoReclamo: async (req, res) => {
-    if (!tokenD) {
-      return res.status(401).json({ error: 'Debe iniciar sesión primero' });
-    }
+
     const estadoReclamo = {
       1: "Creado",
       2: "En proceso",
