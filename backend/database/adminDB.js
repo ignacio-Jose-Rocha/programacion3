@@ -197,6 +197,7 @@ const AdminDB = {
     }
   },
 
+  // Función para asignar empleado a oficina
   asignarEmpleadoDB: async (idUsuario, idOficina) => {
     try {
       const query =
@@ -209,6 +210,7 @@ const AdminDB = {
     }
   },
 
+  // Función para eliminar empleado de oficina
   eliminarEmpleadoDeOficinaDB: async (idUsuario) => {
     try {
       const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';

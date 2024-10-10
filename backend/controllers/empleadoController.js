@@ -9,12 +9,6 @@ import EmpleadoDB from "../database/empleadoDB.js";
 
 dotenv.config();
 
-
-
-const login = async (req, res) => {
-  tokenD = await loginFunc(req, res);
-};
-
 const EmpleadoController = {
   login: (req, res) => {
     login(req, res);
