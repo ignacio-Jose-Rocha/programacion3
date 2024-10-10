@@ -1,34 +1,47 @@
-import pool from '../config.js';
-import { login as loginFunc } from './authController.js';
-import bcrypt from 'bcrypt';
-import PDFDocument from 'pdfkit';
-import jwt from 'jsonwebtoken';
+import {login}  from "./authController.js";
+import pool from "../config.js";
+import bcrypt from "bcrypt";
+import PDFDocument from "pdfkit";
+import redisClient from "../index.js";
+import AdminDB from "../database/adminDB.js";
 
-let tokenD;
-
-const login = async (req, res) => {
-  tokenD = await loginFunc(req, res);
-};
 
 const AdminController = {
-  login,
+
+  login: (req, res) => {
+    login(req, res);
+  },
 
   getAllAdministradores: async (req, res) => {
     if (!tokenD) {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      const cacheKey = "administradores"; // Definir una clave para Redis
+
+      // Verificar si los datos ya están en caché
+      const cachedData = await redisClient.get(cacheKey);
+
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData)); // Parsear los datos cacheados
       }
+<<<<<<< HEAD
       
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 1 and activo = 1');
+=======
+
+      // Si no hay datos en caché, obtenerlos de la base de datos
+      const rows = await AdminDB.getAllAdministradoresDB();
+
+      // Almacenar los resultados en Redis con una expiración de 1 hora (3600 segundos)
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
+
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       res.json(rows);
     } catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
+      console.error("Error al obtener los administradores:", error);
+      res.status(500).json({ error: "Error al obtener los administradores" });
     }
   },
 
@@ -37,17 +50,28 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [rows] = await pool.query('SELECT * FROM usuarios WHERE idTipoUsuario = 2 and activo = 1');
+=======
+      const cacheKey = "empleados"; 
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+      }
+  
+      const rows = await AdminDB.getAllEmpleadosDB();
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); // Almacenar en Redis
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       res.json(rows);
-    }
-    catch (error) {
-      console.error('Error al obtener los usuarios:', error);
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
+    } catch (error) {
+      console.error("Error al obtener los empleados:", error);
+      res.status(500).json({ error: "Error al obtener los empleados" });
     }
   },
 
@@ -56,6 +80,7 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
@@ -146,11 +171,100 @@ const AdminController = {
       const [rows] = await pool.query(query, [idOficina]);
       if (rows.length === 0) {
         return res.status(400).json({ error: 'Oficinas sin empleados asignados' });
+=======
+      const cacheKey = "clientes";
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       }
+  
+      const rows = await AdminDB.getAllClientesDB();
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
       res.json(rows);
     } catch (error) {
-      console.error('Error al obtener los empleados de la oficina', error);
-      res.status(500).json({ error: 'Error al obtener los empleados de la oficina' });
+      console.error("Error al obtener los clientes:", error);
+      res.status(500).json({ error: "Error al obtener los clientes" });
+    }
+  },
+  
+  getAllReclamos: async (req, res) => {
+    try {
+      const cacheKey = "reclamos"; 
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+      }
+  
+      const rows = await AdminDB.getAllReclamosDB();
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
+      res.json(rows);
+    } catch (error) {
+      console.error("Error al obtener los reclamos:", error);
+      res.status(500).json({ error: "Error al obtener los reclamos" });
+    }
+  },
+  
+  getAllReclamosTipo: async (req, res) => {
+    try {
+      const cacheKey = "reclamosTipo"; 
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+      }
+  
+      const rows = await AdminDB.getAllReclamosTipoDB();
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
+      res.json(rows);
+    } catch (error) {
+      console.error("Error al obtener los tipos de reclamos", error);
+      res.status(500).json({ error: "Error al obtener los tipos de reclamos" });
+    }
+  },
+  
+  getAllOficinas: async (req, res) => {
+    try {
+      const cacheKey = "oficinas"; 
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+      }
+  
+      const rows = await AdminDB.getAllOficinasDB();
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
+      res.json(rows);
+    } catch (error) {
+      console.error("Error al obtener las oficinas", error);
+      res.status(500).json({ error: "Error al obtener las oficinas" });
+    }
+  },
+  
+  getEmpleadosByOficina: async (req, res) => {
+    const { idOficina } = req.params; 
+    const cacheKey = `empleadosOficina:${idOficina}`; // Clave única por oficina
+    try {
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) {
+        console.log("Datos obtenidos de la caché");
+        return res.json(JSON.parse(cachedData));
+      }
+  
+      const rows = await AdminDB.getEmpleadosByOficinaDB(idOficina);
+      if (rows.length === 0) {
+        return res.status(400).json({ error: "Oficinas sin empleados asignados" });
+      }
+  
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
+      res.json(rows);
+    } catch (error) {
+      console.error("Error al obtener los empleados de la oficina", error);
+      res
+        .status(500)
+        .json({ error: "Error al obtener los empleados de la oficina" });
     }
   },
 
@@ -159,20 +273,29 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [resultados] = await pool.query('CALL obtenerEstadisticasCompletas()');
+=======
+      const resultados = await AdminDB.getEstadisticasCompletasDB();
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
-      const totalReclamos = resultados[0];  // Primer conjunto: total de reclamos
-      const reclamosPorEstado = resultados[1];  // Segundo conjunto: reclamos por estado
+      const totalReclamos = resultados[0]; // Primer conjunto: total de reclamos
+      const reclamosPorEstado = resultados[1]; // Segundo conjunto: reclamos por estado
 
       res.json({ totalReclamos, reclamosPorEstado });
     } catch (error) {
-      console.error('Error al obtener estadísticas completas de reclamos', error);
-      res.status(500).json({ error: 'Error al obtener estadísticas completas de reclamos' });
+      console.error(
+        "Error al obtener estadísticas completas de reclamos",
+        error
+      );
+      res
+        .status(500)
+        .json({ error: "Error al obtener estadísticas completas de reclamos" });
     }
   },
 
@@ -182,29 +305,46 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     if (!descripcion) {
-      return res.status(400).json({ error: 'Falta ingresas la descripción del raclamo' });
+      return res
+        .status(400)
+        .json({ error: "Falta ingresas la descripción del raclamo" });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [[reclamosTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE descripcion=?", [descripcion]);
+=======
+      const [[reclamosTipo]] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE descripcion=?",
+        [descripcion]
+      );
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       if (reclamosTipo !== 0) {
-        return res.status(400).json({ error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}` });
+        return res
+          .status(400)
+          .json({
+            error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}`,
+          });
       }
 
-      const [rows] = await pool.query("INSERT INTO reclamostipo SET ?", { descripcion, activo });
+      const rows = await AdminDB.crearReclamoTipoDB(descripcion, activo);
 
       res.status(200).json({
         message: "Tipo de reclamo creado con éxito",
         id: rows.insertId,
-        descripcion
+        descripcion,
       });
-    }
-    catch (error) {
-      res.status(500).json({ error: 'Error al crear tipo de reclamo', details: error.message });
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          error: "Error al crear tipo de reclamo",
+          details: error.message,
+        });
     }
   },
 
@@ -215,27 +355,42 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [[reclamoTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE idReclamoTipo=?", [idReclamoTipo])
+=======
+      const [[reclamoTipo]] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE idReclamoTipo=?",
+        [idReclamoTipo]
+      );
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
       if (!reclamoTipo) {
-        return res.status(404).json({ error: 'Reclamo a actualizar no encontrado' });
+        return res
+          .status(404)
+          .json({ error: "Reclamo a actualizar no encontrado" });
       }
       if (!descripcion) {
-        return res.status(400).json({ error: 'No se envio modificación alguna' });
+        return res
+          .status(400)
+          .json({ error: "No se envio modificación alguna" });
       }
-      await pool.query('UPDATE reclamostipo SET descripcion=? WHERE idReclamoTipo= ?', [descripcion, idReclamoTipo]);
+      await AdminDB.actualizarReclamoTipoDB(idReclamoTipo, descripcion);
       res.status(200).json({
         message: "Actualizacion de reclamo tipo con éxito",
         id: reclamoTipo.id,
-        descripcion
+        descripcion,
       });
-    }
-    catch (error) {
-      res.status(500).json({ error: 'Error al actualizar tipo de reclamo', details: error.message });
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          error: "Error al actualizar tipo de reclamo",
+          details: error.message,
+        });
     }
   },
 
@@ -245,42 +400,63 @@ const AdminController = {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
     try {
+<<<<<<< HEAD
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
       if(decodedToken.idTipoUsuario != 1) {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [[reclamoTipo]] = await pool.query("SELECT * FROM reclamostipo WHERE idReclamoTipo = ?", [idReclamoTipo]);
+=======
+      const [[reclamoTipo]] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
+        [idReclamoTipo]
+      );
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
       if (!reclamoTipo) {
-        return res.status(404).json({ error: 'Reclamo a eliminar no encontrado' });
+        return res
+          .status(404)
+          .json({ error: "Reclamo a eliminar no encontrado" });
       }
 
       if (reclamoTipo.activo === 0) {
-        return res.status(400).json({ error: 'El reclamo tipo ya estaba desactivado' });
+        return res
+          .status(400)
+          .json({ error: "El reclamo tipo ya estaba desactivado" });
       }
 
-      await pool.query('UPDATE reclamostipo SET activo = 0 WHERE idReclamoTipo = ?', [idReclamoTipo]);
+      await AdminDB.borrarReclamoTipoDB(idReclamoTipo);
 
       res.status(200).json({
         message: "Reclamo tipo desactivado con éxito",
         id: reclamoTipo.idReclamoTipo,
-        descripcion: reclamoTipo.descripcion
+        descripcion: reclamoTipo.descripcion,
       });
-
     } catch (error) {
       res.status(500).json({
-        error: 'Error al desactivar tipo de reclamo',
-        details: error.message
+        error: "Error al desactivar tipo de reclamo",
+        details: error.message,
       });
     }
   },
 
   crearUsuario: async (req, res) => {
+<<<<<<< HEAD
     const {nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
     if (!tokenD) {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
     }
+=======
+    const {
+      nombre,
+      apellido,
+      correoElectronico,
+      contrasenia,
+      idTipoUsuario,
+      imagen,
+    } = req.body;
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
@@ -288,38 +464,39 @@ const AdminController = {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const [usuario] = await pool.query(
-        "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?", [correoElectronico]
+        "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?",
+        [correoElectronico]
       );
 
       if (usuario.length > 0) {
-        return res.status(400).json({ error: 'El usuario esta cargado.' });
+        return res.status(400).json({ error: "El usuario esta cargado." });
       }
 
       const hashedPassword = await bcrypt.hash(contrasenia, 10);
-      const activo = 1
-    
-      const [rows] = await pool.query("INSERT INTO usuarios SET ?",
-        {
-          nombre,
-          apellido,
-          correoElectronico,
-          contrasenia: hashedPassword,
-          idTipoUsuario,
-          imagen,
-          activo
-        });
+      const activo = 1;
+
+      const user = {
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia: hashedPassword,
+        idTipoUsuario,
+        imagen,
+        activo,
+      };
+
+      const rows = await AdminDB.crearUsuarioDB(user);
 
       res.json({
+        message: "Usuario creado con éxito",
         id: rows.insertId,
         nombre,
         correoElectronico,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario
+        idTipoUsuario,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Error al crear el usuario.' });
+      res.status(500).json({ error: "Error al crear el usuario." });
     }
   },
 
@@ -334,21 +511,41 @@ const AdminController = {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const { idUsuarioModificado, idUsuarioModificador } = req.params;
-      let { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen, activo } = req.body;
+      let {
+        nombre,
+        apellido,
+        correoElectronico,
+        contrasenia,
+        idTipoUsuario,
+        imagen,
+        activo,
+      } = req.body;
 
-      const [[[usuarioModificador]], [[usuarioModificado]]] = await Promise.all([
-        pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificador]),
-        pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuarioModificado])
-      ]);
+      const [[[usuarioModificador]], [[usuarioModificado]]] = await Promise.all(
+        [
+          pool.query("SELECT * FROM usuarios WHERE idUsuario = ?", [
+            idUsuarioModificador,
+          ]),
+          pool.query("SELECT * FROM usuarios WHERE idUsuario = ?", [
+            idUsuarioModificado,
+          ]),
+        ]
+      );
 
       if (!usuarioModificado) {
-        return res.status(404).json({ error: 'Usuario a modificar no encontrado' });
+        return res
+          .status(404)
+          .json({ error: "Usuario a modificar no encontrado" });
       }
       if (!usuarioModificador) {
-        return res.status(404).json({ error: 'Usuario modificador no encontrado' });
+        return res
+          .status(404)
+          .json({ error: "Usuario modificador no encontrado" });
       }
       if (usuarioModificador.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+        return res
+          .status(400)
+          .json({ error: "No tienes permisos para realizar esta operación" });
       }
 
       // Encriptar contraseña si existe
@@ -361,32 +558,38 @@ const AdminController = {
       const camposAActualizar = [];
       const valores = [];
 
-      if (nombre) camposAActualizar.push('nombre = ?'), valores.push(nombre);
-      if (apellido) camposAActualizar.push('apellido = ?'), valores.push(apellido);
-      if (correoElectronico) camposAActualizar.push('correoElectronico = ?'), valores.push(correoElectronico);
-      if (contrasenia) camposAActualizar.push('contrasenia = ?'), valores.push(contrasenia);
-      if (idTipoUsuario) camposAActualizar.push('idTipoUsuario = ?'), valores.push(idTipoUsuario);
-      if (imagen) camposAActualizar.push('imagen = ?'), valores.push(imagen);
-      if (typeof activo !== 'undefined') camposAActualizar.push('activo = ?'), valores.push(activo);
+      if (nombre) camposAActualizar.push("nombre = ?"), valores.push(nombre);
+      if (apellido)
+        camposAActualizar.push("apellido = ?"), valores.push(apellido);
+      if (correoElectronico)
+        camposAActualizar.push("correoElectronico = ?"),
+          valores.push(correoElectronico);
+      if (contrasenia)
+        camposAActualizar.push("contrasenia = ?"), valores.push(contrasenia);
+      if (idTipoUsuario)
+        camposAActualizar.push("idTipoUsuario = ?"),
+          valores.push(idTipoUsuario);
+      if (imagen) camposAActualizar.push("imagen = ?"), valores.push(imagen);
+      if (typeof activo !== "undefined")
+        camposAActualizar.push("activo = ?"), valores.push(activo);
 
       if (camposAActualizar.length > 0) {
-        const query = `UPDATE usuarios SET ${camposAActualizar.join(', ')} WHERE idUsuario = ?`;
-        valores.push(idUsuarioModificado);
-        await pool.query(query, valores);
-      }
-      else {
-        return res.status(400).json({ mensaje: 'No hay datos a modificar.' });
+        await AdminDB.actualizarUsuarioDB(
+          idUsuarioModificado,
+          camposAActualizar,
+          valores
+        );
+      } else {
+        return res.status(400).json({ mensaje: "No hay datos a modificar." });
       }
 
       let tipoUsuario;
       if (usuarioModificado.idTipoUsuario === 3) {
-        tipoUsuario = 'cliente';
-      }
-      else if (usuarioModificado.idTipoUsuario === 2) {
-        tipoUsuario = 'empleado';
-      }
-      else {
-        tipoUsuario = 'usuario';
+        tipoUsuario = "cliente";
+      } else if (usuarioModificado.idTipoUsuario === 2) {
+        tipoUsuario = "empleado";
+      } else {
+        tipoUsuario = "usuario";
       }
 
       res.json({
@@ -398,7 +601,7 @@ const AdminController = {
         contrasenia,
         idTipoUsuario,
         imagen,
-        activo
+        activo,
       });
     } catch (error) {
       console.log(error);
@@ -417,37 +620,45 @@ const AdminController = {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       const { idUsuario } = req.params;
-      const [[usuario]] = await pool.query('SELECT * FROM usuarios WHERE idUsuario = ?', [idUsuario])
+      const [[usuario]] = await pool.query(
+        "SELECT * FROM usuarios WHERE idUsuario = ?",
+        [idUsuario]
+      );
       if (!usuario) {
-        return res.status(404).json({ error: 'Usuario a borrar no encontrado' });
+        return res
+          .status(404)
+          .json({ error: "Usuario a borrar no encontrado" });
       }
 
       if (usuario.activo === 0) {
-        return res.status(400).json({ mensaje: 'El usuario ya estaba desactivado' });
+        return res
+          .status(400)
+          .json({ mensaje: "El usuario ya estaba desactivado" });
       }
 
-      await pool.query("UPDATE usuarios SET activo = 0 WHERE idUsuario = ?", [idUsuario]);
+      await AdminDB.borrarUsuarioDB(idUsuario);
 
       let tipoUsuario;
       if (usuario.idTipoUsuario === 3) {
-        tipoUsuario = 'cliente';
-      }
-      else if (usuario.idTipoUsuario === 2) {
-        tipoUsuario = 'empleado';
-      }
-      else {
-        tipoUsuario = 'usuario';
+        tipoUsuario = "cliente";
+      } else if (usuario.idTipoUsuario === 2) {
+        tipoUsuario = "empleado";
+      } else {
+        tipoUsuario = "usuario";
       }
 
-      res.json({ mensaje: `Se ha desactivado el ${tipoUsuario} correctamente.` });
-    }
-    catch (error) {
-      console.error('Error al borrar el usuario:', error);
-      res.status(500).json({ error: 'Error al borrar el usuario' });
+      res.json({
+        mensaje: `Se ha desactivado el ${tipoUsuario} correctamente.`,
+      });
+    } catch (error) {
+      console.error("Error al borrar el usuario:", error);
+      res.status(500).json({ error: "Error al borrar el usuario" });
     }
   },
 
+  //agregar validacion de q exista el empleado a agregar y sea de idTipo 2 sino no corresponde
   asignarEmpleadoAOficina: async (req, res) => {
+<<<<<<< HEAD
     const { idUsuario, idOficina } = req.body; 
     if (!tokenD) {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
@@ -462,13 +673,26 @@ const AdminController = {
       const result = await pool.query(query, [idUsuario, idOficina]);
 
       res.json({ message: 'Empleado asignado a la oficina correctamente', id: result.insertId });
+=======
+    const { idUsuario, idOficina } = req.body;
+    try {
+      const idAsignacion = await AdminDB.asignarEmpleadoDB(
+        idUsuario,
+        idOficina
+      );
+      res.json({
+        message: "Empleado asignado a la oficina correctamente",
+        id: idAsignacion,
+      });
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
     } catch (error) {
-      console.error('Error al asignar el empleado a la oficina', error);
-      res.status(500).json({ error: 'Error al asignar el empleado a la oficina' });
+      console.error("Error al asignar el empleado a la oficina", error);
+      res.status(500).json({ error: error.message });
     }
   },
 
   eliminarEmpleadoDeOficina: async (req, res) => {
+<<<<<<< HEAD
     const { idUsuario } = req.params; 
     if (!tokenD) {
       return res.status(401).json({ error: 'Debe iniciar sesión primero' });
@@ -481,15 +705,24 @@ const AdminController = {
       }
       const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
       const result = await pool.query(query, [idUsuario]);
+=======
+    const { idUsuario } = req.params;
+    try {
+      const result = await AdminDB.eliminarEmpleadoDeOficinaDB(idUsuario);
+>>>>>>> 010b4693b48820eb55293515a27ca7538750a10b
 
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado en la oficina' });
+        return res
+          .status(404)
+          .json({ message: "Usuario no encontrado en la oficina" });
       }
 
-      res.json({ message: 'Usuario desactivado de la oficina correctamente' });
+      res.json({ message: "Usuario desactivado de la oficina correctamente" });
     } catch (error) {
-      console.error('Error al desactivar el usuario de la oficina', error);
-      res.status(500).json({ error: 'Error al desactivar el usuario de la oficina' });
+      console.error("Error al desactivar el usuario de la oficina", error);
+      res
+        .status(500)
+        .json({ error: "Error al desactivar el usuario de la oficina" });
     }
   },
 
@@ -504,22 +737,22 @@ const AdminController = {
         return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
       }
       // Realizar la consulta de los reclamos
-      const [reclamos] = await pool.query('SELECT * FROM reclamos');
+      const [reclamos] = await pool.query("SELECT * FROM reclamos");
 
       // Crear un nuevo documento PDF
       const doc = new PDFDocument();
 
       // Configurar el encabezado de la respuesta para enviar un archivo PDF
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=reclamos.pdf');
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "attachment; filename=reclamos.pdf");
 
       // Escribir el PDF directamente en la respuesta
       doc.pipe(res);
 
       // Agregar contenido al PDF
-      doc.fontSize(18).text('Informe de Reclamos', { align: 'center' });
+      doc.fontSize(18).text("Informe de Reclamos", { align: "center" });
 
-      reclamos.forEach(reclamo => {
+      reclamos.forEach((reclamo) => {
         doc.moveDown();
         doc.text(`Asunto: ${reclamo.asunto}`);
         doc.text(`Descripción: ${reclamo.descripcion}`);
@@ -530,12 +763,11 @@ const AdminController = {
 
       // Finalizar el documento PDF
       doc.end();
-
     } catch (error) {
-      console.error('Error al generar el archivo PDF', error);
-      res.status(500).json({ error: 'Error al generar el archivo PDF' });
+      console.error("Error al generar el archivo PDF", error);
+      res.status(500).json({ error: "Error al generar el archivo PDF" });
     }
-  }
-}
+  },
+};
 
 export default AdminController;
