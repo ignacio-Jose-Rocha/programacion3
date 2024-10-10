@@ -43,13 +43,13 @@ Para iniciar el servidor en modo desarrollo (con nodemon):
 ## Dependencias importantes 📦
 
 #### express: Framework web para Node.js.
-### mysql2: Conector para trabajar con MySQL.
-### jsonwebtoken: Manejo de autenticación con tokens JWT.
-### bcrypt: Para encriptar y verificar contraseñas.
-### nodemailer: Envío de correos electrónicos.
-### dotenv: Carga de variables de entorno desde archivos .env.
-### redis: Implementación de cache con Redis.
-### pdfkit: Para generar documentos PDF dinámicos.
+#### mysql2: Conector para trabajar con MySQL.
+#### jsonwebtoken: Manejo de autenticación con tokens JWT.
+#### bcrypt: Para encriptar y verificar contraseñas.
+#### nodemailer: Envío de correos electrónicos.
+#### dotenv: Carga de variables de entorno desde archivos .env.
+#### redis: Implementación de cache con Redis.
+#### pdfkit: Para generar documentos PDF dinámicos.
 
 ## Notas adicionales 📝
 
@@ -59,8 +59,8 @@ Redis mejora la eficiencia al manejar el almacenamiento en caché, reduciendo el
 
 ## Autores ✒️
 
-Manuel Alejandro García
-Ignacio Jose Rocha
-Joel Elías Chassman
-Micaela Kloster
+#### Manuel Alejandro García
+#### Ignacio Jose Rocha
+#### Joel Elías Chassman
+#### Micaela Kloster
 
