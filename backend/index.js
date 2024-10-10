@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import routerCliente from './routes/clienteRoutes.js';
 import routerEmpleado from './routes/empleadoRoutes.js';
 import routerAdmin from './routes/adminRoutes.js';
+import redis from 'redis';
+
 
 // Cargar variables de entorno
 dotenv.config();
@@ -16,6 +18,25 @@ const PORT = process.env.PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+
+const redisClient = redis.createClient({
+  url: 'redis://127.0.0.1:6379'
+});
+
+// Conectar al servidor Redis
+redisClient.connect().catch(err => {
+  console.error('Error al conectar a Redis:', err);
+});
+
+redisClient.on('connect', () => {
+  console.log('Conectado a Redis');
+});
+
+// Manejar errores
+redisClient.on('error', (err) => {
+  console.error('Error en Redis:', err);
+});
 
 // Configurar CORS para permitir solicitudes solo desde el frontend
 app.use(cors({
@@ -32,14 +53,15 @@ app.use((req, res, next) => {
   // Aseguramos que req.body esté definido y sea un objeto
   const hasBody = req.body && Object.keys(req.body).length > 0;
 
-  // Si hay cuerpo y el Content-Type no es application/json, retornamos error
-  if (hasBody && req.headers['content-type'] !== 'application/json') {
-    return res.status(400).json({ error: 'El Content-Type debe ser application/json' });
+  // Si hay cuerpo y el Content-Type no es application/json ni application/pdf, retornamos error
+  if (hasBody && req.headers['content-type'] !== 'application/json' && req.headers['content-type'] !== 'application/pdf') {
+    return res.status(400).json({ error: 'El Content-Type debe ser application/json o application/pdf' });
   }
 
   // Continuamos con el siguiente middleware
   next();
 });
+
 
 // Middleware para analizar JSON
 app.use(express.json());
@@ -63,3 +85,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor Express escuchando en el puerto ${PORT}`);
 });
+
+export default redisClient;

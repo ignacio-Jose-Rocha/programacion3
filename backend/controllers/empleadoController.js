@@ -5,7 +5,7 @@ import { login } from "./authController.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import EmpleadoDB from  "../database/empleadoDB.js";
+import EmpleadoDB from "../database/empleadoDB.js";
 
 dotenv.config();
 
@@ -17,14 +17,12 @@ const EmpleadoController = {
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
     try {
-      const reclamos = await EmpleadoDB.obtenerReclamosPorOficina(idEmpleado);
+      const reclamos = await EmpleadoDB.obtenerReclamosPorOficinaDB(idEmpleado);
 
       if (reclamos.length === 0) {
-        return res
-          .status(400)
-          .json({
-            error: `No se encontraron reclamos para la oficina asignada al empleado con ID ${idEmpleado}`,
-          });
+        return res.status(400).json({
+          error: `No se encontraron reclamos para la oficina asignada al empleado con ID ${idEmpleado}`,
+        });
       }
 
       res.json({ reclamos });
@@ -48,16 +46,14 @@ const EmpleadoController = {
     const estadoNumerico = parseInt(nuevoEstado, 10);
 
     if (!estadoReclamo[estadoNumerico]) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "El estado proporcionado no es válido. Debe ser un número entre 1 y 4.",
-        });
+      return res.status(400).json({
+        error:
+          "El estado proporcionado no es válido. Debe ser un número entre 1 y 4.",
+      });
     }
 
     try {
-      const reclamo = await EmpleadoDB.obtenerReclamoPorClienteYReclamo(
+      const reclamo = await EmpleadoDB.obtenerReclamoPorClienteYReclamoDB(
         idReclamo,
         idCliente
       );
@@ -76,7 +72,7 @@ const EmpleadoController = {
         return res.status(404).json({ error: "Reclamo ya finalizado." });
       }
 
-      const resultado = await EmpleadoDB.actualizarEstadoReclamo(
+      const resultado = await EmpleadoDB.actualizarEstadoReclamoDB(
         idReclamo,
         idCliente,
         estadoNumerico

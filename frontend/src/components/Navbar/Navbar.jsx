@@ -67,7 +67,7 @@ export function StickyNavbar({ onLoginClick }) {
           <a
             href={href}
             onClick={(e) => handleSmoothScroll(e, href)}
-            className="color-text-darkGray font-bold relative flex items-center px-4 py-2 text-customBlue-800 transition-all duration-300 ease-in-out group"
+            className="font-bold relative flex items-center px-2 py-1 text-black transition-all duration-300 ease-in-out group"
           >
             {text}
             {!isMobile && ( // Renderiza el span solo si no es mobile

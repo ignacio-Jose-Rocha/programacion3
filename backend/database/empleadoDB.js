@@ -2,7 +2,7 @@ import pool from '../config.js';
 
 const EmpleadoDB = {
   // Función para obtener los reclamos de la oficina del empleado
-  obtenerReclamosPorOficina: async (idEmpleado) => {
+  obtenerReclamosPorOficinaDB: async (idEmpleado) => {
     try {
       const [reclamos] = await pool.query(`
         SELECT o.nombre, r.asunto, r.descripcion, r.fechaCreado
@@ -18,7 +18,7 @@ const EmpleadoDB = {
   },
 
   // Función para obtener un reclamo por idCliente y idReclamo
-  obtenerReclamoPorClienteYReclamo: async (idReclamo, idCliente) => {
+  obtenerReclamoPorClienteYReclamoDB: async (idReclamo, idCliente) => {
     try {
       const [[reclamo]] = await pool.query(`
         SELECT r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre
@@ -32,7 +32,7 @@ const EmpleadoDB = {
   },
 
   // Función para actualizar el estado del reclamo
-  actualizarEstadoReclamo: async (idReclamo, idCliente, estadoNumerico) => {
+  actualizarEstadoReclamoDB: async (idReclamo, idCliente, estadoNumerico) => {
     try {
       let query = 'UPDATE reclamos SET idReclamoEstado = ?';
       const valores = [estadoNumerico];

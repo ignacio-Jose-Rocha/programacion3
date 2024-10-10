@@ -77,7 +77,7 @@ const ClienteController = {
 
       if (idTipoUsuario === 3) {
         const idReclamoEstado = 1;
-        const idReclamo = await ClienteDB.crearReclamo({
+        const idReclamo = await ClienteDB.crearReclamoDB({
           asunto,
           descripcion,
           fechaCreado,
