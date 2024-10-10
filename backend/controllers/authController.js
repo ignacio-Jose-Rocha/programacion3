@@ -37,6 +37,8 @@ const login = async (req, res) => {
         return res.status(401).json({ success: false, message: 'Usuario inactivo' });
       }
 
+
+
       // Verificar si la contraseña está encriptada o no
       let contraseniaCorrecta = false;
 
