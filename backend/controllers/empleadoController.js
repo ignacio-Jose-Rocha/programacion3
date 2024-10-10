@@ -16,7 +16,9 @@ const login = async (req, res) => {
 };
 
 const EmpleadoController = {
-  login,
+  login: (req, res) => {
+    login(req, res);
+  },
 
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
