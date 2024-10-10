@@ -7,8 +7,10 @@ const ClienteController = {
     login(req, res);
   },
 
+
   crearCliente: async (req, res) => {
     const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+
     if (!nombre || !apellido || !correoElectronico || !contrasenia) {
       const errores = [];
       if (!nombre) errores.push("nombre");
@@ -105,6 +107,7 @@ const ClienteController = {
   },
 
   listarTiposReclamos: async (req, res) => {
+
     try {
       const [tiposReclamos] = await ClienteDB.obtenerTiposDeReclamosDB();
       res.json(tiposReclamos);
@@ -116,6 +119,7 @@ const ClienteController = {
 
   cancelarReclamo: async (req, res) => {
     const { idCliente, idReclamo } = req.params;
+
     try {
       const [[reclamo]] = await ClienteDB.buscarReclamoPorIdDB(idCliente, idReclamo);
       console.log(reclamo)
@@ -139,6 +143,7 @@ const ClienteController = {
 
   obtenerReclamoId: async (req, res) => {
     const { idUsuario } = req.params;
+
     try {
       const [rows] = await ClienteDB.obtenerReclamosPorUsuarioDB(idUsuario)
 
@@ -156,6 +161,7 @@ const ClienteController = {
 
   obtenerReclamoEstado: async (req, res) => {
     const { idCliente } = req.params;
+
     try {
       const [[usuario]] = await ClienteDB.obtenerUsuarioPorIdDB(idCliente)
       if (!usuario || !usuario.idTipoUsuario) {
@@ -200,6 +206,11 @@ const ClienteController = {
     const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
 
     try {
+      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
+      console.log(decodedToken.idTipoUsuario);
+      if(decodedToken.idTipoUsuario != 3) {
+        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
+      }
       if (!nombre && !apellido && !correoElectronico && !contrasenia && !imagen) {
         return res.status(400).json({ error: 'No se proporcionaron datos para actualizar' });
       }
