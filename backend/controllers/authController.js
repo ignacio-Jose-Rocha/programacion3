@@ -32,7 +32,7 @@ const login = async (req, res) => {
     if (rows.length > 0) {
       const usuario = rows[0];
 
-      // Verificar si el usuario está activo
+      // Verificar que el usuario está activo
       if(usuario.activo == 0) {
         return res.status(401).json({ success: false, message: 'Usuario inactivo' });
       }
@@ -86,7 +86,7 @@ const login = async (req, res) => {
     } else {
       res
         .status(401)
-        .json({ success: false, message: "Correo o contraseña incorrectos" });
+        .json({ success: false, message: "Usuario no encontrado" });
     }
   } catch (error) {
     console.error("Error al iniciar sesión:", error);
