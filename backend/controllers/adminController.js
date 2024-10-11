@@ -467,11 +467,11 @@ const AdminController = {
 
   //agregar validacion de q exista el empleado a agregar y sea de idTipo 2 sino no corresponde
   asignarEmpleadoAOficina: async (req, res) => {
-    const { idUsuario, idOficina } = req.body;
+    const { idOficina, idUsuario } = req.params;
     try {
       const idAsignacion = await AdminDB.asignarEmpleadoDB(
+        idOficina,
         idUsuario,
-        idOficina
       );
       res.json({
         message: "Empleado asignado a la oficina correctamente",
