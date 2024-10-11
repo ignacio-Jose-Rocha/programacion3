@@ -198,7 +198,7 @@ const AdminDB = {
   },
 
   // Función para asignar empleado a oficina
-  asignarEmpleadoDB: async (idUsuario, idOficina) => {
+  asignarEmpleadoDB: async (idOficina, idUsuario) => {
     try {
       const query =
         "INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)";
