@@ -107,7 +107,6 @@ const ClienteController = {
   },
 
   listarTiposReclamos: async (req, res) => {
-
     try {
       const [tiposReclamos] = await ClienteDB.obtenerTiposDeReclamosDB();
       res.json(tiposReclamos);
@@ -119,7 +118,6 @@ const ClienteController = {
 
   cancelarReclamo: async (req, res) => {
     const { idCliente, idReclamo } = req.params;
-
     try {
       const [[reclamo]] = await ClienteDB.buscarReclamoPorIdDB(idCliente, idReclamo);
       console.log(reclamo)
@@ -143,7 +141,6 @@ const ClienteController = {
 
   obtenerReclamoId: async (req, res) => {
     const { idUsuario } = req.params;
-
     try {
       const [rows] = await ClienteDB.obtenerReclamosPorUsuarioDB(idUsuario)
 
@@ -161,7 +158,6 @@ const ClienteController = {
 
   obtenerReclamoEstado: async (req, res) => {
     const { idCliente } = req.params;
-
     try {
       const [[usuario]] = await ClienteDB.obtenerUsuarioPorIdDB(idCliente)
       if (!usuario || !usuario.idTipoUsuario) {
@@ -204,7 +200,6 @@ const ClienteController = {
   actualizarCliente: async (req, res) => {
     const { idCliente } = req.params;
     const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
-
     try {
       const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
       console.log(decodedToken.idTipoUsuario);
