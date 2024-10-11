@@ -288,11 +288,6 @@ const AdminController = {
       imagen,
     } = req.body;
     try {
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
       const [usuario] = await pool.query(
         "SELECT correoElectronico FROM usuarios WHERE correoElectronico=?",
         [correoElectronico]
@@ -332,11 +327,6 @@ const AdminController = {
 
   actualizarUsuario: async (req, res) => {
     try {
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
       const { idUsuarioModificado, idUsuarioModificador } = req.params;
       let {
         nombre,
@@ -438,11 +428,6 @@ const AdminController = {
 
   borrarUsuario: async (req, res) => {
     try {
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
       const { idUsuario } = req.params;
       const [[usuario]] = await pool.query(
         "SELECT * FROM usuarios WHERE idUsuario = ?",
@@ -520,11 +505,6 @@ const AdminController = {
 
   descargarReclamosPDF: async (req, res) => {
     try {
-      const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-      console.log(decodedToken.idTipoUsuario);
-      if(decodedToken.idTipoUsuario != 1) {
-        return res.status(400).json({ error: 'No tienes permisos para realizar esta operación' });
-      }
       // Realizar la consulta de los reclamos
       const [reclamos] = await pool.query("SELECT * FROM reclamos");
 
