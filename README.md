@@ -1,4 +1,4 @@
-# programacion3
+# Proyecto Final de Programación III 🚗
 
 # Especificaciones funcionales :clipboard:
 
@@ -8,9 +8,9 @@ La API Rest debe asegurar un manejo eficiente y seguro de los reclamos, garantiz
 acceso únicamente a las funciones correspondientes a sus responsabilidades. Además se espera que sea
 segura, eficiente y fácil de integrar con los sistemas actuales de la empresa.  
 
-## Instalación y configuración del proyecto ⚠️
+## Instalación y configuración del proyecto ⚙️
 
--backend: 
+-BACKEND: 
 ingresar los siguientes comandos:
 
 ```npm i```
@@ -19,10 +19,48 @@ Este comando instalara las depedencias necesarias.
 
 Para la conexion con la base de datos: 
 Crear un archivo .env en la carpeta Backend con las credenciales de su conexion en Workbench teniendo este modelo:
-DB_HOST=localhost  
-DB_USER=nombre_usuario  
-DB_PASSWORD=contraseña_personal  
-DB_NAME=nombre_database_proyecto  
-DB_CONNECTION_LIMIT=10  
-DB_QUEUE_LIMIT=0 
+
+#### DB_HOST=localhost  
+#### DB_USER=nombre_usuario  
+#### DB_PASSWORD=contraseña_personal  
+#### DB_NAME=nombre_database_proyecto  
+#### DB_CONNECTION_LIMIT=10  
+#### DB_QUEUE_LIMIT=0
+#### JWT_SECRET=clave_secreta_jwt
+#### CORREO=correo_electronico
+#### CLAVE=contraseña_aplicación_gmail
+#### PORT=puerto_servidor
+
+Se utiliza correo y clave, generados por gmail en contraseñas de aplicación para el uso correspondiente de envios de mails mediante nodemailer
+
+Se implemento el uso de redis en el proyecto backend para almacenar en caché las respuestas y optimizar el rendimiento., su uso correspondiente debera tener ejecutando de manera local redis-server.exe
+
+## Scripts disponibles:
+
+Para iniciar el servidor en modo desarrollo (con nodemon):
+```npm run dev```
+
+## Dependencias importantes 📦
+
+#### express: Framework web para Node.js.
+#### mysql2: Conector para trabajar con MySQL.
+#### jsonwebtoken: Manejo de autenticación con tokens JWT.
+#### bcrypt: Para encriptar y verificar contraseñas.
+#### nodemailer: Envío de correos electrónicos.
+#### dotenv: Carga de variables de entorno desde archivos .env.
+#### redis: Implementación de cache con Redis.
+#### pdfkit: Para generar documentos PDF dinámicos.
+
+## Notas adicionales 📝
+
+El proyecto implementa un sistema de roles con JWT para autenticación, asegurando que cada tipo de usuario (administrador, empleado, cliente) tenga acceso únicamente a las funcionalidades correspondientes a su rol.
+Se utiliza Nodemailer para el envío de correos electrónicos, lo que permite notificar a los usuarios sobre el estado de sus reclamos.
+Redis mejora la eficiencia al manejar el almacenamiento en caché, reduciendo el tiempo de respuesta en las consultas más frecuentes.
+
+## Autores ✒️
+
+#### Manuel Alejandro García
+#### Ignacio Jose Rocha
+#### Joel Elías Chassman
+#### Micaela Kloster
 
