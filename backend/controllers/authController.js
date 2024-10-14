@@ -12,6 +12,7 @@ const login = async (req, res) => {
   try {
     const tiempoActual = Date.now();
     const segundos = 60;
+    const tokenExpiracion = '1h';
     if (
       ultimoTiempo[correoElectronico] &&
       tiempoActual - ultimoTiempo[correoElectronico] < segundos * 1000
@@ -62,7 +63,7 @@ const login = async (req, res) => {
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-          expiresIn: segundos,
+          expiresIn: tokenExpiracion,
         });
 
         ultimoTiempo[correoElectronico] = tiempoActual;

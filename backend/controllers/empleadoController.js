@@ -16,7 +16,6 @@ const EmpleadoController = {
 
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
-
     try {
       const reclamos = await EmpleadoDB.obtenerReclamosPorOficinaDB(idEmpleado);
 
@@ -36,7 +35,6 @@ const EmpleadoController = {
   },
 
   ActualizarEstadoReclamo: async (req, res) => {
-
     const estadoReclamo = {
       1: "Creado",
       2: "En proceso",

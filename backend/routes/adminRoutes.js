@@ -20,7 +20,7 @@ router.get('/reclamos/pdf', AdminController.descargarReclamosPDF);
 // Crear nuevos usuarios, tipos de reclamo y asignar empleados a oficinas
 router.post('/usuarios', AdminController.crearUsuario);
 router.post("/reclamos/tipos", AdminController.crearReclamoTipo);
-router.post("/oficinas/:idOficina/empleados", AdminController.asignarEmpleadoAOficina);
+router.post("/oficinas/:idOficina/:idUsuario", AdminController.asignarEmpleadoAOficina);
 
 // Actualizar usuarios y tipos de reclamos
 router.put("/usuarios/:idUsuarioModificado/:idUsuarioModificador", AdminController.actualizarUsuario);
