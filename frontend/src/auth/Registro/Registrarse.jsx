@@ -2,7 +2,9 @@ import PropTypes from "prop-types"; // Importa PropTypes
 import axios from "axios";
 import { useState } from "react"; // Importa useState
 
-const LoginForm = ({ onClose, onLoginSuccess,  onRegisterClick  }) => {
+const RegisterForm = ({ onLoginClick, onClose, onRegisterSuccess }) => {
+  const [firstName, setFirstName] = useState(""); // Manejamos el estado del nombre
+  const [lastName, setLastName] = useState(""); // Manejamos el estado del apellido
   const [email, setEmail] = useState(""); // Manejamos el estado del email
   const [password, setPassword] = useState(""); // Manejamos el estado de la contraseña
 
@@ -12,32 +14,32 @@ const LoginForm = ({ onClose, onLoginSuccess,  onRegisterClick  }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/clientes/login",
+        "http://localhost:3000/clientes/cliente",
         {
+          nombre: firstName,
+          apellido: lastName,
           correoElectronico: email,
           contrasenia: password,
         }
       );
-  
+
       const data = response.data;
-  
+
       if (data.success) {
-        localStorage.setItem("authToken", data.token); // Guarda el token en localStorage
-        onLoginSuccess(data.token, data.usuario); // Pasa el token y el idTipoUsuario
+        onRegisterSuccess(data.token, data.usuario); // Pasa el token y el idTipoUsuario
+        alert("Registro exitoso");
       } else {
-        alert(data.message || "Error de autenticación");
+        alert(data.message || "Error al registrarse");
       }
     } catch (error) {
-      console.error("Error al autenticar:", error);
-      alert("Error al autenticar. Intente nuevamente.");
+      console.error("Error al registrar:", error);
+      alert("Error al registrarse. Intente nuevamente.");
     }
   };
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-70 z-50">
       <div className="relative w-[500px] rounded-[60px_5px] overflow-hidden shadow-2xl">
-        <div className="absolute top-[-75%] left-[-75%] w-[650px] h-[700px] bg-gradient-to-r from-yellow-400 via-blue-400 to-purple-600 animate-move-colors" />
-
         <form
           className="relative z-10 inset-1 bg-gray-900 rounded-[50px_5px] p-10 shadow-xl"
           onSubmit={handleSubmit}
@@ -53,8 +55,40 @@ const LoginForm = ({ onClose, onLoginSuccess,  onRegisterClick  }) => {
 
           <div className="mb-6 text-center">
             <h1 className="text-3xl font-semibold text-gray-100">
-              Iniciar sesión
+              Registrarse
             </h1>
+          </div>
+
+          <div className="input-box mb-6">
+            <label htmlFor="firstName" className="text-gray-300">
+              Nombre
+            </label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Ingrese su nombre"
+              required
+              className="w-full mt-1 bg-gray-800 rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
+            />
+          </div>
+
+          <div className="input-box mb-6">
+            <label htmlFor="lastName" className="text-gray-300">
+              Apellido
+            </label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Ingrese su apellido"
+              required
+              className="w-full mt-1 bg-gray-800 rounded-md p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring"
+            />
           </div>
 
           <div className="input-box mb-6">
@@ -92,15 +126,18 @@ const LoginForm = ({ onClose, onLoginSuccess,  onRegisterClick  }) => {
           <div className="input-box mb-8">
             <input
               type="submit"
-              value="Iniciar sesión"
+              value="Registrarse"
               className="w-full bg-blue-500 text-white p-3 rounded-md cursor-pointer hover:bg-blue-600 transition duration-300"
             />
           </div>
 
           <p className="text-center text-gray-400">
-            ¿Desea registrarse?{" "}
-            <a href="#" onClick={onRegisterClick} className="text-blue-500 hover:underline">
-              Registrarse
+            ¿Ya tiene una cuenta?{" "}
+            <a
+              className="cursor-pointer text-blue-500 hover:underline"
+              onClick={onLoginClick}
+            >
+              Iniciar sesión
             </a>
           </p>
         </form>
@@ -109,10 +146,10 @@ const LoginForm = ({ onClose, onLoginSuccess,  onRegisterClick  }) => {
   );
 };
 
-LoginForm.propTypes = {
+RegisterForm.propTypes = {
+  onLoginClick: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  onLoginSuccess: PropTypes.func.isRequired,
-  onRegisterClick: PropTypes.func.isRequired,
+  onRegisterSuccess: PropTypes.func.isRequired,
 };
 
-export default LoginForm;
+export default RegisterForm;
