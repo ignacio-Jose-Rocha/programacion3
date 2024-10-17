@@ -104,6 +104,45 @@ const AdminDB = {
     }
   },
 
+  getReclamoTipoByDescripcionDB: async (descripcion) => {
+    try {
+      const [rows] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE descripcion = ?",
+        [descripcion]
+      );
+      return rows;
+    } catch (error) {
+      console.error("Error al obtener reclamo tipo por descripción:", error);
+      throw error;
+    }
+  },
+
+  getReclamoTipoByIdDB: async (idReclamoTipo) => {
+    try {
+      const [rows] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
+        [idReclamoTipo]
+      );
+      return rows;
+    } catch (error) {
+      console.error("Error al obtener el reclamo tipo por ID:", error);
+      throw error;
+    }
+  },
+
+  getReclamoTipoByIdDB: async (idReclamoTipo) => {
+    try {
+      const [[reclamoTipo]] = await pool.query(
+        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
+        [idReclamoTipo]
+      );
+      return reclamoTipo;
+    } catch (error) {
+      console.error("Error al obtener reclamo tipo por ID:", error);
+      throw error; // Lanza el error para que sea manejado en el servicio
+    }
+  },
+
   // Función para crear tipo de reclamo
   crearReclamoTipoDB: async (descripcion, activo) => {
     try {
@@ -134,54 +173,57 @@ const AdminDB = {
   // Función para borrar tipo de reclamo
   borrarReclamoTipoDB: async (idReclamoTipo) => {
     try {
-      await pool.query(
-        "UPDATE reclamostipo SET activo = 0 WHERE idReclamoTipo = ?",
-        [idReclamoTipo]
-      );
+      await pool.query("UPDATE reclamostipo SET activo = 0 WHERE idReclamoTipo = ?", [idReclamoTipo]);
     } catch (error) {
-      console.error("Error al borrar tipo de reclamo:", error);
-      throw error;
+      console.error("Error al desactivar tipo de reclamo:", error);
+      throw error; // Lanza el error para que sea manejado en el servicio
+    }
+  },
+
+   // Funcion para verificar si el correo electrónico ya existe
+   verificarCorreo: async (correoElectronico) => {
+    try {
+      const [rows] = await pool.query(
+        "SELECT correoElectronico FROM usuarios WHERE correoElectronico = ?",
+        [correoElectronico]
+      );
+      return rows;
+    } catch (error) {
+      console.error("Error en AdminDB.verificarCorreo:", error);
+      throw new Error("Error al verificar el correo electrónico.");
     }
   },
 
   // Función para crear un usuario
-  crearUsuarioDB: async (usuario) => {
-    const {
-      nombre,
-      apellido,
-      correoElectronico,
-      contrasenia,
-      idTipoUsuario,
-      imagen,
-      activo,
-    } = usuario;
+  crearUsuarioDB: async (user) => {
     try {
-      const [rows] = await pool.query("INSERT INTO usuarios SET ?", {
-        nombre,
-        apellido,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario,
-        imagen,
-        activo,
-      });
-      return rows.insertId;
+      const result = await pool.query("INSERT INTO usuarios SET ?", [user]);
+      return result;
     } catch (error) {
-      console.error("Error al crear usuario:", error);
-      throw error;
+      console.error("Error en AdminDB.crearUsuarioDB:", error);
+      throw new Error("Error al crear el usuario en la base de datos.");
+    }
+  },
+
+   // Función para obtener usuario por ID
+  obtenerUsuarioPorId: async (idUsuario) => {
+    try {
+      const [rows] = await pool.query("SELECT * FROM usuarios WHERE idUsuario = ?", [idUsuario]);
+      return rows;
+    } catch (error) {
+      console.error("Error en AdminDB.obtenerUsuarioPorId:", error);
+      throw new Error("Error al obtener el usuario.");
     }
   },
 
   // Función para actualizar un usuario
   actualizarUsuarioDB: async (idUsuario, camposAActualizar, valores) => {
     try {
-      const query = `UPDATE usuarios SET ${camposAActualizar.join(
-        ", "
-      )} WHERE idUsuario = ?`;
+      const query = `UPDATE usuarios SET ${camposAActualizar.join(", ")} WHERE idUsuario = ?`;
       await pool.query(query, [...valores, idUsuario]);
     } catch (error) {
-      console.error("Error al actualizar usuario:", error);
-      throw error;
+      console.error("Error en AdminDB.actualizarUsuarioDB:", error);
+      throw new Error("Error al actualizar el usuario en la base de datos.");
     }
   },
 

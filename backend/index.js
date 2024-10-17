@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import routerCliente from './routes/clienteRoutes.js';
 import routerEmpleado from './routes/empleadoRoutes.js';
 import routerAdmin from './routes/adminRoutes.js';
+import authRouter from './routes/authRoutes.js';
 import redis from 'redis';
 
 
@@ -71,6 +72,7 @@ app.use(morgan('dev'));
 app.use('/clientes', routerCliente);
 app.use('/empleados', routerEmpleado);
 app.use('/admins', routerAdmin);
+app.use('/auth', authRouter);  // Ruta para autenticación
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));

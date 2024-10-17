@@ -4,8 +4,6 @@ import EmpleadoController from '../controllers/empleadoController.js';
 
 const router = express.Router();
 
-// Login del empleado
-router.post("/login", EmpleadoController.login);
 
 // Obtener reclamos asociados a la oficina del empleado
 router.get("/:idEmpleado/reclamos-oficina", EmpleadoController.listarReclamosOficina);
