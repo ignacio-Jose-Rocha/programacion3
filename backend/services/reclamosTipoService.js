@@ -1,4 +1,4 @@
-import AdminDB from "../database/adminDB.js";
+import ReclamosTipo from "../database/reclamosTipoDB.js";
 import redisClient from "../index.js";
 
 const ReclamosTipoService = {
@@ -18,7 +18,7 @@ const ReclamosTipoService = {
       }
 
       // Si no hay datos en caché, obtenerlos de la base de datos
-      const rows = await AdminDB.getAllReclamosTipoDB();
+      const rows = await ReclamosTipo.getAllReclamosTipoDB();
 
       // Si no se encuentran tipos de reclamos activos
       if (rows.length === 0) {
@@ -44,7 +44,7 @@ const ReclamosTipoService = {
   crearReclamoTipo: async (descripcion, activo = 1) => {
     try {
       // Verificar si el reclamo tipo ya existe
-      const [[reclamosTipo]] = await AdminDB.getReclamoTipoByDescripcionDB(descripcion);
+      const [[reclamosTipo]] = await ReclamosTipo.getReclamoTipoByDescripcionDB(descripcion);
 
       if (reclamosTipo) {
         return {
@@ -54,7 +54,7 @@ const ReclamosTipoService = {
       }
 
       // Crear el tipo de reclamo en la base de datos
-      const result = await AdminDB.crearReclamoTipoDB(descripcion, activo);
+      const result = await ReclamosTipo.crearReclamoTipoDB(descripcion, activo);
 
       return {
         status: 200,
@@ -71,7 +71,7 @@ const ReclamosTipoService = {
   actualizarReclamoTipo: async (idReclamoTipo, descripcion) => {
     try {
       // Verificar si el reclamo tipo existe en la base de datos
-      const [[reclamoTipo]] = await AdminDB.getReclamoTipoByIdDB(idReclamoTipo);
+      const [[reclamoTipo]] = await ReclamosTipo.getReclamoTipoByIdDB(idReclamoTipo);
       
       if (!reclamoTipo) {
         throw new Error("Reclamo tipo a actualizar no encontrado");
@@ -83,7 +83,7 @@ const ReclamosTipoService = {
       }
 
       // Actualizar el tipo de reclamo
-      await AdminDB.actualizarReclamoTipoDB(idReclamoTipo, descripcion);
+      await ReclamosTipo.actualizarReclamoTipoDB(idReclamoTipo, descripcion);
 
       // Retornar el resultado
       return {
@@ -99,7 +99,7 @@ const ReclamosTipoService = {
   borrarReclamoTipo: async (idReclamoTipo) => {
     try {
       // Verificar si el reclamo tipo existe
-      const reclamoTipo = await AdminDB.getReclamoTipoByIdDB(idReclamoTipo);
+      const reclamoTipo = await ReclamosTipo.getReclamoTipoByIdDB(idReclamoTipo);
       if (!reclamoTipo) {
         throw new Error("Reclamo tipo no encontrado");
       }

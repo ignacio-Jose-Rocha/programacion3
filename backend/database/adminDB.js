@@ -40,148 +40,19 @@ const AdminDB = {
     }
   },
 
-  // Función para obtener todos los reclamos
-  getAllReclamosDB: async () => {
+  // Función para crear un usuario
+  crearUsuarioDB: async (user) => {
     try {
-      const [rows] = await pool.query("SELECT * FROM reclamos");
-      return rows;
+      const result = await pool.query("INSERT INTO usuarios SET ?", [user]);
+      return result;
     } catch (error) {
-      console.error("Error al obtener reclamos:", error);
-      throw error;
+      console.error("Error al crear usuario en la base de datos:", error);
+      throw new Error("Error al crear el usuario en la base de datos.");
     }
   },
 
-  // Función para obtener tipos de reclamos
-  getAllReclamosTipoDB: async () => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE activo = 1"
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener tipos de reclamos:", error);
-      throw error;
-    }
-  },
-
-  // Función para obtener todas las oficinas
-  getAllOficinasDB: async () => {
-    try {
-      const [rows] = await pool.query("SELECT * FROM oficinas WHERE activo = 1");
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener oficinas:", error);
-      throw error;
-    }
-  },
-
-  // Función para obtener empleados por oficina
-  getEmpleadosByOficinaDB: async (idOficina) => {
-    try {
-      const query = `
-      SELECT u.nombre, u.apellido, u.idUsuario
-      FROM usuarios AS u
-      INNER JOIN usuariosOficinas AS uo ON u.idUsuario = uo.idUsuario
-      WHERE uo.idOficina = ? AND uo.activo = 1`;
-      const [rows] = await pool.query(query, [idOficina]);
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener empleados por oficina:", error);
-      throw error;
-    }
-  },
-
-  // Función para obtener estadísticas completas
-  getEstadisticasCompletasDB: async () => {
-    try {
-      const [resultados] = await pool.query(
-        "CALL obtenerEstadisticasCompletas()"
-      );
-      return resultados;
-    } catch (error) {
-      console.error("Error al obtener estadísticas completas:", error);
-      throw error;
-    }
-  },
-
-  getReclamoTipoByDescripcionDB: async (descripcion) => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE descripcion = ?",
-        [descripcion]
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener reclamo tipo por descripción:", error);
-      throw error;
-    }
-  },
-
-  getReclamoTipoByIdDB: async (idReclamoTipo) => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
-        [idReclamoTipo]
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener el reclamo tipo por ID:", error);
-      throw error;
-    }
-  },
-
-  getReclamoTipoByIdDB: async (idReclamoTipo) => {
-    try {
-      const [[reclamoTipo]] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
-        [idReclamoTipo]
-      );
-      return reclamoTipo;
-    } catch (error) {
-      console.error("Error al obtener reclamo tipo por ID:", error);
-      throw error; // Lanza el error para que sea manejado en el servicio
-    }
-  },
-
-  // Función para crear tipo de reclamo
-  crearReclamoTipoDB: async (descripcion, activo) => {
-    try {
-      const [rows] = await pool.query("INSERT INTO reclamostipo SET ?", {
-        descripcion,
-        activo,
-      });
-      return rows.insertId;
-    } catch (error) {
-      console.error("Error al crear tipo de reclamo:", error);
-      throw error;
-    }
-  },
-
-  // Función para actualizar tipo de reclamo
-  actualizarReclamoTipoDB: async (idReclamoTipo, descripcion) => {
-    try {
-      await pool.query(
-        "UPDATE reclamostipo SET descripcion = ? WHERE idReclamoTipo = ?",
-        [descripcion, idReclamoTipo]
-      );
-    } catch (error) {
-      console.error("Error al actualizar tipo de reclamo:", error);
-      throw error;
-    }
-  },
-
-  // Función para borrar tipo de reclamo
-  borrarReclamoTipoDB: async (idReclamoTipo) => {
-    try {
-      await pool.query("UPDATE reclamostipo SET activo = 0 WHERE idReclamoTipo = ?", [idReclamoTipo]);
-    } catch (error) {
-      console.error("Error al desactivar tipo de reclamo:", error);
-      throw error; // Lanza el error para que sea manejado en el servicio
-    }
-  },
-
-   // Funcion para verificar si el correo electrónico ya existe
-   verificarCorreo: async (correoElectronico) => {
+  // Función para verificar si el correo electrónico ya existe
+  verificarCorreo: async (correoElectronico) => {
     try {
       const [rows] = await pool.query(
         "SELECT correoElectronico FROM usuarios WHERE correoElectronico = ?",
@@ -194,21 +65,13 @@ const AdminDB = {
     }
   },
 
-  // Función para crear un usuario
-  crearUsuarioDB: async (user) => {
-    try {
-      const result = await pool.query("INSERT INTO usuarios SET ?", [user]);
-      return result;
-    } catch (error) {
-      console.error("Error en AdminDB.crearUsuarioDB:", error);
-      throw new Error("Error al crear el usuario en la base de datos.");
-    }
-  },
-
-   // Función para obtener usuario por ID
+  // Función para obtener usuario por ID
   obtenerUsuarioPorId: async (idUsuario) => {
     try {
-      const [rows] = await pool.query("SELECT * FROM usuarios WHERE idUsuario = ?", [idUsuario]);
+      const [rows] = await pool.query(
+        "SELECT * FROM usuarios WHERE idUsuario = ?",
+        [idUsuario]
+      );
       return rows;
     } catch (error) {
       console.error("Error en AdminDB.obtenerUsuarioPorId:", error);
@@ -235,31 +98,6 @@ const AdminDB = {
       ]);
     } catch (error) {
       console.error("Error al borrar usuario:", error);
-      throw error;
-    }
-  },
-
-  // Función para asignar empleado a oficina
-  asignarEmpleadoDB: async (idOficina, idUsuario) => {
-    try {
-      const query =
-        "INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)";
-      const result = await pool.query(query, [idUsuario, idOficina]);
-      return result.insertId; // Devuelve el id de la asignación realizada
-    } catch (error) {
-      console.error("Error al asignar el empleado a la oficina", error);
-      throw new Error("Error al asignar el empleado a la oficina");
-    }
-  },
-
-  // Función para eliminar empleado de oficina
-  eliminarEmpleadoDeOficinaDB: async (idUsuario) => {
-    try {
-      const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
-      const result = await pool.query(query, [idUsuario]);
-      return result; // Se devuelve el resultado de la consulta
-    } catch (error) {
-      console.error('Error al desactivar el usuario de la oficina en la base de datos:', error);
       throw error;
     }
   },

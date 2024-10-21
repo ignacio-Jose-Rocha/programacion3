@@ -1,10 +1,13 @@
-import empleadoService from "../services/empleadoService.js";
+import ReclamoOficinaService from "../services/reclamoOficinaService.js";
 
-const EmpleadoController = {
+
+// VERIFICAR QUE ATIENDA LOS RECLAMOS DE SU OFICINA EN EL ACTUALIAZAR ESTADO RECLAMO
+
+const ReclamoOficinaController = {
   listarReclamosOficina: async (req, res) => {
     const { idEmpleado } = req.params;
     try {
-      const reclamos = await empleadoService.listarReclamosOficina(idEmpleado);
+      const reclamos = await ReclamoOficinaService.listarReclamosOficina(idEmpleado);
       res.json({ reclamos });
     } catch (error) {
       console.error("Error al listar reclamos de la oficina:", error);
@@ -19,7 +22,7 @@ const EmpleadoController = {
   ActualizarEstadoReclamo: async (req, res) => {
     const { idCliente, nuevoEstado, idReclamo } = req.params;
     try {
-      const resultado = await empleadoService.actualizarEstadoReclamo(
+      const resultado = await ReclamoOficinaService.actualizarEstadoReclamo(
         idCliente,
         nuevoEstado,
         idReclamo
@@ -35,4 +38,4 @@ const EmpleadoController = {
   },
 };
 
-export default EmpleadoController;
+export default ReclamoOficinaController;

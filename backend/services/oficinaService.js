@@ -1,4 +1,4 @@
-import AdminDB from "../database/adminDB.js"; // Asegúrate de que la ruta sea correcta
+import oficinas from "../database/oficinasDB.js";
 import redisClient from "../index.js"
 
 const oficinaService = {
@@ -11,7 +11,7 @@ const oficinaService = {
       return JSON.parse(cachedData);
     }
 
-    const rows = await AdminDB.getAllOficinasDB();
+    const rows = await oficinas.getAllOficinasDB();
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
     return rows;
   },
@@ -25,7 +25,7 @@ const oficinaService = {
       return JSON.parse(cachedData);
     }
 
-    const rows = await AdminDB.getEmpleadosByOficinaDB(idOficina);
+    const rows = await oficinas.getEmpleadosByOficinaDB(idOficina);
     if (rows.length === 0) {
       throw new Error("Oficina sin empleados asignados");
     }
@@ -36,7 +36,7 @@ const oficinaService = {
 
   asignarEmpleadoAOficina: async (idOficina, idUsuario) => {
     try {
-      const idAsignacion = await AdminDB.asignarEmpleadoDB(idOficina, idUsuario);
+      const idAsignacion = await oficinas.asignarEmpleadoDB(idOficina, idUsuario);
       return idAsignacion;
     } catch (error) {
       throw new Error("Error al asignar el empleado a la oficina: " + error.message);
@@ -45,7 +45,7 @@ const oficinaService = {
 
   eliminarEmpleadoDeOficina: async (idUsuario) => {
     try {
-      const result = await AdminDB.eliminarEmpleadoDeOficinaDB(idUsuario);
+      const result = await oficinas.eliminarEmpleadoDeOficinaDB(idUsuario);
       return result; // Retorna el resultado para manejarlo en el controlador
     } catch (error) {
       throw new Error("Error al desactivar el usuario de la oficina: " + error.message);

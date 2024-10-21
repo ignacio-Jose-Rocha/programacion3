@@ -1,6 +1,6 @@
 import pool from '../config.js';
 
-const EmpleadoDB = {
+const ReclamoOficinaDB = {
   // Función para obtener los reclamos de la oficina del empleado
   obtenerReclamosPorOficinaDB: async (idEmpleado) => {
     try {
@@ -21,7 +21,7 @@ const EmpleadoDB = {
   obtenerReclamoPorClienteYReclamoDB: async (idReclamo, idCliente) => {
     try {
       const [[reclamo]] = await pool.query(`
-        SELECT r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre
+        SELECT r.asunto, r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre
         FROM reclamos r
         JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario
         WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?`, [idReclamo, idCliente]);
@@ -54,4 +54,4 @@ const EmpleadoDB = {
   },
 };
 
-export default EmpleadoDB;
+export default ReclamoOficinaDB;

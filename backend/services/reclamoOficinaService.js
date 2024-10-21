@@ -4,13 +4,13 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import EmpleadoDB from "../database/empleadoDB.js";
+import ReclamoOficinaDB from "../database/reclamoOficinaDB.js";
 
 dotenv.config();
 
-const EmpleadoService = {
+const ReclamoOficinaService = {
   listarReclamosOficina: async (idEmpleado) => {
-    const reclamos = await EmpleadoDB.obtenerReclamosPorOficinaDB(idEmpleado);
+    const reclamos = await ReclamoOficinaDB.obtenerReclamosPorOficinaDB(idEmpleado);
 
     if (reclamos.length === 0) {
       throw new Error(
@@ -38,10 +38,7 @@ const EmpleadoService = {
     }
   
     // Verificar si el reclamo existe
-    const reclamo = await EmpleadoDB.obtenerReclamoPorClienteYReclamoDB(
-      idReclamo,
-      idCliente
-    );
+    const reclamo = await ReclamoOficinaDB.obtenerReclamoPorClienteYReclamoDB(idReclamo,idCliente);
   
     if (!reclamo) {
       throw new Error("No se encontró el reclamo para este usuario.");
@@ -56,11 +53,7 @@ const EmpleadoService = {
     }
   
     // Actualizar estado en la base de datos
-    const resultado = await EmpleadoDB.actualizarEstadoReclamoDB(
-      idReclamo,
-      idCliente,
-      estadoNumerico
-    );
+    const resultado = await ReclamoOficinaDB.actualizarEstadoReclamoDB(idReclamo,idCliente,estadoNumerico);
   
     if (resultado.affectedRows === 0) {
       throw new Error("El estado no se pudo actualizar.");
@@ -80,8 +73,9 @@ const EmpleadoService = {
     const datos = {
       cliente: reclamo.nombre,
       estadoReclamo: estadoReclamo[estadoNumerico],
-      reclamoId: idCliente,
+      asunto: reclamo.asunto,
     };
+    console.log(datos);
   
     const correoHtml = template(datos);
   
@@ -110,10 +104,10 @@ const EmpleadoService = {
     await transporter.sendMail(mailOptions);
   
     return {
-      mensaje: `El estado del reclamo ${idReclamo} ha sido actualizado a ${estadoReclamo[estadoNumerico]}.`,
+      mensaje: `El estado del reclamo: ${reclamo.asunto}, ha sido actualizado a ${estadoReclamo[estadoNumerico]}.`,
       notificacion: "Notificación enviada correctamente.",
     };
   },
 };
 
-export default EmpleadoService;
+export default ReclamoOficinaService;

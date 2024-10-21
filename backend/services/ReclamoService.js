@@ -1,6 +1,7 @@
-import ClienteDB from '../database/clienteDB.js';
 import redisClient from "../index.js";
-import AdminDB from "../database/adminDB.js"
+import ReclamoDB from '../database/reclamoDB.js';
+import PDFDocument from "pdfkit";
+
 const ReclamoService = {
 
   getAllReclamos: async () => {
@@ -12,7 +13,7 @@ const ReclamoService = {
       return JSON.parse(cachedData);
     }
 
-    const rows = await AdminDB.getAllReclamosDB();
+    const rows = await ReclamoDB.obtenerReclamosDB();
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
     return rows;
   },
@@ -30,7 +31,7 @@ const ReclamoService = {
     }
 
     // Verificar si el reclamo ya existe
-    const { existeReclamo, idTipoUsuario } = await ClienteDB.buscarReclamoPorUsuarioYAsuntoDB(idUsuarioCreador, asunto);
+    const { existeReclamo, idTipoUsuario } = await ReclamoDB.buscarReclamoPorUsuarioYAsuntoDB(idUsuarioCreador, asunto);
 
     if (existeReclamo > 0) {
       throw new Error('Este reclamo ya existe.');
@@ -45,7 +46,7 @@ const ReclamoService = {
     const idReclamoEstado = 1; // Estado inicial de un reclamo (por ejemplo, "Pendiente")
 
     // Crear el reclamo en la base de datos
-    const idReclamo = await ClienteDB.crearReclamoDB({
+    const idReclamo = await ReclamoDB.crearReclamoDB({
       asunto,
       descripcion,
       fechaCreado,
@@ -65,18 +66,9 @@ const ReclamoService = {
     };
   },
 
-  obtenerTiposDeReclamos: async () => {
-    try {
-      const tiposReclamos = await ClienteDB.obtenerTiposDeReclamosDB();
-      return tiposReclamos;
-    } catch (error) {
-      throw new Error('Error al obtener los tipos de reclamos: ' + error.message);
-    }
-  },
-
   cancelarReclamo: async (idCliente, idReclamo) => {
     try {
-      const reclamo = await ClienteDB.buscarReclamoPorIdDB(idCliente, idReclamo);
+      const reclamo = await ReclamoDB.buscarReclamoPorIdDB(idCliente, idReclamo);
       if (!reclamo) {
         throw new Error("No se encontró el reclamo");
       }
@@ -96,7 +88,7 @@ const ReclamoService = {
 
   obtenerReclamosPorUsuario:  async (idUsuario) => {
     try {
-      const reclamos = await ClienteDB.obtenerReclamosPorUsuarioDB(idUsuario);
+      const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idUsuario);
       if (reclamos.length === 0) {
         throw new Error("No se encontraron reclamos para este usuario");
       }
@@ -108,7 +100,7 @@ const ReclamoService = {
 
   obtenerReclamoEstado: async (idCliente) => {
     try {
-      const [[usuario]] = await ClienteDB.obtenerUsuarioPorIdDB(idCliente);
+      const [[usuario]] = await ReclamoDB.obtenerUsuarioPorIdDB(idCliente);
       
       if (!usuario || !usuario.idTipoUsuario) {
         throw new Error("No se encontró el cliente");
@@ -117,7 +109,7 @@ const ReclamoService = {
         throw new Error("Usuario no es de tipo cliente");
       }
   
-      const reclamos = await ClienteDB.obtenerReclamosPorUsuarioDB(idCliente);
+      const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idCliente);
       
       if (reclamos.length === 0) {
         throw new Error("No se encontró ningún reclamo para este cliente");
@@ -142,6 +134,28 @@ const ReclamoService = {
       throw new Error(error.message);
     }
   },
+
+  obtenerReclamos: async () => {
+    try {
+      const reclamos = await ReclamoDB.obtenerReclamosDB(); // Llama a la función de la base de datos
+      return reclamos; // Retorna los reclamos
+    } catch (error) {
+      console.error("Error en el servicio al obtener reclamos:", error);
+      throw error; // Lanza el error para que el controlador lo maneje
+    }
+  },
+
+  generarPDF: (reclamos) => {
+    const doc = new PDFDocument();
+    
+    doc.fontSize(18).text("Informe de Reclamos", { align: "center" });
+
+    reclamos.forEach((reclamo) => {
+      doc.fontSize(12).text(`Asunto: ${reclamo.asunto}, Fecha creado: ${reclamo.fechaCreado}`);
+    });
+
+    return doc; // Retorna el documento PDF
+  }
 
 };
 

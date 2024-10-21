@@ -4,10 +4,13 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import routerCliente from './routes/clienteRoutes.js';
-import routerEmpleado from './routes/empleadoRoutes.js';
-import routerAdmin from './routes/adminRoutes.js';
 import authRouter from './routes/authRoutes.js';
+import routerCliente from './routes/clienteRoutes.js';
+import routerAdmin from './routes/adminRoutes.js';
+import routerReclamoOficina from './routes/reclamoOficinaRoutes.js';
+import routerReclamo from './routes/reclamoRoutes.js';
+import routerReclamoTipo from './routes/reclamoTipoRoutes.js'
+import routerOficina from './routes/oficinaRoutes.js';
 import redis from 'redis';
 
 
@@ -69,10 +72,13 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas
-app.use('/clientes', routerCliente);
-app.use('/empleados', routerEmpleado);
-app.use('/admins', routerAdmin);
 app.use('/auth', authRouter);  // Ruta para autenticación
+app.use('/clientes', routerCliente);
+app.use('/admins', routerAdmin);
+app.use('/reclamoOficinas', routerReclamoOficina);
+app.use('/reclamos', routerReclamo);  
+app.use('/reclamoTipos', routerReclamoTipo);  
+app.use('/oficinas', routerOficina);  
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));

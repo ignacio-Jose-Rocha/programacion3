@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import ClienteDB from '../database/clienteDB.js'; // Importar la base de datos
+import ClienteDB from '../database/clienteDB.js'; 
 
 const ClienteService = {
   // Crear un nuevo cliente
