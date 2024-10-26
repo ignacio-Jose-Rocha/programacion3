@@ -17,25 +17,25 @@ const ReclamoOficinaDB = {
     }
   },
 
-  // Función para obtener un reclamo por idCliente y idReclamo
-  obtenerReclamoPorClienteYReclamoDB: async (idReclamo, idCliente) => {
+
+   // Función para verificar si el empleado está asignado a la oficina
+   verificarEmpleadoAsignado: async (idEmpleado, idOficina) => {
     try {
-      const [[reclamo]] = await pool.query(`
-        SELECT r.asunto, r.idReclamo, r.idReclamoEstado, u.correoElectronico, u.nombre
-        FROM reclamos r
-        JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario
-        WHERE r.idReclamo = ? AND r.idUsuarioCreador = ?`, [idReclamo, idCliente]);
-      return reclamo;
+      const [[empleadoAsignado]] = await pool.query(`
+        SELECT 1
+        FROM usuariosOficinas
+        WHERE idUsuario = ? AND idOficina = ?`, [idEmpleado, idOficina]);
+      return !!empleadoAsignado; // Devuelve true si existe, false si no
     } catch (error) {
-      throw new Error('Error al obtener el reclamo: ' + error.message);
+      throw new Error('Error al verificar el empleado asignado: ' + error.message);
     }
   },
 
   // Función para actualizar el estado del reclamo
-  actualizarEstadoReclamoDB: async (idReclamo, idCliente, estadoNumerico) => {
+  actualizarEstadoReclamoDB: async (idReclamo, idCliente, estadoNumerico, idEmpleado) => {
     try {
-      let query = 'UPDATE reclamos SET idReclamoEstado = ?';
-      const valores = [estadoNumerico];
+      let query = 'UPDATE reclamos SET idReclamoEstado = ?, idUsuarioFinalizador = ?';
+      const valores = [estadoNumerico, idEmpleado];
 
       if (estadoNumerico === 3) {
         query += ', fechaCancelado = NOW()';

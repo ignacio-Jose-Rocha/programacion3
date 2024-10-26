@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/reclamos/usuario/:idUsuario', ReclamoController.obtenerReclamoId);
 router.get('/reclamos/estado/:idCliente', ReclamoController.obtenerReclamoEstado);
 router.post('/reclamo', ReclamoController.crearReclamo);
-router.post("/:idCliente/reclamos/:idReclamo/cancelar", ReclamoController.cancelarReclamo);
+router.put("/:idCliente/reclamos/:idReclamo/cancelar", ReclamoController.cancelarReclamo);
 router.get("/reclamos", ReclamoController.getAllReclamos);
 router.get("/reclamos/pdf", ReclamoController.descargarReclamosPDF);
 

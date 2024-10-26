@@ -4,19 +4,7 @@ import ClienteDB from '../database/clienteDB.js';
 const ClienteService = {
   // Crear un nuevo cliente
   crearCliente: async (nombre, apellido, correoElectronico, contrasenia, imagen) => {
-    if (!nombre || !apellido || !correoElectronico || !contrasenia) {
-      const errores = [];
-      if (!nombre) errores.push("nombre");
-      if (!apellido) errores.push("apellido");
-      if (!correoElectronico) errores.push("correoElectronico");
-      if (!contrasenia) errores.push("contrasenia");
-
-      throw new Error(`Faltan los siguientes datos requeridos: ${errores.join(', ')}`);
-    }
-
-    const idTipoUsuario = 3;
-    const activo = 1;
-
+    
     // Verificar si el usuario ya existe
     const usuarios = await ClienteDB.buscarUsuarioDB(correoElectronico, nombre, apellido);
     if (usuarios.length > 0) {
@@ -25,6 +13,9 @@ const ClienteService = {
 
     // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(contrasenia, 10);
+
+    const idTipoUsuario = 3;  // por defecrto va a ser tipo 3 "cliente" y activo = 1
+    const activo = 1; 
 
     // Crear el usuario en la base de datos
     const idUsuario = await ClienteDB.crearUsuarioDB({
@@ -48,25 +39,12 @@ const ClienteService = {
     };
   },
 
-  actualizarCliente: async (idCliente, body, tokenD) => {
+  actualizarCliente: async (idCliente, body) => {
     const { nombre, apellido, correoElectronico, contrasenia, imagen } = body;
-  
-    // Verificar el token
-    const decodedToken = jwt.verify(tokenD, process.env.JWT_SECRET);
-    
-    if (decodedToken.idTipoUsuario != 3) {
-      throw new Error("No tienes permisos para realizar esta operación");
-    }
-    
-    // Verifica si el usuario existe y es activo
-    const [[user]] = await ClienteDB.buscarUsuarioActivoPorIdDB(idCliente);
+    const user = await ClienteDB.buscarUsuarioActivoPorIdDB(idCliente);
     
     if (!user) {
       throw new Error("Usuario no encontrado o está inactivo");
-    }
-    
-    if (user.idTipoUsuario != 3) {
-      throw new Error("No tienes permisos para realizar esta operación");
     }
   
     const camposActualizar = [];
@@ -97,9 +75,9 @@ const ClienteService = {
     if (camposActualizar.length === 0) {
       throw new Error("No se proporcionaron campos para actualizar");
     }
-  
+   
     await ClienteDB.actualizarUsuarioDB(idCliente, camposActualizar, valoresActualizar);
-  
+
     return {
       id: idCliente,
       nombre,
@@ -108,6 +86,7 @@ const ClienteService = {
       imagen,
     };
   },
+  
 };
 
 export default ClienteService;

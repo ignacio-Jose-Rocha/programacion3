@@ -40,12 +40,12 @@ const ClienteDB = {
     }
   },
 
-  // Actualiza los datos de un usuario utilizando una consulta SQL personalizada
+  // Actualiza los datos de un usuario
   actualizarUsuarioDB: async (idUsuario, camposActualizar, valores) => {
     try {
       const query = `UPDATE usuarios SET ${camposActualizar.join(
         ", "
-      )} WHERE idCliente=? AND idTipoUsuario = 3`;
+      )} WHERE idUsuario=? AND idTipoUsuario = 3`;
       await pool.query(query, [...valores, idUsuario]);
     } catch (error) {
       throw new Error("Error al actualizar el usuario: " + error.message);

@@ -12,10 +12,14 @@ import routerReclamo from './routes/reclamoRoutes.js';
 import routerReclamoTipo from './routes/reclamoTipoRoutes.js'
 import routerOficina from './routes/oficinaRoutes.js';
 import redis from 'redis';
+import passport from "passport";
+import initializePassport from './config/passportConfig.js';
+import autorizarUsuario from './middleware/autorizarUsuario.js';
 
 
 // Cargar variables de entorno
 dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +27,9 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename); 
 
+// Inicializa Passport
+initializePassport(passport);
+app.use(passport.initialize());
 
 const redisClient = redis.createClient({
   url: 'redis://127.0.0.1:6379'
@@ -72,10 +79,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas
-app.use('/auth', authRouter);  // Ruta para autenticación
+app.use('/auth', authRouter);  
 app.use('/clientes', routerCliente);
 app.use('/admins', routerAdmin);
-app.use('/reclamoOficinas', routerReclamoOficina);
+app.use('/reclamoOficinas', passport.authenticate('jwt', { session: false }), autorizarUsuario([2]), routerReclamoOficina);
 app.use('/reclamos', routerReclamo);  
 app.use('/reclamoTipos', routerReclamoTipo);  
 app.use('/oficinas', routerOficina);  

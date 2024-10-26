@@ -36,8 +36,13 @@ const ReclamoController = {
   cancelarReclamo: async (req, res) => {
     const { idCliente, idReclamo } = req.params;
     try {
-      const result = await ReclamoService.cancelarReclamo(idCliente, idReclamo);
-      res.status(200).json(result);
+      const reclamoModificado = await ReclamoService.cancelarReclamo(idCliente, idReclamo);
+      if (reclamoModificado.estado){
+        res.status(200).send({estado:"OK", mensaje: reclamoModificado});
+      }
+      else{
+        res.status(404).send({estado:"Falla", mensaje: reclamoModificado.mensaje});
+      }
     } catch (error) {
       console.error("Error al cancelar reclamo:", error);
       res.status(400).json({ error: error.message });

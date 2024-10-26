@@ -1,12 +1,8 @@
-import dotenv from "dotenv";
-import handlebars from "handlebars";
-import nodemailer from "nodemailer";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import ReclamoOficinaDB from "../database/reclamoOficinaDB.js";
 
-dotenv.config();
+import ReclamoOficinaDB from "../database/reclamoOficinaDB.js";
+import NotificacionEmail from "../services/notificacionEmailService.js";
+import ReclamoDB from "../database/reclamoDB.js"
+
 
 const ReclamoOficinaService = {
   listarReclamosOficina: async (idEmpleado) => {
@@ -21,93 +17,45 @@ const ReclamoOficinaService = {
     return reclamos;
   },
 
-  actualizarEstadoReclamo: async (idCliente, nuevoEstado, idReclamo) => {
-    const estadoReclamo = {
-      1: "Creado",
-      2: "En proceso",
-      3: "Cancelado",
-      4: "Finalizado",
-    };
-  
+  actualizarEstadoReclamo: async (idEmpleado, idCliente, nuevoEstado, idReclamo) => {
     const estadoNumerico = parseInt(nuevoEstado, 10);
-  
-    if (!estadoReclamo[estadoNumerico]) {
-      throw new Error(
-        "El estado proporcionado no es válido. Debe ser un número entre 1 y 4."
-      );
-    }
-  
-    // Verificar si el reclamo existe
-    const reclamo = await ReclamoOficinaDB.obtenerReclamoPorClienteYReclamoDB(idReclamo,idCliente);
-  
+
+    const reclamo = await ReclamoDB.obtenerReclamoPorClienteYReclamoDB(idCliente, idReclamo);
+    console.log(reclamo);
+
     if (!reclamo) {
       throw new Error("No se encontró el reclamo para este usuario.");
     }
-  
-    // Verificar si el reclamo ya está cancelado o finalizado
+    
+    const estaAsignado = await ReclamoOficinaDB.verificarEmpleadoAsignado(idEmpleado, reclamo.idOficina);
+    
+    if (!estaAsignado) {
+      throw new Error("Este reclamo no le corresponde a su oficina");
+    }
+
+    const estadoValido = await ReclamoDB.obtenerEstadoReclamoPorId(estadoNumerico);
+    
+    if (!estadoValido) {
+      throw new Error("El estado proporcionado no es válido. Debe ser un número entre 1 y 4.");
+    }
+
     if (reclamo.idReclamoEstado === 3) {
       throw new Error("Reclamo ya cancelado.");
     }
     if (reclamo.idReclamoEstado === 4) {
       throw new Error("Reclamo ya finalizado.");
     }
-  
-    // Actualizar estado en la base de datos
-    const resultado = await ReclamoOficinaDB.actualizarEstadoReclamoDB(idReclamo,idCliente,estadoNumerico);
-  
+
+    const resultado = await ReclamoOficinaDB.actualizarEstadoReclamoDB(idReclamo, idCliente, estadoNumerico, idEmpleado);
+
     if (resultado.affectedRows === 0) {
       throw new Error("El estado no se pudo actualizar.");
     }
-  
-    // Cargar plantilla de correo electrónico
-    const filename = fileURLToPath(import.meta.url);
-    const dir = path.dirname(filename);
-    const backendDir = path.resolve(dir, "..");
-    const plantilla = fs.readFileSync(
-      path.join(backendDir + "/utiles/handlebars/plantilla.hbs"),
-      "utf-8"
-    );
-    const template = handlebars.compile(plantilla);
-  
-    // Crear datos para la plantilla
-    const datos = {
-      cliente: reclamo.nombre,
-      estadoReclamo: estadoReclamo[estadoNumerico],
-      asunto: reclamo.asunto,
-    };
-    console.log(datos);
-  
-    const correoHtml = template(datos);
-  
-    // Configurar y enviar correo electrónico
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.CORREO,
-        pass: process.env.CLAVE,
-      },
-    });
-  
-    const mailOptions = {
-      to: reclamo.correoElectronico,
-      subject: "NOTIFICACION RECLAMO",
-      html: correoHtml,
-      text: "Este es un mensaje de notificación",
-      headers: {
-        "X-Priority": "3",
-        "X-MSMail-Priority": "Normal",
-        Importance: "Normal",
-      },
-    };
-  
-    // Enviar correo
-    await transporter.sendMail(mailOptions);
-  
-    return {
-      mensaje: `El estado del reclamo: ${reclamo.asunto}, ha sido actualizado a ${estadoReclamo[estadoNumerico]}.`,
-      notificacion: "Notificación enviada correctamente.",
-    };
-  },
+
+    return await NotificacionEmail(reclamo, estadoValido.descripcion);
+
+  } 
+
 };
 
 export default ReclamoOficinaService;

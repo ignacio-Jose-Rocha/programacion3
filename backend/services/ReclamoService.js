@@ -1,6 +1,7 @@
 import redisClient from "../index.js";
 import ReclamoDB from '../database/reclamoDB.js';
 import PDFDocument from "pdfkit";
+import NotificacionEmail from "../services/notificacionEmailService.js";
 
 const ReclamoService = {
 
@@ -9,7 +10,6 @@ const ReclamoService = {
     const cachedData = await redisClient.get(cacheKey);
     
     if (cachedData) {
-      console.log("Datos obtenidos de la caché");
       return JSON.parse(cachedData);
     }
 
@@ -68,7 +68,7 @@ const ReclamoService = {
 
   cancelarReclamo: async (idCliente, idReclamo) => {
     try {
-      const reclamo = await ReclamoDB.buscarReclamoPorIdDB(idCliente, idReclamo);
+      const reclamo = await ReclamoDB.obtenerReclamoPorClienteYReclamoDB(idCliente, idReclamo);
       if (!reclamo) {
         throw new Error("No se encontró el reclamo");
       }
@@ -79,8 +79,12 @@ const ReclamoService = {
         throw new Error("Su reclamo ya está siendo atendido, no puede ser cancelado");
       }
   
-      await ClienteDB.cancelarReclamoDB(idCliente, idReclamo);
-      return { message: "Reclamo cancelado con éxito" };
+      await ReclamoDB.cancelarReclamoDB(idCliente, idReclamo);
+
+      const estadoValido = await ReclamoDB.obtenerEstadoReclamoPorId(3);
+      
+      return await NotificacionEmail(reclamo, estadoValido.descripcion);
+
     } catch (error) {
       throw new Error(error.message);
     }
