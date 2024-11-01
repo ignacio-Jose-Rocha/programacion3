@@ -73,8 +73,11 @@ const ReclamoDB = {
   // Obtiene todos los reclamos hechos por un usuario específico
   obtenerReclamosPorUsuarioDB: async (idUsuario) => {
     try {
-      const [rows] = await pool.query(
-        "SELECT idReclamo, asunto, idReclamoEstado FROM reclamos where idUsuarioCreador=?",
+      const [rows] = await pool.query(`
+        SELECT r.idReclamo, r.asunto, r.idReclamoEstado, rE.descripcion
+        FROM reclamos r
+        JOIN reclamosestado rE ON r.idReclamoEstado = rE.idReclamoEstado
+        where idUsuarioCreador=?`,
         [idUsuario]
       );
       return rows;
@@ -85,19 +88,7 @@ const ReclamoDB = {
     }
   },
 
-  // Obtiene los detalles de un usuario específico por su ID
-  obtenerUsuarioPorIdDB: async (idCliente) => {
-    try {
-      const [[usuario]] = await pool.query(
-        "SELECT idUsuario, idTipoUsuario FROM usuarios WHERE idUsuario = ?",
-        [idCliente]
-      );
-      return usuario;
-    } catch (error) {
-      throw new Error("Error al obtener el usuario por ID: " + error.message);
-    }
-  },
-
+ 
   // obtiene el estado de reclamo por idEstado
   obtenerEstadoReclamoPorId: async (idEstado) => {
     const [[estado]] = await pool.query(`

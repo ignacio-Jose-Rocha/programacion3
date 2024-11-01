@@ -90,49 +90,16 @@ const ReclamoService = {
     }
   },
 
-  obtenerReclamosPorUsuario:  async (idUsuario) => {
-    try {
-      const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idUsuario);
-      if (reclamos.length === 0) {
-        throw new Error("No se encontraron reclamos para este usuario");
-      }
-      return reclamos;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  },
 
   obtenerReclamoEstado: async (idCliente) => {
-    try {
-      const [[usuario]] = await ReclamoDB.obtenerUsuarioPorIdDB(idCliente);
-      
-      if (!usuario || !usuario.idTipoUsuario) {
-        throw new Error("No se encontró el cliente");
-      }
-      if (usuario.idTipoUsuario !== 3) {
-        throw new Error("Usuario no es de tipo cliente");
-      }
-  
+    try { 
       const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idCliente);
       
       if (reclamos.length === 0) {
         throw new Error("No se encontró ningún reclamo para este cliente");
       }
-  
-      const estadoReclamo = {
-        1: "Creado",
-        2: "En proceso",
-        3: "Cancelado",
-        4: "Finalizado",
-      };
-  
-      const reclamoEstado = reclamos.map((reclamo) => ({
-        idReclamo: reclamo.idReclamo,
-        asunto: reclamo.asunto,
-        estado: estadoReclamo[reclamo.idReclamoEstado] || "Estado desconocido",
-      }));
-  
-      return { idCliente, reclamos: reclamoEstado, message: "Reclamos obtenidos exitosamente" };
+      
+      return {reclamos, message: "Reclamos obtenidos exitosamente" };
       
     } catch (error) {
       throw new Error(error.message);

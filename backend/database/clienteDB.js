@@ -52,18 +52,6 @@ const ClienteDB = {
     }
   },
 
-  // Busca un usuario activo en la base de datos por su ID
-  buscarUsuarioActivoPorIdDB: async (idUsuario) => {
-    try {
-      const [[user]] = await pool.query(
-        "SELECT * FROM usuarios WHERE idUsuario = ? AND activo = 1",
-        [idUsuario]
-      );
-      return user;
-    } catch (error) {
-      throw new Error("Error al buscar el usuario activo: " + error.message);
-    }
-  },
 };
 
 export default ClienteDB;

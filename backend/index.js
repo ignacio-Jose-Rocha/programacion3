@@ -11,10 +11,12 @@ import routerReclamoOficina from './routes/reclamoOficinaRoutes.js';
 import routerReclamo from './routes/reclamoRoutes.js';
 import routerReclamoTipo from './routes/reclamoTipoRoutes.js'
 import routerOficina from './routes/oficinaRoutes.js';
+import routerEstadisticas from './routes/estadisticas.js';
 import redis from 'redis';
 import passport from "passport";
 import initializePassport from './config/passportConfig.js';
 import autorizarUsuario from './middleware/autorizarUsuario.js';
+import contentTypeMiddleware from './middleware/contentTypeMiddleware.js';
 
 
 // Cargar variables de entorno
@@ -54,24 +56,9 @@ app.use(cors({
   origin: 'http://localhost:5173', // Permite solo este origen
 }));
 
+
 // Middleware para verificar que el Content-Type sea application/json
-app.use((req, res, next) => {
-  // Si es un método GET o OPTIONS, permitimos la solicitud
-  if (req.method === 'GET' || req.method === 'OPTIONS') {
-    return next();
-  }
-
-  // Aseguramos que req.body esté definido y sea un objeto
-  const hasBody = req.body && Object.keys(req.body).length > 0;
-
-  // Si hay cuerpo y el Content-Type no es application/json ni application/pdf, retornamos error
-  if (hasBody && req.headers['content-type'] !== 'application/json' && req.headers['content-type'] !== 'application/pdf') {
-    return res.status(400).json({ error: 'El Content-Type debe ser application/json o application/pdf' });
-  }
-
-  // Continuamos con el siguiente middleware
-  next();
-});
+app.use(contentTypeMiddleware);
 
 
 // Middleware para analizar JSON
@@ -81,11 +68,12 @@ app.use(morgan('dev'));
 // Rutas
 app.use('/auth', authRouter);  
 app.use('/clientes', routerCliente);
-app.use('/admins', routerAdmin);
+app.use('/admins', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerAdmin);
 app.use('/reclamoOficinas', passport.authenticate('jwt', { session: false }), autorizarUsuario([2]), routerReclamoOficina);
-app.use('/reclamos', routerReclamo);  
-app.use('/reclamoTipos', routerReclamoTipo);  
-app.use('/oficinas', routerOficina);  
+app.use('/reclamos', passport.authenticate('jwt', { session: false }), autorizarUsuario([3]), routerReclamo);  
+app.use('/reclamoTipos', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerReclamoTipo);  
+app.use('/oficinas', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerOficina);  
+app.use('/estadisticas', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerEstadisticas); 
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));

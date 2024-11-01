@@ -3,66 +3,33 @@ import AdminDB from "../database/adminDB.js";
 import bcrypt from "bcrypt";
 
 const AdminService = {
-  // Servicio para obtener todos los administradores
-  getAllAdministradores: async () => {
-    const cacheKey = "administradores"; // Clave de caché para los administradores
-    try {
-      // Verificar si los datos están en caché
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos de administradores obtenidos de la caché");
-        return JSON.parse(cachedData);
-      }
-
-      // Si no hay datos en caché, obtener de la base de datos
-      const administradores = await AdminDB.getAllAdministradoresDB();
-
-      // Almacenar en caché con expiración de 1 hora
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(administradores));
-
-      return administradores;
-    } catch (error) {
-      console.error("Error en AdminService.getAllAdministradores:", error);
-      throw error; // Propagar el error
-    }
-  },
-
-  // Servicio para obtener todos los empleados
-  getAllEmpleados: async () => {
-    const cacheKey = "empleados"; // Clave de caché para los empleados
+  // Función para obtener usuarios segun idTipoUsuario
+  getUsuariosByTipo: async (idTipoUsuario, cacheKey) => {
     try {
       const cachedData = await redisClient.get(cacheKey);
       if (cachedData) {
-        console.log("Datos de empleados obtenidos de la caché");
+        console.log(`Datos de ${cacheKey} obtenidos de la caché`);
         return JSON.parse(cachedData);
       }
 
-      const empleados = await AdminDB.getAllEmpleadosDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(empleados)); // Guardar en Redis
-      return empleados;
+      const usuarios = await AdminDB.getAllUsuariosByTipoDB(idTipoUsuario);
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(usuarios)); // Guardar en Redis
+      return usuarios;
     } catch (error) {
-      console.error("Error en AdminService.getAllEmpleados:", error);
+      console.error(`Error en AdminService.getUsuariosByTipo(${cacheKey}):`, error);
       throw error;
     }
   },
 
-  // Servicio para obtener todos los clientes
-  getAllClientes: async () => {
-    const cacheKey = "clientes"; // Clave de caché para los clientes
-    try {
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos de clientes obtenidos de la caché");
-        return JSON.parse(cachedData);
-      }
-
-      const clientes = await AdminDB.getAllClientesDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(clientes)); // Guardar en Redis
-      return clientes;
-    } catch (error) {
-      console.error("Error en AdminService.getAllClientes:", error);
-      throw error;
-    }
+  // Funciones específicas que llaman a la genérica con el idTipoUsuario y cacheKey adecuados
+  getAllAdministradores: function () {
+    return this.getUsuariosByTipo(1, "administradores")
+  },
+  getAllEmpleados: function () {
+    return this.getUsuariosByTipo(2, "empleados")
+  },
+  getAllClientes: function () {
+    return this.getUsuariosByTipo(3, "clientes")
   },
 
   crearUsuario: async (usuarioData) => {

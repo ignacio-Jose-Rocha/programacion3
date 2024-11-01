@@ -11,7 +11,5 @@ router.get("/clientes", AdminController.getAllClientes);
 router.post("/usuarios", AdminController.crearUsuario);
 router.put("/usuarios/:idUsuarioModificado/:idUsuarioModificador", AdminController.actualizarUsuario);
 router.put("/usuarios/:idUsuario", AdminController.borrarUsuario);
-router.get("/estadisticas", AdminController.getEstadisticasCompletas); // Ruta de estadísticas
-
 
 export default router;

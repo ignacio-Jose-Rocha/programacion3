@@ -26,9 +26,9 @@ const OficinaController = {
     const { idOficina, idUsuario } = req.params;
     try {
       const idAsignacion = await oficinaService.asignarEmpleadoAOficina(idOficina, idUsuario);
-      res.json({
-        message: "Empleado asignado a la oficina correctamente",
+      res.status(200).json({
         id: idAsignacion,
+        message: "Empleado asignado a la oficina correctamente",
       });
     } catch (error) {
       console.error("Error al asignar el empleado a la oficina:", error);

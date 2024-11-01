@@ -28,12 +28,26 @@ const OficinasDB = {
     }
   },
 
+  // Función para buscar un empleado
+  buscarEmpleadoDB: async (idUsuario) => {
+    try {
+      const [[rows]] = await pool.query(
+        "SELECT * FROM usuarios WHERE idUsuario = ?",
+        [idUsuario]
+      );
+      return rows
+    } catch (error) {
+      console.error("Error al buscar empleado en la base de datos:", error);
+      throw error;
+    }
+  },
+
   // Función para asignar empleado a oficina
   asignarEmpleadoDB: async (idOficina, idUsuario) => {
     try {
       const query =
         "INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)";
-      const result = await pool.query(query, [idUsuario, idOficina]);
+      const [result] = await pool.query(query, [idUsuario, idOficina]);
       return result.insertId;
     } catch (error) {
       console.error("Error al asignar el empleado a la oficina", error);

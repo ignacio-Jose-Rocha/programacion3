@@ -21,7 +21,6 @@ const ReclamoOficinaService = {
     const estadoNumerico = parseInt(nuevoEstado, 10);
 
     const reclamo = await ReclamoDB.obtenerReclamoPorClienteYReclamoDB(idCliente, idReclamo);
-    console.log(reclamo);
 
     if (!reclamo) {
       throw new Error("No se encontró el reclamo para este usuario.");

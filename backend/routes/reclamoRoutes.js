@@ -4,11 +4,10 @@ import ReclamoController from '../controllers/reclamoController.js';
 const router = express.Router();
 
 // Rutas de Reclamo
-router.get('/reclamos/usuario/:idUsuario', ReclamoController.obtenerReclamoId);
-router.get('/reclamos/estado/:idCliente', ReclamoController.obtenerReclamoEstado);
+router.get('/estado', ReclamoController.obtenerReclamoEstado);
 router.post('/reclamo', ReclamoController.crearReclamo);
-router.put("/:idCliente/reclamos/:idReclamo/cancelar", ReclamoController.cancelarReclamo);
-router.get("/reclamos", ReclamoController.getAllReclamos);
-router.get("/reclamos/pdf", ReclamoController.descargarReclamosPDF);
-
+router.put("/:idReclamo/cancelar", ReclamoController.cancelarReclamo);
+router.get("/reclamos", ReclamoController.getAllReclamos); // un cliente no debe poder obtener todos los reclamos
+router.get("/reclamos/pdf", ReclamoController.descargarReclamosPDF); // crear una nueva ruta
+ 
 export default router;

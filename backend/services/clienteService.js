@@ -40,50 +40,37 @@ const ClienteService = {
   },
 
   actualizarCliente: async (idCliente, body) => {
-    const { nombre, apellido, correoElectronico, contrasenia, imagen } = body;
-    const user = await ClienteDB.buscarUsuarioActivoPorIdDB(idCliente);
-    
-    if (!user) {
-      throw new Error("Usuario no encontrado o está inactivo");
-    }
-  
     const camposActualizar = [];
     const valoresActualizar = [];
-  
-    if (nombre) {
-      camposActualizar.push("nombre=?");
-      valoresActualizar.push(nombre);
+
+    // Iterar sobre las propiedades del body
+    for (const [key, value] of Object.entries(body)) {
+      // Verificar si el valor está definido antes de agregarlo a la lista de actualizaciones
+      if (value !== undefined) {
+        if (key === 'contrasenia') {
+          const hashedPassword = await bcrypt.hash(value, 10);
+            camposActualizar.push(`${key}=?`);
+            valoresActualizar.push(hashedPassword);
+        } else {
+          camposActualizar.push(`${key}=?`);
+          valoresActualizar.push(value);
+        }
+      }
     }
-    if (apellido) {
-      camposActualizar.push("apellido=?");
-      valoresActualizar.push(apellido);
-    }
-    if (correoElectronico) {
-      camposActualizar.push("correoElectronico=?");
-      valoresActualizar.push(correoElectronico);
-    }
-    if (contrasenia) {
-      const hashedPassword = await bcrypt.hash(contrasenia, 10);
-      camposActualizar.push("contrasenia=?");
-      valoresActualizar.push(hashedPassword);
-    }
-    if (imagen) {
-      camposActualizar.push("imagen=?");
-      valoresActualizar.push(imagen);
-    }
-  
     if (camposActualizar.length === 0) {
-      throw new Error("No se proporcionaron campos para actualizar");
+        throw new Error("No se proporcionaron campos para actualizar");
     }
-   
+
+    // Aquí puedes llamar a la base de datos para realizar la actualización
     await ClienteDB.actualizarUsuarioDB(idCliente, camposActualizar, valoresActualizar);
 
+    // Retorna los datos actualizados
     return {
-      id: idCliente,
-      nombre,
-      apellido,
-      correoElectronico,
-      imagen,
+        id: idCliente,
+        nombre: body.nombre || null,
+        apellido: body.apellido || null,
+        correoElectronico: body.correoElectronico || null,
+        imagen: body.imagen || null,
     };
   },
   

@@ -1,41 +1,16 @@
 import pool from "../config.js";
 
 const AdminDB = {
-  // Función para obtener todos los administradores
-  getAllAdministradoresDB: async () => {
+  // Función para obtener usuario segun su tipo de ID:
+  getAllUsuariosByTipoDB: async (idTipoUsuario) => {
     try {
       const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idTipoUsuario = 1 AND activo = 1"
+        "SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1",
+        [idTipoUsuario]
       );
       return rows;
     } catch (error) {
-      console.error("Error al obtener administradores:", error);
-      throw error;
-    }
-  },
-
-  // Función para obtener todos los empleados
-  getAllEmpleadosDB: async () => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idTipoUsuario = 2 AND activo = 1"
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener empleados:", error);
-      throw error;
-    }
-  },
-
-  // Función para obtener todos los clientes
-  getAllClientesDB: async () => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idTipoUsuario = 3 AND activo = 1"
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener clientes:", error);
+      console.error("Error al obtener usuarios:", error);
       throw error;
     }
   },

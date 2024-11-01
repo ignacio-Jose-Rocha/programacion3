@@ -13,7 +13,6 @@ const initializePassport = () => {
 
   passport.use(
     new JwtStrategy(options, async (jwt_payload, done) => {
-    console.log(jwt_payload)
       try {
         // Verificar si el usuario existe
         const usuario = await getUserById(jwt_payload.idUsuario);

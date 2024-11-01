@@ -34,9 +34,10 @@ const ReclamoController = {
   },
 
   cancelarReclamo: async (req, res) => {
-    const { idCliente, idReclamo } = req.params;
+    const {idUsuario} = req.user;
+    const {idReclamo } = req.params;
     try {
-      const reclamoModificado = await ReclamoService.cancelarReclamo(idCliente, idReclamo);
+      const reclamoModificado = await ReclamoService.cancelarReclamo(idUsuario, idReclamo);
       if (reclamoModificado.estado){
         res.status(200).send({estado:"OK", mensaje: reclamoModificado});
       }
@@ -49,61 +50,18 @@ const ReclamoController = {
     }
   },
 
-  obtenerReclamoId: async (req, res) => {
-    const { idUsuario } = req.params;
-    try {
-      const reclamos = await ReclamoService.obtenerReclamosPorUsuario(
-        idUsuario
-      );
-      res.status(200).json({ message: "Reclamos encontrados", reclamos });
-    } catch (error) {
-      console.error("Error al obtener reclamos:", error);
-      res
-        .status(
-          error.message.includes("No se encontraron reclamos") ? 404 : 500
-        )
-        .json({ error: error.message });
-    }
-  },
-
-  obtenerReclamosPorUsuario: async (req, res) => {
-    const { idUsuario } = req.params;
-    try {
-      const reclamos = await ReclamoService.obtenerReclamosPorUsuario(
-        idUsuario
-      );
-      res.status(200).json({ message: "Reclamos encontrados", reclamos });
-    } catch (error) {
-      console.error("Error al obtener reclamos:", error);
-      res
-        .status(
-          error.message.includes("No se encontraron reclamos") ? 404 : 500
-        )
-        .json({ error: error.message });
-    }
-  },
-
   obtenerReclamoEstado: async (req, res) => {
-    const { idCliente } = req.params;
+    const { idUsuario } = req.user;
     try {
-      const {
-        idCliente: clienteId,
-        reclamos,
-        message,
-      } = await ReclamoService.obtenerReclamoEstado(idCliente);
-      res.status(200).json({ idCliente: clienteId, reclamos, message });
+      const {reclamos,message} = await ReclamoService.obtenerReclamoEstado(idUsuario);
+      res.status(200).json({ idCliente: idUsuario, reclamos, message });
     } catch (error) {
-      console.error("Error al obtener el estado del reclamo:", error);
-      return res
-        .status(
-          error.message.includes("No se encontró") ||
-            error.message.includes("no es de tipo cliente")
-            ? 404
-            : 500
-        )
-        .json({ error: error.message });
-    }
-  },
+        console.error("Error al obtener el estado del reclamo:", error);
+      
+        // Si no se encontraron reclamos, se devuelve un mensaje de error simple
+        return res.status(404).json({ error: "No se encontraron reclamos para este cliente." });
+      }
+    },
 
   descargarReclamosPDF: async (req, res) => {
     try {

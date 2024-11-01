@@ -1,10 +1,7 @@
 import express from 'express';
 import ReclamoOficinaController from '../controllers/reclamoOficinaController.js';
 
-
-
 const router = express.Router();
-
 
 // Obtener reclamos asociados a la oficina del empleado
 router.get(
