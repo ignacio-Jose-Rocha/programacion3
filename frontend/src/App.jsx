@@ -4,10 +4,10 @@ import Navbar from "./pages/Navbar/Navbar.jsx";
 import Footer from "./pages/Footer/Footer.jsx";
 import Login from "./auth/Login/Login.jsx";
 import Register from "./auth/Registro/Registrarse.jsx";
+import Message from "./components/message.jsx";
 import { useState } from "react";
 import { useLocation, Route, Routes } from "react-router-dom";
-import { ToastContainer, toast} from "react-toastify"; // Importa ToastContainer y toast
-import "react-toastify/dist/ReactToastify.css"; // Importa estilos de Toastify
+
 
 // Componentes para las páginas estáticas
 import Carousel from "./pages/Inicio/Carousel.jsx";
@@ -21,6 +21,7 @@ function App() {
   const { isAuthenticated, login, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(""); // Estado para controlar el mensaje de éxito
   const location = useLocation();
 
   const handleLoginClick = () => {
@@ -35,12 +36,13 @@ function App() {
 
   const handleLoginSuccess = (token, user) => {
     login(token, user);
-    toast.success("Inicio de sesión exitoso."); // Muestra la notificación
-    setTimeout(() => {
-      setShowLogin(false); // Cierra el formulario de inicio de sesión
-     
-    }, 4000);
+    setSuccessMessage("Inicio de sesión exitoso"); // Establecer el mensaje cuando el login sea exitoso
   };
+
+  const handleCloseMessage = () => {
+    setSuccessMessage(""); // Limpiar el mensaje cuando se cierre
+  };
+
 
   
   return (
@@ -61,7 +63,7 @@ function App() {
       {showLogin && (
         <Login
           onClose={() => setShowLogin(false)}
-          onLoginSuccess={login}
+          onLoginSuccess={handleLoginSuccess}
           onRegisterClick={handleRegisterClick} // Permite cambiar a registro desde el login
         />
       )}
@@ -72,6 +74,11 @@ function App() {
           onRegisterSuccess={handleLoginSuccess}
           onLoginClick={handleLoginClick} // Permite cambiar a login desde el registro
         />
+      )}
+
+      {/* Mostrar el mensaje si existe un successMessage */}
+      {successMessage && (
+        <Message message={successMessage} onClose={handleCloseMessage} />
       )}
 
       {/* Rutas de las páginas estáticas */}
@@ -113,17 +120,10 @@ function App() {
       {/* Mostrar Footer si no está en un dashboard */}
       {location.pathname !== "/dashboard-cliente" &&
         location.pathname !== "/dashboard-empleado" &&
-        location.pathname !== "/dashboard-admin" && <Footer />}
+        location.pathname !== "/dashboard-admin" && 
+        <Footer />
+      }
 
-      <ToastContainer
-        position="top-right" // Puedes cambiar la posición
-        autoClose={5000} // Duración en milisegundos
-        hideProgressBar={false} // Mostrar barra de progreso
-        closeOnClick
-        pauseOnHover
-        draggable
-        pauseOnFocusLoss
-      />
     </>
   );
 }

@@ -14,7 +14,7 @@ const RegisterForm = ({ onLoginClick, onClose, onRegisterSuccess }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/clientes/cliente",
+        "http://localhost:3000/clientes/cliente/crear",
         {
           nombre: firstName,
           apellido: lastName,

@@ -12,7 +12,7 @@ const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/clientes/login",
+        "http://localhost:3000/auth/login",
         {
           correoElectronico: email,
           contrasenia: password,

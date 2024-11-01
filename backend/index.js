@@ -12,6 +12,7 @@ import routerReclamo from './routes/reclamoRoutes.js';
 import routerReclamoTipo from './routes/reclamoTipoRoutes.js'
 import routerOficina from './routes/oficinaRoutes.js';
 import routerEstadisticas from './routes/estadisticas.js';
+import routerInforme from './routes/informe.js'
 import redis from 'redis';
 import passport from "passport";
 import initializePassport from './config/passportConfig.js';
@@ -74,6 +75,8 @@ app.use('/reclamos', passport.authenticate('jwt', { session: false }), autorizar
 app.use('/reclamoTipos', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerReclamoTipo);  
 app.use('/oficinas', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerOficina);  
 app.use('/estadisticas', passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerEstadisticas); 
+app.use('/informes', routerInforme); 
+
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
