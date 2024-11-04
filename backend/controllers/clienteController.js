@@ -2,7 +2,8 @@ import ClienteService from "../services/ClienteService.js";
 
 const ClienteController = {
   crearCliente: async (req, res) => {
-    const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+    const { nombre, apellido, correoElectronico, contrasenia} = req.body;
+    const imagen = req.file ? req.file.filename : null; // Nombre del archivo guardado o null si no se sube
     try {
       const nuevoCliente = await ClienteService.crearCliente(
         nombre,
@@ -23,10 +24,18 @@ const ClienteController = {
 
   actualizarCliente: async (req, res) => {
     const { idUsuario} = req.user;
-    const { nombre, apellido, correoElectronico, contrasenia, imagen } = req.body;
+    const { nombre, apellido, correoElectronico, contrasenia } = req.body;
+    const nuevaImagen = req.file ? req.file.filename : null;
   
     try {
-      const updatedCliente = await ClienteService.actualizarCliente(idUsuario, req.body);
+      // Crear un objeto con los datos a actualizar
+      const datosActualizados = { nombre, apellido, correoElectronico, contrasenia };
+
+      // Si hay una nueva imagen, agregarla a los datos a actualizar
+      if (nuevaImagen) {
+        datosActualizados.imagen = nuevaImagen;
+      }
+      const updatedCliente = await ClienteService.actualizarCliente(idUsuario, datosActualizados);
       res.json({
         message: "Cliente actualizado con éxito",
         cliente: updatedCliente

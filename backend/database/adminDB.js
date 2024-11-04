@@ -1,4 +1,4 @@
-import pool from "../config.js";
+import pool from "./config.js";
 
 const AdminDB = {
   // Función para obtener usuario segun su tipo de ID:

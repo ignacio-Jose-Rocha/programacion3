@@ -1,4 +1,4 @@
-import pool from "../config.js";
+import pool from "./config.js";
 
 const ClienteDB = {
   // Función para buscar usuario por correo electrónico, nombre y apellido

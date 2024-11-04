@@ -106,27 +106,6 @@ const ReclamoService = {
     }
   },
 
-  obtenerReclamos: async () => {
-    try {
-      const reclamos = await ReclamoDB.obtenerReclamosDB(); // Llama a la función de la base de datos
-      return reclamos; // Retorna los reclamos
-    } catch (error) {
-      console.error("Error en el servicio al obtener reclamos:", error);
-      throw error; // Lanza el error para que el controlador lo maneje
-    }
-  },
-
-  generarPDF: (reclamos) => {
-    const doc = new PDFDocument();
-    
-    doc.fontSize(18).text("Informe de Reclamos", { align: "center" });
-
-    reclamos.forEach((reclamo) => {
-      doc.fontSize(12).text(`Asunto: ${reclamo.asunto}, Fecha creado: ${reclamo.fechaCreado}`);
-    });
-
-    return doc; // Retorna el documento PDF
-  }
 
 };
 

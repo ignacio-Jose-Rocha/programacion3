@@ -79,96 +79,48 @@ const AdminService = {
     }
   },
 
-  actualizarUsuario: async (idUsuarioModificado,idUsuarioModificador,datosUsuario) => {
-    const {
-      nombre,
-      apellido,
-      correoElectronico,
-      contrasenia,
-      idTipoUsuario,
-      imagen,
-      activo,
-    } = datosUsuario;
-
+  actualizarUsuario: async (idUsuarioModificado, datosUsuario) => {
     try {
-      // Obtener usuarios de la base de datos
-      const [usuarioModificador] = await AdminDB.obtenerUsuarioPorId(
-        idUsuarioModificador
-      );
-      const [usuarioModificado] = await AdminDB.obtenerUsuarioPorId(
-        idUsuarioModificado
-      );
-
-      if (!usuarioModificado) {
-        return { error: "Usuario a modificar no encontrado", status: 404 };
+      // Obtener usuario a modificar de la base de datos
+      const [usuarioModificado] = await AdminDB.obtenerUsuarioPorId(idUsuarioModificado);
+  
+      if (!usuarioModificado) return { error: "Usuario a modificar no encontrado", status: 404 };
+      
+      const camposActualizar = [];
+      const valoresActualizar = [];
+  
+      // Iterar sobre los datos de usuario
+      for (const [key, value] of Object.entries(datosUsuario)) {
+        if (value !== undefined) {
+          if (key === 'contrasenia') {
+            const hashedPassword = await bcrypt.hash(value, 10);
+            camposActualizar.push(`${key} = ?`);
+            valoresActualizar.push(hashedPassword);
+          } else {
+            camposActualizar.push(`${key} = ?`);
+            valoresActualizar.push(value);
+          }
+        }
       }
-      if (!usuarioModificador) {
-        return { error: "Usuario modificador no encontrado", status: 404 };
-      }
-      if (usuarioModificador.idTipoUsuario != 1) {
-        return {
-          error: "No tienes permisos para realizar esta operación",
-          status: 400,
-        };
-      }
-
-      // Encriptar contraseña si es necesario
-      let nuevaContrasenia = contrasenia;
-      if (contrasenia) {
-        const salt = await bcrypt.genSalt(10);
-        nuevaContrasenia = await bcrypt.hash(contrasenia, salt);
-      }
-
-      // Preparar los campos a actualizar
-      const camposAActualizar = [];
-      const valores = [];
-
-      if (nombre) camposAActualizar.push("nombre = ?"), valores.push(nombre);
-      if (apellido)
-        camposAActualizar.push("apellido = ?"), valores.push(apellido);
-      if (correoElectronico)
-        camposAActualizar.push("correoElectronico = ?"),
-          valores.push(correoElectronico);
-      if (nuevaContrasenia)
-        camposAActualizar.push("contrasenia = ?"),
-          valores.push(nuevaContrasenia);
-      if (idTipoUsuario)
-        camposAActualizar.push("idTipoUsuario = ?"),
-          valores.push(idTipoUsuario);
-      if (imagen) camposAActualizar.push("imagen = ?"), valores.push(imagen);
-      if (typeof activo !== "undefined")
-        camposAActualizar.push("activo = ?"), valores.push(activo);
-
-      // Si hay campos para actualizar, actualizar en la base de datos
-      if (camposAActualizar.length > 0) {
-        await AdminDB.actualizarUsuarioDB(
-          idUsuarioModificado,
-          camposAActualizar,
-          valores
-        );
-      } else {
+  
+      if (camposActualizar.length === 0) {
         return { error: "No hay datos a modificar", status: 400 };
       }
-
+  
+      // Actualizar en la base de datos
+      await AdminDB.actualizarUsuarioDB(idUsuarioModificado, camposActualizar, valoresActualizar);
+  
       // Determinar el tipo de usuario
-      let tipoUsuario;
-      if (usuarioModificado.idTipoUsuario === 3) {
-        tipoUsuario = "cliente";
-      } else if (usuarioModificado.idTipoUsuario === 2) {
-        tipoUsuario = "empleado";
-      } else {
-        tipoUsuario = "usuario";
-      }
-
+      const tipoUsuario = usuarioModificado.idTipoUsuario === 3
+        ? "cliente"
+        : usuarioModificado.idTipoUsuario === 2
+        ? "empleado"
+        : "usuario";
+  
       return {
         mensaje: `Se ha modificado un ${tipoUsuario} con éxito.`,
         id: idUsuarioModificado,
-        nombre,
-        apellido,
-        correoElectronico,
-        idTipoUsuario,
-        imagen,
-        activo,
+        ...datosUsuario,  // Devuelve los datos modificados
       };
     } catch (error) {
       console.error("Error en AdminService.actualizarUsuario:", error);

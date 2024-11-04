@@ -1,5 +1,5 @@
 import AdminService from "../services/adminService.js";
-import EstadisticasService from '../services/estadisticasService.js';
+
 
 const AdminController = {
   getAllAdministradores: async (req, res) => {
@@ -34,8 +34,8 @@ const AdminController = {
 
  
   crearUsuario: async (req, res) => {
-    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen } = req.body;
-
+    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario } = req.body;
+    const imagen = req.file ? req.file.filename : null; // Nombre del archivo guardado o null si no se sube
     try {
       const result = await AdminService.crearUsuario({ nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen });
 
@@ -51,11 +51,13 @@ const AdminController = {
   },
 
   actualizarUsuario: async (req, res) => {
-    const { idUsuarioModificado, idUsuarioModificador } = req.params;
-    const datosUsuario = req.body;
-
+    const { idUsuarioModificado } = req.params;
+    const datosUsuario = {
+      ...req.body,
+      imagen: req.file ? req.file.filename : null, 
+    };
     try {
-      const result = await AdminService.actualizarUsuario(idUsuarioModificado, idUsuarioModificador, datosUsuario);
+      const result = await AdminService.actualizarUsuario(idUsuarioModificado, datosUsuario);
 
       if (result.error) {
         return res.status(result.status).json({ error: result.error });
@@ -63,7 +65,6 @@ const AdminController = {
 
       res.json(result);
     } catch (error) {
-      console.error("Error en AdminController.actualizarUsuario:", error);
       res.status(500).json({ mensaje: "Error al actualizar el usuario" });
     }
   },

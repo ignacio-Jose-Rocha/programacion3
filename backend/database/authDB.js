@@ -1,4 +1,4 @@
-import pool from "../config.js";  // Conexión a la base de datos
+import pool from "./config.js";  // Conexión a la base de datos
 
 // Función para obtener el usuario por su correo electrónico
 const getUserByEmail = async (correoElectronico) => {

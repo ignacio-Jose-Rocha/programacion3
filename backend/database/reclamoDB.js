@@ -1,4 +1,4 @@
-import pool from '../config.js'; // Asegúrate de que la ruta a tu pool sea correcta
+import pool from './config.js'; // Asegúrate de que la ruta a tu pool sea correcta
 
 const ReclamoDB = {
   obtenerReclamosDB: async () => {

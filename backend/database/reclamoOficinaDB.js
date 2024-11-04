@@ -1,4 +1,4 @@
-import pool from '../config.js';
+import pool from './config.js';
 
 const ReclamoOficinaDB = {
   // Función para obtener los reclamos de la oficina del empleado

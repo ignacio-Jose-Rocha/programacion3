@@ -63,20 +63,6 @@ const ReclamoController = {
       }
     },
 
-  descargarReclamosPDF: async (req, res) => {
-    try {
-      const reclamos = await ReclamoService.obtenerReclamos(); // Llamar al servicio
-      const doc = ReclamoService.generarPDF(reclamos); // Generar el PDF usando el servicio
-      
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "attachment; filename=reclamos.pdf");
-      doc.pipe(res); // Pipe the document to the response
-      doc.end(); // Finaliza el documento
-    } catch (error) {
-      console.error("Error al generar el PDF de reclamos:", error);
-      res.status(500).json({ error: "Error al generar el PDF" });
-    }
-  }
 
 };
 

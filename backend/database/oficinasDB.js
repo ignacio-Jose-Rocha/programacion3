@@ -1,4 +1,4 @@
-import pool from "../config.js";
+import pool from "./config.js";
 
 const OficinasDB = {
   // Función para obtener todas las oficinas
