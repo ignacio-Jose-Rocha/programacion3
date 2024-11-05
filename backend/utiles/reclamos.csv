@@ -1,0 +1,10 @@
+RECLAMO,TIPO,ESTADO,FECHA CREADO,CLIENTE
+6,Falla de motor,Creado,2024-08-19 07:00:00,Catelyn Stark
+7,Falla de frenos,Creado,2024-08-15 07:15:00,Catelyn Stark
+8,Falla de suspensión,Creado,2024-08-15 08:00:00,Khaan Flashxd
+11,Falla de suspensión,En Proceso,2024-08-15 15:00:00,Catelyn Stark
+16,Falla de motor,Creado,2024-09-11 10:30:00,Khaan Flashxd
+17,Falla de frenos,Creado,2024-09-11 10:30:00,Khaan Flashxd
+18,Falla de frenos,Creado,2024-09-11 10:30:00,Yarax grena
+20,Falla de frenos,Cancelado,2024-09-12 19:41:00,Yarax grena
+22,Falla de motor,Cancelado,2024-09-21 14:29:37,Manuel A Garcia
