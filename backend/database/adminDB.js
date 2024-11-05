@@ -5,7 +5,7 @@ const AdminDB = {
   getAllUsuariosByTipoDB: async (idTipoUsuario) => {
     try {
       const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1",
+        "SELECT nombre, apellido, correoElectronico, idUsuario, idTipoUsuario, activo FROM usuarios WHERE idTipoUsuario = ? AND activo = 1",
         [idTipoUsuario]
       );
       return rows;
@@ -73,6 +73,31 @@ const AdminDB = {
       ]);
     } catch (error) {
       console.error("Error al borrar usuario:", error);
+      throw error;
+    }
+  },
+
+  // Función para asignar empleado a oficina
+  asignarEmpleadoDB: async (idUsuario, idOficina) => {
+    try {
+      const query =
+        "INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)";
+      const result = await pool.query(query, [idUsuario, idOficina]);
+      return result.insertId; // Devuelve el id de la asignación realizada
+    } catch (error) {
+      console.error("Error al asignar el empleado a la oficina", error);
+      throw new Error("Error al asignar el empleado a la oficina");
+    }
+  },
+
+  // Función para eliminar empleado de oficina
+  eliminarEmpleadoDeOficinaDB: async (idUsuario) => {
+    try {
+      const query = 'UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?';
+      const result = await pool.query(query, [idUsuario]);
+      return result; // Se devuelve el resultado de la consulta
+    } catch (error) {
+      console.error('Error al desactivar el usuario de la oficina en la base de datos:', error);
       throw error;
     }
   },

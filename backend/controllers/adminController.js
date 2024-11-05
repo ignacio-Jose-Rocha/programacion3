@@ -2,16 +2,7 @@ import AdminService from "../services/adminService.js";
 
 
 const AdminController = {
-  getAllAdministradores: async (req, res) => {
-    try {
-      const administradores = await AdminService.getAllAdministradores();
-      res.json(administradores);
-    } catch (error) {
-      console.error("Error al obtener administradores:", error);
-      res.status(500).json({ error: "Error al obtener los administradores" });
-    }
-  },
-
+ 
   getAllEmpleados: async (req, res) => {
     try {
       const empleados = await AdminService.getAllEmpleados();
@@ -46,7 +37,7 @@ const AdminController = {
       res.json(result);
     } catch (error) {
       console.error("Error en AdminController.crearUsuario:", error);
-      res.status(500).json({ error: "Error al crear el usuario." });
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -65,7 +56,8 @@ const AdminController = {
 
       res.json(result);
     } catch (error) {
-      res.status(500).json({ mensaje: "Error al actualizar el usuario" });
+      console.error("Error en AdminController.actualizarUsuario:", error);
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -82,7 +74,7 @@ const AdminController = {
       res.json(result);
     } catch (error) {
       console.error("Error en AdminController.borrarUsuario:", error);
-      res.status(500).json({ error: "Error al borrar el usuario" });
+      res.status(500).json({ error: error.message });
     }
   }
 };

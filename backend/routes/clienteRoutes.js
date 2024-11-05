@@ -9,13 +9,13 @@ const router = express.Router();
 
 // Rutas de Cliente
 router.post(
-    '/crear',
-    validarCliente, 
+    '/crear', 
     upload.single('imagen'),
+    validarCliente,
     ClienteController.crearCliente
   );
 
-router.put(
+router.patch(
     "/actualizar", 
     passport.authenticate('jwt', { session: false }),
     autorizarUsuario([3]), 

@@ -5,19 +5,18 @@ import upload from '../config/multerConfig.js';
 const router = express.Router();
 
 // Rutas de Admin
-router.get("/administradores", AdminController.getAllAdministradores);
 router.get("/empleados", AdminController.getAllEmpleados);
 router.get("/clientes", AdminController.getAllClientes);
 router.post(
-    "/usuarios",
+    "/usuario",
     upload.single('imagen'), 
     AdminController.crearUsuario
 );
-router.put(
-    "/usuarios/:idUsuarioModificado", 
+router.patch(
+    "/actualizar-usuario/:idUsuarioModificado", 
     upload.single('imagen'), 
     AdminController.actualizarUsuario
 );
-router.put("/usuarios/:idUsuario", AdminController.borrarUsuario);
+router.put("/borrar-usuario/:idUsuario", AdminController.borrarUsuario);
 
 export default router;

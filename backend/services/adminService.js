@@ -22,9 +22,7 @@ const AdminService = {
   },
 
   // Funciones específicas que llaman a la genérica con el idTipoUsuario y cacheKey adecuados
-  getAllAdministradores: function () {
-    return this.getUsuariosByTipo(1, "administradores")
-  },
+
   getAllEmpleados: function () {
     return this.getUsuariosByTipo(2, "empleados")
   },
@@ -46,7 +44,7 @@ const AdminService = {
       const rows = await AdminDB.verificarCorreo(correoElectronico); // Llamar a la función de verificación
 
       if (rows.length > 0) {
-        return res.status(400).json({ error: "El usuario ya está registrado." }); // Respuesta si el correo ya existe
+        throw new Error("El usuario ya está registrado.");
       }
   
       // Encriptar la contraseña
@@ -74,8 +72,7 @@ const AdminService = {
         idTipoUsuario,
       };
     } catch (error) {
-      console.error("Error en AdminService.crearUsuario:", error);
-      throw new Error("Error al crear el usuario.");
+      throw new Error(`${error.message}`);
     }
   },
 
@@ -124,7 +121,7 @@ const AdminService = {
       };
     } catch (error) {
       console.error("Error en AdminService.actualizarUsuario:", error);
-      throw new Error("Error al actualizar el usuario.");
+      throw new Error(`${error.message}`);
     }
   },
 
@@ -158,7 +155,7 @@ const AdminService = {
       return { mensaje: `Se ha desactivado el ${tipoUsuario} correctamente.` };
     } catch (error) {
       console.error("Error en AdminService.borrarUsuario:", error);
-      throw new Error("Error al desactivar el usuario.");
+      throw new Error(`${error.message}`);
     }
   },
   
