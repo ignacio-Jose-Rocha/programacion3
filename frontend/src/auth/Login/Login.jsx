@@ -2,7 +2,7 @@ import PropTypes from "prop-types"; // Importa PropTypes
 import axios from "axios";
 import { useState } from "react"; // Importa useState
 
-const LoginForm = ({ onClose, onLoginSuccess }) => {
+const LoginForm = ({ onClose, onLoginSuccess, onRegisterClick }) => {
   const [email, setEmail] = useState(""); // Manejamos el estado del email
   const [password, setPassword] = useState(""); // Manejamos el estado de la contraseña
 
@@ -12,17 +12,18 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/clientes/login",
+        "http://localhost:3000/auth/login",
         {
           correoElectronico: email,
           contrasenia: password,
         }
       );
-  
+
       const data = response.data;
-  
+
       if (data.success) {
         localStorage.setItem("authToken", data.token); // Guarda el token en localStorage
+        onClose(); // Cierra el formulario de inicio de sesión después de un inicio exitoso
         onLoginSuccess(data.token, data.usuario); // Pasa el token y el idTipoUsuario
       } else {
         alert(data.message || "Error de autenticación");
@@ -99,7 +100,11 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
           <p className="text-center text-gray-400">
             ¿Desea registrarse?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+            <a
+              type="button"
+              onClick={onRegisterClick}
+              className="text-blue-500 hover:underline cursor-pointer"
+            >
               Registrarse
             </a>
           </p>
@@ -112,6 +117,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 LoginForm.propTypes = {
   onClose: PropTypes.func.isRequired,
   onLoginSuccess: PropTypes.func.isRequired,
+  onRegisterClick: PropTypes.func.isRequired,
 };
 
 export default LoginForm;

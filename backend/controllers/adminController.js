@@ -1,284 +1,49 @@
-import {login}  from "./authController.js";
-import pool from "../config.js";
-import bcrypt from "bcrypt";
-import PDFDocument from "pdfkit";
-import redisClient from "../index.js";
-import AdminDB from "../database/adminDB.js";
+import AdminService from "../services/adminService.js";
 
 
 const AdminController = {
-
-  login: (req, res) => {
-    login(req, res);
-  },
-
   getAllAdministradores: async (req, res) => {
     try {
-      const cacheKey = "administradores"; // Definir una clave para Redis
-
-      // Verificar si los datos ya están en caché
-      const cachedData = await redisClient.get(cacheKey);
-
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData)); // Parsear los datos cacheados
-      }
-
-      // Si no hay datos en caché, obtenerlos de la base de datos
-      const rows = await AdminDB.getAllAdministradoresDB();
-
-      // Almacenar los resultados en Redis con una expiración de 1 hora (3600 segundos)
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
-
-      res.json(rows);
+      const administradores = await AdminService.getAllAdministradores();
+      res.json(administradores);
     } catch (error) {
-      console.error("Error al obtener los administradores:", error);
+      console.error("Error al obtener administradores:", error);
       res.status(500).json({ error: "Error al obtener los administradores" });
     }
   },
 
   getAllEmpleados: async (req, res) => {
     try {
-      const cacheKey = "empleados"; 
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getAllEmpleadosDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); // Almacenar en Redis
-      res.json(rows);
+      const empleados = await AdminService.getAllEmpleados();
+      res.json(empleados);
     } catch (error) {
-      console.error("Error al obtener los empleados:", error);
+      console.error("Error al obtener empleados:", error);
       res.status(500).json({ error: "Error al obtener los empleados" });
     }
   },
 
   getAllClientes: async (req, res) => {
     try {
-      const cacheKey = "clientes";
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getAllClientesDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
-      res.json(rows);
+      const clientes = await AdminService.getAllClientes();
+      res.json(clientes);
     } catch (error) {
-      console.error("Error al obtener los clientes:", error);
+      console.error("Error al obtener clientes:", error);
       res.status(500).json({ error: "Error al obtener los clientes" });
     }
   },
-  
-  getAllReclamos: async (req, res) => {
-    try {
-      const cacheKey = "reclamos"; 
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getAllReclamosDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
-      res.json(rows);
-    } catch (error) {
-      console.error("Error al obtener los reclamos:", error);
-      res.status(500).json({ error: "Error al obtener los reclamos" });
-    }
-  },
-  
-  getAllReclamosTipo: async (req, res) => {
-    try {
-      const cacheKey = "reclamosTipo"; 
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getAllReclamosTipoDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
-      res.json(rows);
-    } catch (error) {
-      console.error("Error al obtener los tipos de reclamos", error);
-      res.status(500).json({ error: "Error al obtener los tipos de reclamos" });
-    }
-  },
-  
-  getAllOficinas: async (req, res) => {
-    try {
-      const cacheKey = "oficinas"; 
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getAllOficinasDB();
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows)); 
-      res.json(rows);
-    } catch (error) {
-      console.error("Error al obtener las oficinas", error);
-      res.status(500).json({ error: "Error al obtener las oficinas" });
-    }
-  },
-  
-  getEmpleadosByOficina: async (req, res) => {
-    const { idOficina } = req.params; 
-    const cacheKey = `empleadosOficina:${idOficina}`; // Clave única por oficina
-    try {
-      const cachedData = await redisClient.get(cacheKey);
-      if (cachedData) {
-        console.log("Datos obtenidos de la caché");
-        return res.json(JSON.parse(cachedData));
-      }
-  
-      const rows = await AdminDB.getEmpleadosByOficinaDB(idOficina);
-      if (rows.length === 0) {
-        return res.status(400).json({ error: "Oficinas sin empleados asignados" });
-      }
-  
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
-      res.json(rows);
-    } catch (error) {
-      console.error("Error al obtener los empleados de la oficina", error);
-      res
-        .status(500)
-        .json({ error: "Error al obtener los empleados de la oficina" });
-    }
-  },
 
-  getEstadisticasCompletas: async (req, res) => {
-    try {
-      const resultados = await AdminDB.getEstadisticasCompletasDB();
-
-      const totalReclamos = resultados[0]; // Primer conjunto: total de reclamos
-      const reclamosPorEstado = resultados[1]; // Segundo conjunto: reclamos por estado
-
-      res.json({ totalReclamos, reclamosPorEstado });
-    } catch (error) {
-      console.error(
-        "Error al obtener estadísticas completas de reclamos",
-        error
-      );
-      res
-        .status(500)
-        .json({ error: "Error al obtener estadísticas completas de reclamos" });
-    }
-  },
-
-  crearReclamoTipo: async (req, res) => {
-    const { descripcion, activo = 1 } = req.body;
  
-    if (!descripcion) {
-      return res
-        .status(400)
-        .json({ error: "Falta ingresas la descripción del raclamo" });
-    }
-    try {
-      const [[reclamosTipo]] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE descripcion=?",
-        [descripcion]
-      );
-      if (reclamosTipo !== 0) {
-        return res
-          .status(400)
-          .json({
-            error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}`,
-          });
-      }
-
-      const rows = await AdminDB.crearReclamoTipoDB(descripcion, activo);
-
-      res.status(200).json({
-        message: "Tipo de reclamo creado con éxito",
-        id: rows.insertId,
-        descripcion,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          error: "Error al crear tipo de reclamo",
-          details: error.message,
-        });
-    }
-  },
-
-  actualizarReclamoTipo: async (req, res) => {
-    const { idReclamoTipo } = req.params;
-    const { descripcion } = req.body;
-    try {
-      const [[reclamoTipo]] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE idReclamoTipo=?",
-        [idReclamoTipo]
-      );
-      if (!reclamoTipo) {
-        return res
-          .status(404)
-          .json({ error: "Reclamo a actualizar no encontrado" });
-      }
-      if (!descripcion) {
-        return res
-          .status(400)
-          .json({ error: "No se envio modificación alguna" });
-      }
-      await AdminDB.actualizarReclamoTipoDB(idReclamoTipo, descripcion);
-      res.status(200).json({
-        message: "Actualizacion de reclamo tipo con éxito",
-        id: reclamoTipo.id,
-        descripcion,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          error: "Error al actualizar tipo de reclamo",
-          details: error.message,
-        });
-    }
-  },
-
-  borrarReclamoTipo: async (req, res) => {
-    const { idReclamoTipo } = req.params
-    try {
-      const [[reclamoTipo]] = await pool.query(
-        "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
-        [idReclamoTipo]
-      );
-
-      if (!reclamoTipo) {
-        return res
-          .status(404)
-          .json({ error: "Reclamo a eliminar no encontrado" });
-      }
-
-      if (reclamoTipo.activo === 0) {
-        return res
-          .status(400)
-          .json({ error: "El reclamo tipo ya estaba desactivado" });
-      }
-
-      await AdminDB.borrarReclamoTipoDB(idReclamoTipo);
-
-      res.status(200).json({
-        message: "Reclamo tipo desactivado con éxito",
-        id: reclamoTipo.idReclamoTipo,
-        descripcion: reclamoTipo.descripcion,
-      });
-    } catch (error) {
-      res.status(500).json({
-        error: "Error al desactivar tipo de reclamo",
-        details: error.message,
-      });
-    }
-  },
-
   crearUsuario: async (req, res) => {
+    const { nombre, apellido, correoElectronico, contrasenia, idTipoUsuario } = req.body;
+    const imagen = req.file ? req.file.filename : null; // Nombre del archivo guardado o null si no se sube
+    try {
+      const result = await AdminService.crearUsuario({ nombre, apellido, correoElectronico, contrasenia, idTipoUsuario, imagen });
+
+      if (result.error) {
+        return res.status(result.status).json({ error: result.error });
+      }
+
+      res.json(result);
     const {
       nombre,
       apellido,
@@ -320,12 +85,22 @@ const AdminController = {
         idTipoUsuario,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error en AdminController.crearUsuario:", error);
       res.status(500).json({ error: "Error al crear el usuario." });
     }
   },
 
   actualizarUsuario: async (req, res) => {
+    const { idUsuarioModificado } = req.params;
+    const datosUsuario = {
+      ...req.body,
+      imagen: req.file ? req.file.filename : null, 
+    };
+    try {
+      const result = await AdminService.actualizarUsuario(idUsuarioModificado, datosUsuario);
+
+      if (result.error) {
+        return res.status(result.status).json({ error: result.error });
     try {
       const { idUsuarioModificado, idUsuarioModificador } = req.params;
       let {
@@ -409,24 +184,20 @@ const AdminController = {
         tipoUsuario = "usuario";
       }
 
-      res.json({
-        mensaje: `Se ha modificado un ${tipoUsuario} con éxito.`,
-        id: idUsuarioModificado,
-        nombre,
-        apellido,
-        correoElectronico,
-        contrasenia,
-        idTipoUsuario,
-        imagen,
-        activo,
-      });
+      res.json(result);
     } catch (error) {
-      console.log(error);
       res.status(500).json({ mensaje: "Error al actualizar el usuario" });
     }
   },
 
   borrarUsuario: async (req, res) => {
+    const { idUsuario } = req.params;
+
+    try {
+      const result = await AdminService.borrarUsuario(idUsuario);
+
+      if (result.error) {
+        return res.status(result.status).json({ error: result.error });
     try {
       const { idUsuario } = req.params;
       const [[usuario]] = await pool.query(
@@ -456,13 +227,12 @@ const AdminController = {
         tipoUsuario = "usuario";
       }
 
-      res.json({
-        mensaje: `Se ha desactivado el ${tipoUsuario} correctamente.`,
-      });
+      res.json(result);
     } catch (error) {
-      console.error("Error al borrar el usuario:", error);
+      console.error("Error en AdminController.borrarUsuario:", error);
       res.status(500).json({ error: "Error al borrar el usuario" });
     }
+  }
   },
 
   //agregar validacion de q exista el empleado a agregar y sea de idTipo 2 sino no corresponde

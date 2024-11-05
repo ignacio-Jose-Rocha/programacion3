@@ -1,103 +1,87 @@
-import { useState, useEffect } from "react";
-import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
-import Login from "./components/Login/Login.jsx";
-import Navbar from "./components/Navbar/Navbar.jsx";
-import Carousel from "./components/Inicio/Carousel";
-import Cards from "./components/Nosotros/Cards.jsx";
-import SobreNosotrosText from "./components/Nosotros/sobreNosotrosText.jsx";
-import Card from "./components/Institucion/Card";
-import Galery from "./components/Institucion/Modelos.jsx";
-import Footer from "./components/Footer/Footer.jsx";
-import Contacto from "./components/Contacto/Form.jsx";
-import ClienteDashboard from "./components/dashboard-cliente/DashboardCliente.jsx";
-import EmpleadoDashboard from "./components/dashboard-empleado/DashboardEmpleado.jsx"; // Crear este componente
-import AdminDashboard from "./components/dashboard-admin/DashboardAdmin.jsx"; // Crear este componente
-import "./index.css";
-import PropTypes from "prop-types";
+import { useAuth } from "./hooks/useAuth";
+import AppRoutes from "./routes/routes";
+import Navbar from "./pages/Navbar/Navbar.jsx";
+import Footer from "./pages/Footer/Footer.jsx";
+import Login from "./auth/Login/Login.jsx";
+import Register from "./auth/Registro/Registrarse.jsx";
+import Message from "./components/message.jsx";
+import { useState } from "react";
+import { useLocation, Route, Routes } from "react-router-dom";
 
-const ProtectedRoute = ({ isAuthenticated, children }) => {
-  return isAuthenticated ? children : <Navigate to="/" />;
-};
 
-ProtectedRoute.propTypes = {
-  isAuthenticated: PropTypes.bool.isRequired,
-  children: PropTypes.node.isRequired,
-};
+// Componentes para las páginas estáticas
+import Carousel from "./pages/Inicio/Carousel.jsx";
+import SobreNosotrosText from "./pages/Nosotros/SobreNosotrosText.jsx";
+import Cards from "./pages/Nosotros/Cards.jsx";
+import Card from "./pages/Institucion/Card.jsx";
+import Galery from "./pages/Institucion/Modelos.jsx";
+import Contacto from "./pages/Contacto/Form.jsx";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, login, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const navigate = useNavigate();
+  const [showRegister, setShowRegister] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(""); // Estado para controlar el mensaje de éxito
   const location = useLocation();
-
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const idTipoUsuario = localStorage.getItem("idTipoUsuario");
-
-    if (token && idTipoUsuario) {
-      setIsAuthenticated(true);
-
-      // Redirigir al dashboard correspondiente si ya está autenticado
-      if (idTipoUsuario === "3") {
-        navigate("/dashboard-cliente");
-      } else if (idTipoUsuario === "2") {
-        navigate("/dashboard-empleado");
-      } else if (idTipoUsuario === "1") {
-        navigate("/dashboard-admin");
-      }
-    }
-  }, [navigate]);
 
   const handleLoginClick = () => {
     setShowLogin(true);
+    setShowRegister(false);
   };
 
-  const handleCloseLogin = () => {
+  const handleRegisterClick = () => {
+    setShowRegister(true);
     setShowLogin(false);
   };
 
-  const handleLoginSuccess = (token, usuario) => {
-    setShowLogin(false);
-    setIsAuthenticated(true);
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("idTipoUsuario", usuario.idTipoUsuario); // Guardar idTipoUsuario
-
-    // Redirigir según el tipo de usuario
-    if (usuario.idTipoUsuario === 3) {
-      navigate("/dashboard-cliente");
-    } else if (usuario.idTipoUsuario === 2) {
-      navigate("/dashboard-empleado");
-    } else if (usuario.idTipoUsuario === 1) {
-      navigate("/dashboard-admin");
-    } else {
-      console.error("Tipo de usuario no reconocido");
-    }
+  const handleLoginSuccess = (token, user) => {
+    login(token, user);
+    setSuccessMessage("Inicio de sesión exitoso"); // Establecer el mensaje cuando el login sea exitoso
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("idTipoUsuario");
-    navigate("/"); // Redirige a la página de inicio después de cerrar sesión
+  const handleCloseMessage = () => {
+    setSuccessMessage(""); // Limpiar el mensaje cuando se cierre
   };
 
+
+  
   return (
     <>
       {/* Mostrar Navbar solo si no está en un dashboard */}
       {location.pathname !== "/dashboard-cliente" &&
-       location.pathname !== "/dashboard-empleado" &&
-       location.pathname !== "/dashboard-admin" && (
-        <Navbar
-          onLoginClick={handleLoginClick}
-          onLogout={handleLogout}
-          isAuthenticated={isAuthenticated}
+        location.pathname !== "/dashboard-empleado" &&
+        location.pathname !== "/dashboard-admin" && (
+          <Navbar
+            onLoginClick={handleLoginClick}
+            onRegisterClick={handleRegisterClick}
+            onLogout={logout}
+            isAuthenticated={isAuthenticated}
+          />
+        )}
+
+      {/* Mostrar el login y registro según el estado */}
+      {showLogin && (
+        <Login
+          onClose={() => setShowLogin(false)}
+          onLoginSuccess={handleLoginSuccess}
+          onRegisterClick={handleRegisterClick} // Permite cambiar a registro desde el login
         />
       )}
 
-      {showLogin && (
-        <Login onClose={handleCloseLogin} onLoginSuccess={handleLoginSuccess} />
+      {showRegister && (
+        <Register
+          onClose={() => setShowRegister(false)}
+          onRegisterSuccess={handleLoginSuccess}
+          onLoginClick={handleLoginClick} // Permite cambiar a login desde el registro
+        />
       )}
 
+      {/* Mostrar el mensaje si existe un successMessage */}
+      {successMessage && (
+        <Message message={successMessage} onClose={handleCloseMessage} />
+      )}
+
+      {/* Rutas de las páginas estáticas */}
       <Routes>
         <Route
           path="/"
@@ -117,36 +101,29 @@ function App() {
               <div id="contacto">
                 <Contacto />
               </div>
-              <Footer />
             </>
           }
         />
-        {/* Rutas protegidas según el tipo de usuario */}
+
+        {/* Aquí se muestran las rutas dinámicas y protegidas */}
         <Route
-          path="/dashboard-cliente"
+          path="/*"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ClienteDashboard onLogout={handleLogout} /> {/* Cliente */}
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard-empleado"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <EmpleadoDashboard onLogout={handleLogout} /> {/* Empleado */}
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard-admin"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <AdminDashboard onLogout={handleLogout} /> {/* Administrador */}
-            </ProtectedRoute>
+            <AppRoutes
+              isAuthenticated={isAuthenticated}
+              handleLogout={logout}
+            />
           }
         />
       </Routes>
+
+      {/* Mostrar Footer si no está en un dashboard */}
+      {location.pathname !== "/dashboard-cliente" &&
+        location.pathname !== "/dashboard-empleado" &&
+        location.pathname !== "/dashboard-admin" && 
+        <Footer />
+      }
+
     </>
   );
 }
