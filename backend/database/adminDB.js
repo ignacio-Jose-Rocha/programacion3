@@ -5,7 +5,7 @@ const AdminDB = {
   getAllUsuariosByTipoDB: async (idTipoUsuario) => {
     try {
       const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idTipoUsuario = ? AND activo = 1",
+        "SELECT nombre, apellido, correoElectronico, idUsuario, idTipoUsuario, activo FROM usuarios WHERE idTipoUsuario = ? AND activo = 1",
         [idTipoUsuario]
       );
       return rows;

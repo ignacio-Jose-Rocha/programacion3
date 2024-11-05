@@ -4,7 +4,7 @@ import EstadisticasController from '../controllers/estadisticasController.js';
 
 const router = express.Router();
 
-router.get("/estadisticas", EstadisticasController.getEstadisticasCompletas);
+router.get("/obtener", EstadisticasController.getEstadisticasCompletas);
 
 
 export default router;
