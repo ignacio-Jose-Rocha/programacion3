@@ -57,7 +57,6 @@ const ReclamoController = {
       res.status(200).json({ idCliente: idUsuario, reclamos, message });
     } catch (error) {
         console.error("Error al obtener el estado del reclamo:", error);
-      
         // Si no se encontraron reclamos, se devuelve un mensaje de error simple
         return res.status(404).json({ error: "No se encontraron reclamos para este cliente." });
       }

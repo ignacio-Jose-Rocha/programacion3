@@ -35,7 +35,7 @@ const informeController = {
         }catch(error){
             console.log(error)
             res.status(500).send({
-                estado:"Falla", mensaje: "Error interno en servidor."
+                mensaje: error.message || "Error interno en servidor."
             });
         } 
     },
