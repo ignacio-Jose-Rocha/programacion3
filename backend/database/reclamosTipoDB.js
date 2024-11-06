@@ -17,11 +17,15 @@ const ReclamosTipoDB = {
   // Función para obtener tipo de reclamo por ID
   getReclamoTipoByIdDB: async (idReclamoTipo) => {
     try {
-      const [[reclamoTipo]] = await pool.query(
+      const [reclamoTipo] = await pool.query(
         "SELECT * FROM reclamostipo WHERE idReclamoTipo = ?",
         [idReclamoTipo]
       );
-      return reclamoTipo;
+      console.log(reclamoTipo);
+      if (reclamoTipo.length > 0) {
+        return reclamoTipo[0];
+      }
+      return null;
     } catch (error) {
       console.error("Error al obtener reclamo tipo por ID:", error);
       throw error;
@@ -35,7 +39,10 @@ const ReclamosTipoDB = {
         "SELECT * FROM reclamostipo WHERE descripcion = ?",
         [descripcion]
       );
-      return rows;
+      if (rows.length > 0) {
+        return rows[0];
+      }
+      return null;
     } catch (error) {
       console.error("Error al obtener reclamo tipo por descripción:", error);
       throw error;
@@ -43,12 +50,11 @@ const ReclamosTipoDB = {
   },
 
   // Función para crear tipo de reclamo
-  crearReclamoTipoDB: async (descripcion, activo) => {
+  crearReclamoTipoDB: async (descripcion) => {
     try {
-      const [rows] = await pool.query("INSERT INTO reclamostipo SET ?", {
-        descripcion,
-        activo,
-      });
+      const [rows] = await pool.query("INSERT INTO reclamostipo SET activo=1, descripcion =?", 
+        [descripcion],
+      );
       return rows.insertId;
     } catch (error) {
       console.error("Error al crear tipo de reclamo:", error);

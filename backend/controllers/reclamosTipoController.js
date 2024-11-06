@@ -19,19 +19,13 @@ const ReclamosTipoController = {
   },
 
   crearReclamoTipo: async (req, res) => {
-    const { descripcion, activo = 1 } = req.body;
+    const { descripcion }  = req.body;
 
     if (!descripcion) {
       return res.status(400).json({ error: "Falta ingresar la descripción del reclamo" });
     }
-
     try {
-      const result = await ReclamosTipoService.crearReclamoTipo(descripcion, activo);
-
-      if (result.status === 400) {
-        return res.status(400).json({ error: result.error });
-      }
-
+      const result = await ReclamosTipoService.crearReclamoTipo(descripcion);
       return res.status(200).json({
         message: result.message,
         id: result.id,
@@ -39,10 +33,7 @@ const ReclamosTipoController = {
       });
     } catch (error) {
       console.error("Error en ReclamosController.crearReclamoTipo:", error);
-      return res.status(500).json({
-        error: "Error al crear tipo de reclamo",
-        details: error.message,
-      });
+      return res.status(500).json({error: error.message})
     }
   },
 
@@ -54,10 +45,8 @@ const ReclamosTipoController = {
       const resultado = await ReclamosTipoService.actualizarReclamoTipo(idReclamoTipo, descripcion);
       res.status(200).json(resultado);
     } catch (error) {
-      res.status(500).json({
-        error: error.message,
-        details: error.stack,
-      });
+      console.error("Error en ReclamosController.actualizarReclamoTipo:", error);
+      return res.status(500).json({error: error.message})
     }
   },
 
@@ -70,13 +59,8 @@ const ReclamosTipoController = {
         id: idReclamoTipo,
       });
     } catch (error) {
-      if (error.message === "Reclamo tipo no encontrado") {
-        return res.status(404).json({ error: "Reclamo a eliminar no encontrado" });
-      }
-      res.status(500).json({
-        error: "Error al desactivar tipo de reclamo",
-        details: error.message,
-      });
+      console.error("Error en ReclamosController.borrarReclamoTipo:", error);
+      return res.status(500).json({error: error.message})
     }
   },
 
