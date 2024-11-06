@@ -39,12 +39,12 @@ const ClienteService = {
     };
   },
 
-  actualizarCliente: async (idCliente, body) => {
+  actualizarCliente: async (idCliente, datosCliente) => {
     const camposActualizar = [];
     const valoresActualizar = [];
 
     // Iterar sobre las propiedades del body
-    for (const [key, value] of Object.entries(body)) {
+    for (const [key, value] of Object.entries(datosCliente)) {
       // Verificar si el valor está definido antes de agregarlo a la lista de actualizaciones
       if (value !== undefined) {
         if (key === 'contrasenia') {
@@ -67,10 +67,7 @@ const ClienteService = {
     // Retorna los datos actualizados
     return {
         id: idCliente,
-        nombre: body.nombre || null,
-        apellido: body.apellido || null,
-        correoElectronico: body.correoElectronico || null,
-        imagen: body.imagen || null,
+        ...datosCliente
     };
   },
   

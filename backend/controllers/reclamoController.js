@@ -14,13 +14,13 @@ const ReclamoController = {
 
 
   crearReclamo: async (req, res) => {
-    const { asunto, descripcion, idUsuarioCreador, idReclamoTipo } = req.body;
-
+    const { asunto, descripcion, idReclamoTipo } = req.body;
+    const {idUsuario} = req.user;
     try {
       const nuevoReclamo = await ReclamoService.crearReclamo(
         asunto,
         descripcion,
-        idUsuarioCreador,
+        idUsuario,
         idReclamoTipo
       );
 
@@ -54,10 +54,9 @@ const ReclamoController = {
     const { idUsuario } = req.user;
     try {
       const {reclamos,message} = await ReclamoService.obtenerReclamoEstado(idUsuario);
-      res.status(200).json({ idCliente: idUsuario, reclamos, message });
+      res.status(200).json({ message, idCliente: idUsuario, reclamos });
     } catch (error) {
         console.error("Error al obtener el estado del reclamo:", error);
-        // Si no se encontraron reclamos, se devuelve un mensaje de error simple
         return res.status(404).json({ error: "No se encontraron reclamos para este cliente." });
       }
     },

@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Obtener reclamos asociados a la oficina del empleado
 router.get(
-  "/reclamos-oficina",
+  "/listar",
   ReclamoOficinaController.listarReclamosOficina,
 );
 

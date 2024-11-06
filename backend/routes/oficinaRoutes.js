@@ -4,10 +4,10 @@ import express from 'express';
 const router = express.Router();
 
 // Rutas de Oficina
-router.get("/oficinas", OficinaController.getAllOficinas);
-router.get("/oficinas/:idOficina/empleados", OficinaController.getEmpleadosByOficina);
-router.post("/oficinas/:idOficina/empleados/:idUsuario", OficinaController.asignarEmpleadoAOficina);
-router.put("/oficinas/empleados/:idUsuario", OficinaController.eliminarEmpleadoDeOficina);
+router.get("/obtener", OficinaController.getAllOficinas);
+router.get("/:idOficina/empleados", OficinaController.getEmpleadosByOficina);
+router.post("/:idOficina/empleado/:idUsuario", OficinaController.asignarEmpleadoAOficina);
+router.put("/empleado/:idUsuario", OficinaController.eliminarEmpleadoDeOficina);
 
 
 export default router;

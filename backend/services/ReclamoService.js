@@ -1,6 +1,5 @@
 import redisClient from "../index.js";
 import ReclamoDB from '../database/reclamoDB.js';
-import PDFDocument from "pdfkit";
 import NotificacionEmail from "../services/notificacionEmailService.js";
 
 const ReclamoService = {
@@ -19,51 +18,47 @@ const ReclamoService = {
   },
 
   crearReclamo: async (asunto, descripcion, idUsuarioCreador, idReclamoTipo) => {
-    // Validación de campos requeridos
-    if (!asunto || !descripcion || !idReclamoTipo || !idUsuarioCreador) {
-      const errores = [];
-      if (!asunto) errores.push("asunto");
-      if (!descripcion) errores.push("descripcion");
-      if (!idReclamoTipo) errores.push("idReclamoTipo");
-      if (!idUsuarioCreador) errores.push("idUsuarioCreador");
+    try{
+      if (!asunto || !descripcion || !idReclamoTipo) {
+        const errores = [];
+        if (!asunto) errores.push("asunto");
+        if (!descripcion) errores.push("descripcion");
+        if (!idReclamoTipo) errores.push("idReclamoTipo");
+        throw new Error(`Faltan los siguientes datos requeridos: ${errores.join(', ')}`);
+      }
 
-      throw new Error(`Faltan los siguientes datos requeridos: ${errores.join(', ')}`);
+      // Verificar si el reclamo ya existe
+      const  existeReclamo = await ReclamoDB.buscarReclamoPorUsuarioYAsuntoDB(idUsuarioCreador, asunto);
+      if (existeReclamo != null) {
+        throw new Error('Este reclamo ya existe.');
+      }
+
+      const fechaCreado = new Date();
+      const idReclamoEstado = 1; // Estado inicial de un reclamo (por ejemplo, "Pendiente")
+
+      // Crear el reclamo en la base de datos
+      const idReclamo = await ReclamoDB.crearReclamoDB({
+        asunto,
+        descripcion,
+        fechaCreado,
+        idReclamoEstado,
+        idReclamoTipo,
+        idUsuarioCreador,
+      });
+
+      return {
+        id: idReclamo,
+        asunto,
+        descripcion,
+        fechaCreado,
+        idReclamoEstado,
+        idReclamoTipo,
+        idUsuarioCreador,
+        };
     }
-
-    // Verificar si el reclamo ya existe
-    const { existeReclamo, idTipoUsuario } = await ReclamoDB.buscarReclamoPorUsuarioYAsuntoDB(idUsuarioCreador, asunto);
-
-    if (existeReclamo > 0) {
-      throw new Error('Este reclamo ya existe.');
+    catch(error){
+      throw new Error ("error al crear reclamo: " + error.message)
     }
-
-    // Verificar el tipo de usuario (solo clientes pueden crear reclamos)
-    if (idTipoUsuario !== 3) {
-      throw new Error('Este usuario no tiene permiso para crear reclamos.');
-    }
-
-    const fechaCreado = new Date();
-    const idReclamoEstado = 1; // Estado inicial de un reclamo (por ejemplo, "Pendiente")
-
-    // Crear el reclamo en la base de datos
-    const idReclamo = await ReclamoDB.crearReclamoDB({
-      asunto,
-      descripcion,
-      fechaCreado,
-      idReclamoEstado,
-      idReclamoTipo,
-      idUsuarioCreador,
-    });
-
-    return {
-      id: idReclamo,
-      asunto,
-      descripcion,
-      fechaCreado,
-      idReclamoEstado,
-      idReclamoTipo,
-      idUsuarioCreador,
-    };
   },
 
   cancelarReclamo: async (idCliente, idReclamo) => {

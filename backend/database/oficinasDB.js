@@ -16,7 +16,7 @@ const OficinasDB = {
   getEmpleadosByOficinaDB: async (idOficina) => {
     try {
       const query = `
-      SELECT u.nombre, u.apellido, u.idUsuario
+      SELECT u.nombre, u.apellido, u.idUsuario,
       FROM usuarios AS u
       INNER JOIN usuariosOficinas AS uo ON u.idUsuario = uo.idUsuario
       WHERE uo.idOficina = ? AND uo.activo = 1`;
