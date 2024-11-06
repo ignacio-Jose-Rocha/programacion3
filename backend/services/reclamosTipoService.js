@@ -37,24 +37,20 @@ const ReclamosTipoService = {
       };
     } catch (error) {
       console.error("Error al obtener tipos de reclamos:", error);
-      throw error;
+      throw new Error ("error al obtener reclamos Tipo: " + error.message)
     }
   },
 
-  crearReclamoTipo: async (descripcion, activo = 1) => {
+  crearReclamoTipo: async (descripcion) => {
     try {
       // Verificar si el reclamo tipo ya existe
-      const [[reclamosTipo]] = await ReclamosTipo.getReclamoTipoByDescripcionDB(descripcion);
-
-      if (reclamosTipo) {
-        return {
-          status: 400,
-          error: `Ya existe el reclamo tipo ID: ${reclamosTipo.idReclamoTipo} con la descripción: ${descripcion}`,
-        };
+      const reclamosTipo = await ReclamosTipo.getReclamoTipoByDescripcionDB(descripcion);
+      if (reclamosTipo != null) {
+       throw new Error("El tipo de reclamo ya existe")
       }
 
       // Crear el tipo de reclamo en la base de datos
-      const result = await ReclamosTipo.crearReclamoTipoDB(descripcion, activo);
+      const result = await ReclamosTipo.crearReclamoTipoDB(descripcion);
 
       return {
         status: 200,
@@ -64,15 +60,14 @@ const ReclamosTipoService = {
       };
     } catch (error) {
       console.error("Error al crear tipo de reclamo:", error);
-      throw new Error("Error al crear tipo de reclamo");
+      throw new Error ("error al crear reclamo Tipo: " + error.message)
     }
   },
 
   actualizarReclamoTipo: async (idReclamoTipo, descripcion) => {
     try {
       // Verificar si el reclamo tipo existe en la base de datos
-      const [[reclamoTipo]] = await ReclamosTipo.getReclamoTipoByIdDB(idReclamoTipo);
-      
+      const reclamoTipo = await ReclamosTipo.getReclamoTipoByIdDB(idReclamoTipo);
       if (!reclamoTipo) {
         throw new Error("Reclamo tipo a actualizar no encontrado");
       }
@@ -92,7 +87,7 @@ const ReclamosTipoService = {
         descripcion,
       };
     } catch (error) {
-      throw error;
+      throw new Error ("error al actualizar reclamo Tipo: " + error.message)
     }
   },
 
@@ -105,10 +100,10 @@ const ReclamosTipoService = {
       }
   
       // Desactivar el reclamo tipo
-      await AdminDB.borrarReclamoTipoDB(idReclamoTipo);
+      await ReclamosTipo.borrarReclamoTipoDB(idReclamoTipo);
     } catch (error) {
       console.error("Error al borrar el reclamo tipo:", error);
-      throw error; // Lanza el error para que sea manejado en el controlador
+      throw new Error ("error al borrar reclamo Tipo: " + error.message)
     }
   },
 
