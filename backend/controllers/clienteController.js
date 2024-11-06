@@ -1,4 +1,4 @@
-import ClienteService from "../services/ClienteService.js";
+import ClienteService from "../services/clienteService.js";
 
 const ClienteController = {
   crearCliente: async (req, res) => {
@@ -24,13 +24,13 @@ const ClienteController = {
 
   actualizarCliente: async (req, res) => {
     const { idUsuario} = req.user;
-    const { nombre, apellido, correoElectronico, contrasenia } = req.body;
     const nuevaImagen = req.file ? req.file.filename : null;
-  
     try {
-      // Crear un objeto con los datos a actualizar
-      const datosActualizados = { nombre, apellido, correoElectronico, contrasenia };
-
+      // Crear un objeto con los datos de req.body y agregar imagen solo si existe
+      const datosActualizados = {
+        ...req.body,
+        ...(nuevaImagen && { imagen: nuevaImagen })
+      };
       // Si hay una nueva imagen, agregarla a los datos a actualizar
       if (nuevaImagen) {
         datosActualizados.imagen = nuevaImagen;

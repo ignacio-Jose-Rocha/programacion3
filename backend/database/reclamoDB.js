@@ -15,12 +15,16 @@ const ReclamoDB = {
   buscarReclamoPorUsuarioYAsuntoDB: async (idUsuarioCreador, asunto) => {
     try {
       const [result] = await pool.query(
-        `SELECT 
-          (SELECT COUNT(*) FROM reclamos WHERE idUsuarioCreador=? AND asunto=?) AS existeReclamo,
-          (SELECT idTipoUsuario FROM usuarios WHERE idUsuario=?) AS idTipoUsuario`,
-        [idUsuarioCreador, asunto, idUsuarioCreador]
+        `SELECT idReclamo
+        FROM reclamos
+        WHERE idUsuarioCreador = ? AND asunto = ?`,
+        [idUsuarioCreador, asunto]
       );
-      return result[0];
+      // Si el resultado tiene al menos un reclamo, significa que ya existe
+      if (result.length > 0) {
+        return result[0]; // Retorna el primer reclamo encontrado
+      }
+      return null; // No existe un reclamo con los mismos parámetros
     } catch (error) {
       throw new Error(
         "Error al buscar el reclamo por usuario y asunto: " + error.message

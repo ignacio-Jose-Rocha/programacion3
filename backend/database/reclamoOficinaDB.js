@@ -34,13 +34,14 @@ const ReclamoOficinaDB = {
   // Función para actualizar el estado del reclamo
   actualizarEstadoReclamoDB: async (idReclamo, idCliente, estadoNumerico, idEmpleado) => {
     try {
-      let query = 'UPDATE reclamos SET idReclamoEstado = ?, idUsuarioFinalizador = ?';
-      const valores = [estadoNumerico, idEmpleado];
+      let query = 'UPDATE reclamos SET idReclamoEstado = ?';
+      const valores = [estadoNumerico];
 
       if (estadoNumerico === 3) {
         query += ', fechaCancelado = NOW()';
       } else if (estadoNumerico === 4) {
-        query += ', fechaFinalizado = NOW()';
+        query += ', fechaFinalizado = NOW()  idUsuarioFinalizador = ?';
+        valores.push(idEmpleado); // Agregar idEmpleado solo si el estado es finalizado (4)
       }
 
       query += ' WHERE idReclamo = ? AND idUsuarioCreador = ?';

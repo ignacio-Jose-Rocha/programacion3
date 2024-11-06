@@ -43,17 +43,18 @@ const AdminController = {
 
   actualizarUsuario: async (req, res) => {
     const { idUsuarioModificado } = req.params;
-    const datosUsuario = {
-      ...req.body,
-      imagen: req.file ? req.file.filename : null, 
-    };
     try {
+       // Verificar si hay una nueva imagen y actualizar datosUsuario si existe
+      const nuevaImagen = req.file ? req.file.filename : null;
+      const datosUsuario = {
+        ...req.body,
+        ...(nuevaImagen && { imagen: nuevaImagen }), // Agregar imagen solo si existe
+      }
       const result = await AdminService.actualizarUsuario(idUsuarioModificado, datosUsuario);
 
       if (result.error) {
         return res.status(result.status).json({ error: result.error });
       }
-
       res.json(result);
     } catch (error) {
       console.error("Error en AdminController.actualizarUsuario:", error);
