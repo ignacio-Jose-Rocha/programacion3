@@ -49,7 +49,12 @@ Para iniciar el servidor en modo desarrollo (con nodemon):
 #### nodemailer: Envío de correos electrónicos.
 #### dotenv: Carga de variables de entorno desde archivos .env.
 #### redis: Implementación de cache con Redis.
-#### pdfkit: Para generar documentos PDF dinámicos.
+#### puppeteer: Para generar documentos PDF dinámicos.
+#### csv-writer: Librería para escribir datos en archivos CSV de manera sencilla y estructurada.
+#### multer: Manejo de subida de archivos (por ejemplo, imágenes o documentos) en el backend.
+#### joi: Librería para la validación de datos, que permite definir y aplicar reglas de validación en el backend para asegurar la integridad de los datos enviados por los usuarios.
+#### passport: Middleware de autenticación para Node.js, utilizado en conjunto con estrategias como JWT para gestionar la autenticación de usuarios de manera segura.
+#### handlebars: Motor de plantillas que permite generar contenido HTML dinámico, útil para crear correos electrónicos personalizados y documentos HTML en el backend.
 
 ## Notas adicionales 📝
 
