@@ -1,22 +1,41 @@
-import { loginService } from "../services/authService.js";
+import { loginService } from '../services/authService.js';
 
-const login = async (req, res) => {
-  const { correoElectronico, contrasenia } = req.body;
-  
-  try {
-    const resultado = await loginService(correoElectronico, contrasenia);
+const AuthController = {
+    login: async (req, res) => {
+        try {
+            const { correoElectronico, contrasenia } = req.body;
+            
+            if (!correoElectronico || !contrasenia) {
+                return res.status(400).json({ 
+                    error: "Correo electrónico y contraseña son requeridos" 
+                });
+            }
 
-    // Enviar la respuesta según el resultado del servicio
-    return res.status(resultado.status).json({
-      success: resultado.success,
-      message: resultado.message,
-      token: resultado.token || null,
-      usuario: resultado.usuario || null
-    });
+            const resultado = await loginService(correoElectronico, contrasenia);
+            res.status(200).json(resultado);
+        } catch (error) {
+            console.error("Error en login:", error);
+            res.status(400).json({ error: error.message });
+        }
+    },
 
-  } catch (error) {
-    res.status(401).json({ success: false, message: error.message });
-  }
+    logout: async (req, res) => {
+        try {
+            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+        } catch (error) {
+            console.error("Error en logout:", error);
+            res.status(500).json({ error: "Error interno del servidor" });
+        }
+    },
+
+    register: async (req, res) => {
+        try {
+            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+        } catch (error) {
+            console.error("Error en register:", error);
+            res.status(500).json({ error: "Error interno del servidor" });
+        }
+    }
 };
 
-export { login };
+export default AuthController;

@@ -20,6 +20,12 @@ import routerReclamoTipo from './routes/reclamoTipoRoutes.js';
 import routerOficina from './routes/oficinaRoutes.js';
 import routerEstadisticas from './routes/estadisticas.js';
 import routerInforme from './routes/informe.js';
+import routerReportes from './routes/reportesRoutes.js';
+import routerNotificaciones from './routes/notificacionesRoutes.js';
+import routerReclamosEstado from './routes/reclamosEstadoRoutes.js';
+import routerUsuariosOficinas from './routes/usuariosOficinasRoutes.js';
+import routerUsuarios from './routes/usuariosRoutes.js';
+import routerUsuariosTipo from './routes/usuariosTipoRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -71,6 +77,12 @@ app.use(`${API_VERSION}/reclamoTipos`, passport.authenticate('jwt', { session: f
 app.use(`${API_VERSION}/oficinas`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerOficina);
 app.use(`${API_VERSION}/estadisticas`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerEstadisticas);
 app.use(`${API_VERSION}/informes`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerInforme);
+app.use(`${API_VERSION}/reportes`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerReportes);
+app.use(`${API_VERSION}/notificaciones`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1, 2]), routerNotificaciones);
+app.use(`${API_VERSION}/reclamosEstado`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerReclamosEstado);
+app.use(`${API_VERSION}/usuariosOficinas`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerUsuariosOficinas);
+app.use(`${API_VERSION}/usuarios`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerUsuarios);
+app.use(`${API_VERSION}/usuariosTipo`, passport.authenticate('jwt', { session: false }), autorizarUsuario([1]), routerUsuariosTipo);
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));

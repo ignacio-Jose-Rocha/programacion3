@@ -17,17 +17,16 @@ const ReclamoOficinaDB = {
     }
   },
 
-
-   // Función para verificar si el empleado está asignado a la oficina
-   verificarEmpleadoAsignado: async (idEmpleado, idOficina) => {
+  // Función para verificar si el empleado está asignado a la oficina
+  verificarEmpleadoAsignado: async (idEmpleado, idOficina) => {
     try {
-      const [[empleadoAsignado]] = await pool.query(`
-        SELECT 1
-        FROM usuariosOficinas
+      const [rows] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM usuariosOficinas 
         WHERE idUsuario = ? AND idOficina = ?`, [idEmpleado, idOficina]);
-      return !!empleadoAsignado; // Devuelve true si existe, false si no
+      return rows[0].count > 0;
     } catch (error) {
-      throw new Error('Error al verificar el empleado asignado: ' + error.message);
+      throw new Error('Error al verificar empleado asignado: ' + error.message);
     }
   },
 
@@ -40,8 +39,8 @@ const ReclamoOficinaDB = {
       if (estadoNumerico === 3) {
         query += ', fechaCancelado = NOW()';
       } else if (estadoNumerico === 4) {
-        query += ', fechaFinalizado = NOW()  idUsuarioFinalizador = ?';
-        valores.push(idEmpleado); // Agregar idEmpleado solo si el estado es finalizado (4)
+        query += ', fechaFinalizado = NOW(), idUsuarioFinalizador = ?';
+        valores.push(idEmpleado);
       }
 
       query += ' WHERE idReclamo = ? AND idUsuarioCreador = ?';

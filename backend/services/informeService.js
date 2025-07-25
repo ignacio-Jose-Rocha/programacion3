@@ -1,5 +1,5 @@
-import InformeDB from '../database/informeDB.js';
-import InformeHandlebars from './informeHandlebars.js';
+import InformeDB from "../database/informeDB.js";
+import InformeHandlebars from "./informeHandlebars.js";
 
 const informeService = {
     generarInforme: async function (formato) { 
@@ -8,7 +8,7 @@ const informeService = {
         } else if (formato === 'csv') {
             return await this.reporteCsv();
         } else {
-            throw new Error("Formato no soportado."); // Manejo de formato no soportado
+            throw new Error("Formato no soportado."); 
         }
     },
     
@@ -30,21 +30,17 @@ const informeService = {
         };
     },
 
-    reporteCsv: async function () { 
+    reporteCsv: async function () {
         const datosReporte = await InformeDB.buscarDatosReporteCsv();
 
         if (!datosReporte || datosReporte.length === 0) {
             throw new Error('Sin datos para el reporte CSV.');
         }
 
-        const csv = await InformeHandlebars.informeReclamosCsv(datosReporte);
+        const rutaArchivo = await InformeHandlebars.informeReclamosCsv(datosReporte);
         
         return {
-            path: csv,
-            headers: {
-                'Content-Type': 'text/csv',
-                'Content-Disposition': 'attachment; filename="reporte.csv"'
-            }
+            path: rutaArchivo
         };
     }
 };

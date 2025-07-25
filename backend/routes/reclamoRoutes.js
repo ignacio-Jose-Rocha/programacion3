@@ -1,11 +1,12 @@
 import express from 'express';
 import ReclamoController from '../controllers/reclamoController.js';
+import { validarCrearReclamo } from '../middleware/validaciones.js';
 
 const router = express.Router();
 
-// Rutas de Reclamo
-router.get('/estado', ReclamoController.obtenerReclamoEstado);
-router.post('/crear', ReclamoController.crearReclamo);
-router.put("/:idReclamo/cancelar", ReclamoController.cancelarReclamo);
- 
+router.get('/', ReclamoController.getAllReclamos);
+router.post('/', validarCrearReclamo, ReclamoController.crearReclamo);
+router.get('/obtener', ReclamoController.obtenerReclamoEstado);
+router.patch('/cancelar/:idReclamo', ReclamoController.cancelarReclamo);
+
 export default router;

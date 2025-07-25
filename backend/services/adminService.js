@@ -1,9 +1,8 @@
-import redisClient from "../index.js";
 import AdminDB from "../database/adminDB.js";
+import redisClient from "../index.js";
 import bcrypt from "bcrypt";
 
 const AdminService = {
-  // Función para obtener usuarios segun idTipoUsuario
   getUsuariosByTipo: async (idTipoUsuario, cacheKey) => {
     try {
       const cachedData = await redisClient.get(cacheKey);
@@ -13,7 +12,7 @@ const AdminService = {
       }
 
       const usuarios = await AdminDB.getAllUsuariosByTipoDB(idTipoUsuario);
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(usuarios)); // Guardar en Redis
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(usuarios));
       return usuarios;
     } catch (error) {
       console.error(`Error en AdminService.getUsuariosByTipo(${cacheKey}):`, error);
@@ -21,144 +20,71 @@ const AdminService = {
     }
   },
 
-  // Funciones específicas que llaman a la genérica con el idTipoUsuario y cacheKey adecuados
-
   getAllEmpleados: function () {
-    return this.getUsuariosByTipo(2, "empleados")
+    return this.getUsuariosByTipo(2, "empleados");
   },
+
   getAllClientes: function () {
-    return this.getUsuariosByTipo(3, "clientes")
+    return this.getUsuariosByTipo(3, "clientes");
   },
 
-  crearUsuario: async (usuarioData) => {
-    const {
-      nombre,
-      apellido,
-      correoElectronico,
-      contrasenia,
-      idTipoUsuario,
-      imagen,
-    } = usuarioData;
+  crearEmpleado: async (datosEmpleado) => {
     try {
-      // Verificar si el correo electrónico ya existe
-      const rows = await AdminDB.verificarCorreo(correoElectronico); // Llamar a la función de verificación
+      const { nombre, apellido, correoElectronico, password, idOficina } = datosEmpleado;
 
-      if (rows.length > 0) {
-        throw new Error("El usuario ya está registrado.");
+      // Validar que el email no exista
+      const usuarioExistente = await AdminDB.buscarUsuarioPorEmailDB(correoElectronico);
+      if (usuarioExistente) {
+        throw new Error("Ya existe un usuario con este correo electrónico");
       }
-  
-      // Encriptar la contraseña
-      const hashedPassword = await bcrypt.hash(contrasenia, 10);
-      const activo = 1;
 
-      const user = {
+      // Encriptar password
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Crear empleado
+      const idUsuario = await AdminDB.crearUsuarioDB({
         nombre,
         apellido,
         correoElectronico,
-        contrasenia: hashedPassword,
-        idTipoUsuario,
-        imagen,
-        activo,
-      };
+        password: passwordHash,
+        idTipoUsuario: 2 // Empleado
+      });
 
-      // Insertar el usuario en la base de datos
-      const result = await AdminDB.crearUsuarioDB(user);
+      // Asignar a oficina
+      await AdminDB.asignarUsuarioOficinaDB(idUsuario, idOficina);
 
-      return {
-        message: "Usuario creado con éxito",
-        id: result.insertId,
-        nombre,
-        correoElectronico,
-        idTipoUsuario,
-      };
+      // Limpiar caché
+      await redisClient.del("empleados");
+
+      return { idUsuario, nombre, apellido, correoElectronico, idOficina };
     } catch (error) {
-      throw new Error(`${error.message}`);
+      throw new Error("Error al crear empleado: " + error.message);
     }
   },
 
-  actualizarUsuario: async (idUsuarioModificado, datosUsuario) => {
+  actualizarEmpleado: async (idUsuario, datosActualizacion) => {
     try {
-      // Obtener usuario a modificar de la base de datos
-      const [usuarioModificado] = await AdminDB.obtenerUsuarioPorId(idUsuarioModificado);
-  
-      if (!usuarioModificado) return { error: "Usuario a modificar no encontrado", status: 404 };
+      const empleadoActualizado = await AdminDB.actualizarUsuarioDB(idUsuario, datosActualizacion);
       
-      const camposActualizar = [];
-      const valoresActualizar = [];
-  
-      // Iterar sobre los datos de usuario
-      for (const [key, value] of Object.entries(datosUsuario)) {
-        if (value !== undefined) {
-          if (key === 'contrasenia') {
-            const hashedPassword = await bcrypt.hash(value, 10);
-            camposActualizar.push(`${key} = ?`);
-            valoresActualizar.push(hashedPassword);
-          } else {
-            camposActualizar.push(`${key} = ?`);
-            valoresActualizar.push(value);
-          }
-        }
-      }
-  
-      if (camposActualizar.length === 0) {
-        return { error: "No hay datos a modificar", status: 400 };
-      }
-  
-      // Actualizar en la base de datos
-      await AdminDB.actualizarUsuarioDB(idUsuarioModificado, camposActualizar, valoresActualizar);
-  
-      // Determinar el tipo de usuario
-      const tipoUsuario = usuarioModificado.idTipoUsuario === 3
-        ? "cliente"
-        : usuarioModificado.idTipoUsuario === 2
-        ? "empleado"
-        : "usuario";
-  
-      return {
-        mensaje: `Se ha modificado un ${tipoUsuario} con éxito.`,
-        id: idUsuarioModificado,
-        ...datosUsuario,  // Devuelve los datos modificados
-      };
+      // Limpiar caché
+      await redisClient.del("empleados");
+      
+      return empleadoActualizado;
     } catch (error) {
-      console.error("Error en AdminService.actualizarUsuario:", error);
-      throw new Error(`${error.message}`);
+      throw new Error("Error al actualizar empleado: " + error.message);
     }
   },
 
-  borrarUsuario: async (idUsuario) => {
+  eliminarEmpleado: async (idUsuario) => {
     try {
-      // Obtener el usuario de la base de datos
-      const [usuario] = await AdminDB.obtenerUsuarioPorId(idUsuario);
-
-      if (!usuario) {
-        return { error: "Usuario a borrar no encontrado", status: 404 };
-      }
-
-      // Verificar si el usuario ya está desactivado
-      if (usuario.activo === 0) {
-        return { error: "El usuario ya estaba desactivado", status: 400 };
-      }
-
-      // Desactivar (borrar lógicamente) el usuario
-      await AdminDB.borrarUsuarioDB(idUsuario);
-
-      // Determinar el tipo de usuario
-      let tipoUsuario;
-      if (usuario.idTipoUsuario === 3) {
-        tipoUsuario = "cliente";
-      } else if (usuario.idTipoUsuario === 2) {
-        tipoUsuario = "empleado";
-      } else {
-        tipoUsuario = "usuario";
-      }
-
-      return { mensaje: `Se ha desactivado el ${tipoUsuario} correctamente.` };
+      await AdminDB.eliminarUsuarioDB(idUsuario);
+      
+      // Limpiar caché
+      await redisClient.del("empleados");
     } catch (error) {
-      console.error("Error en AdminService.borrarUsuario:", error);
-      throw new Error(`${error.message}`);
+      throw new Error("Error al eliminar empleado: " + error.message);
     }
-  },
-  
+  }
 };
 
 export default AdminService;

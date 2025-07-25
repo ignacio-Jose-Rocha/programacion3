@@ -1,7 +1,6 @@
 import pool from "./config.js";
 
 const OficinasDB = {
-  // Función para obtener todas las oficinas
   getAllOficinasDB: async () => {
     try {
       const [rows] = await pool.query("SELECT * FROM oficinas WHERE activo = 1");
@@ -12,11 +11,10 @@ const OficinasDB = {
     }
   },
 
-  // Función para obtener empleados por oficina
   getEmpleadosByOficinaDB: async (idOficina) => {
     try {
       const query = `
-      SELECT u.nombre, u.apellido, u.idUsuario,
+      SELECT u.nombre, u.apellido, u.idUsuario
       FROM usuarios AS u
       INNER JOIN usuariosOficinas AS uo ON u.idUsuario = uo.idUsuario
       WHERE uo.idOficina = ? AND uo.activo = 1`;
@@ -28,21 +26,19 @@ const OficinasDB = {
     }
   },
 
-  // Función para buscar un empleado
   buscarEmpleadoDB: async (idUsuario) => {
     try {
-      const [[rows]] = await pool.query(
+      const [rows] = await pool.query(
         "SELECT * FROM usuarios WHERE idUsuario = ?",
         [idUsuario]
       );
-      return rows
+      return rows[0];
     } catch (error) {
       console.error("Error al buscar empleado en la base de datos:", error);
       throw error;
     }
   },
 
-  // Función para asignar empleado a oficina
   asignarEmpleadoDB: async (idOficina, idUsuario) => {
     try {
       const query =
@@ -55,12 +51,11 @@ const OficinasDB = {
     }
   },
 
-  // Función para eliminar empleado de oficina
   eliminarEmpleadoDeOficinaDB: async (idUsuario) => {
     try {
       const query =
         "UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?";
-      const result = await pool.query(query, [idUsuario]);
+      const [result] = await pool.query(query, [idUsuario]);
       return result;
     } catch (error) {
       console.error(

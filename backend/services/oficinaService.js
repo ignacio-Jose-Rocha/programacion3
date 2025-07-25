@@ -1,4 +1,4 @@
-import oficinas from "../database/oficinasDB.js";
+import OficinasDB from "../database/oficinasDB.js";
 import redisClient from "../index.js"
 
 const oficinaService = {
@@ -12,7 +12,7 @@ const oficinaService = {
         return JSON.parse(cachedData);
       }
 
-      const rows = await oficinas.getAllOficinasDB();
+      const rows = await OficinasDB.getAllOficinasDB();
       await redisClient.setEx(cacheKey, 3600, JSON.stringify(rows));
       return rows;
     }
@@ -31,7 +31,7 @@ const oficinaService = {
         return JSON.parse(cachedData);
       }
 
-      const rows = await oficinas.getEmpleadosByOficinaDB(idOficina);
+      const rows = await OficinasDB.getEmpleadosByOficinaDB(idOficina);
       if (rows.length === 0) {
         throw new Error("Oficina sin empleados asignados");
       }
@@ -47,9 +47,8 @@ const oficinaService = {
 
   asignarEmpleadoAOficina: async (idOficina, idUsuario) => {
     try {
-      // Verificar si el empleado existe y cumple con las condiciones
-      const existe = await oficinas.buscarEmpleadoDB(idUsuario);
-      if (existe.length === 0){
+      const existe = await OficinasDB.buscarEmpleadoDB(idUsuario);
+      if (!existe){
         throw new Error("Empleado no encontrado");
       }
       if (existe.activo !== 1){
@@ -58,17 +57,15 @@ const oficinaService = {
       if(existe.idTipoUsuario !== 2){
         throw new Error("El usuario no es de tipo empleado");
       }
-      // Obtener los empleados ya asignados a la oficina
-      const empleados= await oficinas.getEmpleadosByOficinaDB(idOficina);
-    
-      // Verificar si el empleado ya está asignado a la oficina
-      const idUsuarioNumero = Number(idUsuario); // Lo convierto en numero ya que viene como string para realizar la comparación
+      
+      const empleados = await OficinasDB.getEmpleadosByOficinaDB(idOficina);
+      const idUsuarioNumero = Number(idUsuario);
       const yaAsignado = empleados.some(empleado => empleado.idUsuario === idUsuarioNumero);
       if (yaAsignado) {
         throw new Error("El empleado ya está asignado en la oficina");
       }
-      // Agregar empleado a oficina
-      const idAsignacion = await oficinas.asignarEmpleadoDB(idOficina, idUsuario);
+      
+      const idAsignacion = await OficinasDB.asignarEmpleadoDB(idOficina, idUsuario);
       return idAsignacion;
     } catch (error) {
       throw new Error("Error al asignar el empleado a la oficina: " + error.message);
@@ -77,8 +74,8 @@ const oficinaService = {
 
   eliminarEmpleadoDeOficina: async (idUsuario) => {
     try {
-      const result = await oficinas.eliminarEmpleadoDeOficinaDB(idUsuario);
-      return result; // Retorna el resultado para manejarlo en el controlador
+      const result = await OficinasDB.eliminarEmpleadoDeOficinaDB(idUsuario);
+      return result;
     } catch (error) {
       throw new Error("Error al desactivar el usuario de la oficina: " + error.message);
     }

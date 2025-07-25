@@ -1,35 +1,47 @@
-import pool from "./config.js";
+import pool from './config.js';
 
-const informeDB = {
-    buscarDatosReportePdf: async () => {        
-        const sql = 'CALL `datosPDF`()';
-
-        const [result] = await pool.query(sql);
-
-        const datosReporte = {
-            reclamosTotales : result[0][0].reclamosTotales,
-            reclamosNoFinalizados : result[0][0].reclamosNoFinalizados,
-            reclamosFinalizados : result[0][0].reclamosFinalizados,
-            descripcionTipoRreclamoFrecuente : result[0][0].descripcionTipoRreclamoFrecuente,
-            cantidadTipoRreclamoFrecuente : result[0][0].cantidadTipoRreclamoFrecuente
+const InformeDB = {
+    buscarDatosReportePdf: async () => {
+        try {
+            const [rows] = await pool.query(`
+                SELECT 
+                    r.asunto as reclamo,
+                    rt.descripcion as tipo,
+                    re.descripcion as estado,
+                    DATE_FORMAT(r.fechaCreado, '%d/%m/%Y') as fechaCreado,
+                    CONCAT(u.nombre, ' ', u.apellido) as cliente
+                FROM reclamos r
+                JOIN reclamosTipo rt ON r.idReclamoTipo = rt.idReclamoTipo
+                JOIN reclamosEstado re ON r.idReclamoEstado = re.idReclamoEstado
+                JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario
+                ORDER BY r.fechaCreado DESC
+            `);
+            return { reclamos: rows };
+        } catch (error) {
+            throw new Error('Error al obtener datos para reporte PDF: ' + error.message);
         }
-
-        return datosReporte;
     },
 
     buscarDatosReporteCsv: async () => {
-        const query = `SELECT r.idReclamo as 'reclamo', rt.descripcion as 'tipo', re.descripcion AS 'estado',
-                     DATE_FORMAT(r.fechaCreado, '%Y-%m-%d %H:%i:%s') AS 'fechaCreado', CONCAT(u.nombre, ' ', u.apellido) AS 'cliente'
-                    FROM reclamos AS r 
-                    INNER JOIN reclamostipo AS rt ON rt.idReclamoTipo = r.idReclamoTipo 
-                    INNER JOIN reclamosestado AS re ON re.idReclamoEstado = r.idReclamoEstado 
-                    INNER JOIN usuarios AS u ON u.idUsuario = r.idUsuarioCreador 
-                        WHERE r.idReclamoEstado <> 4;`;
-
-        const [result] = await pool.query(query);
-        return result;  
-    },
-
+        try {
+            const [rows] = await pool.query(`
+                SELECT 
+                    r.asunto as reclamo,
+                    rt.descripcion as tipo,
+                    re.descripcion as estado,
+                    DATE_FORMAT(r.fechaCreado, '%d/%m/%Y') as fechaCreado,
+                    CONCAT(u.nombre, ' ', u.apellido) as cliente
+                FROM reclamos r
+                JOIN reclamosTipo rt ON r.idReclamoTipo = rt.idReclamoTipo
+                JOIN reclamosEstado re ON r.idReclamoEstado = re.idReclamoEstado
+                JOIN usuarios u ON r.idUsuarioCreador = u.idUsuario
+                ORDER BY r.fechaCreado DESC
+            `);
+            return rows;
+        } catch (error) {
+            throw new Error('Error al obtener datos para reporte CSV: ' + error.message);
+        }
+    }
 };
 
-export default informeDB;
+export default InformeDB;

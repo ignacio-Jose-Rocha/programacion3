@@ -61,6 +61,15 @@ const ReclamoService = {
     }
   },
 
+  obtenerReclamoEstado: async (idUsuario) => {
+    try {
+      const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idUsuario);
+      return reclamos;
+    } catch (error) {
+      throw new Error("Error al obtener reclamos del usuario: " + error.message);
+    }
+  },
+
   cancelarReclamo: async (idCliente, idReclamo) => {
     try {
       const reclamo = await ReclamoDB.obtenerReclamoPorClienteYReclamoDB(idCliente, idReclamo);
@@ -83,25 +92,7 @@ const ReclamoService = {
     } catch (error) {
       throw new Error(error.message);
     }
-  },
-
-
-  obtenerReclamoEstado: async (idCliente) => {
-    try { 
-      const reclamos = await ReclamoDB.obtenerReclamosPorUsuarioDB(idCliente);
-      
-      if (reclamos.length === 0) {
-        throw new Error("No se encontró ningún reclamo para este cliente");
-      }
-      
-      return {reclamos, message: "Reclamos obtenidos exitosamente" };
-      
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  },
-
-
+  }
 };
 
 export default ReclamoService;

@@ -1,6 +1,5 @@
 import ReclamoService from "../services/ReclamoService.js";
 
-
 const ReclamoController = {
   getAllReclamos: async (req, res) => {
     try {
@@ -12,10 +11,9 @@ const ReclamoController = {
     }
   },
 
-
   crearReclamo: async (req, res) => {
     const { asunto, descripcion, idReclamoTipo } = req.body;
-    const {idUsuario} = req.user;
+    const { idUsuario } = req.user;
     try {
       const nuevoReclamo = await ReclamoService.crearReclamo(
         asunto,
@@ -33,35 +31,32 @@ const ReclamoController = {
     }
   },
 
-  cancelarReclamo: async (req, res) => {
-    const {idUsuario} = req.user;
-    const {idReclamo } = req.params;
+  obtenerReclamoEstado: async (req, res) => {
     try {
-      const reclamoModificado = await ReclamoService.cancelarReclamo(idUsuario, idReclamo);
-      if (reclamoModificado.estado){
-        res.status(200).send({estado:"OK", mensaje: reclamoModificado});
-      }
-      else{
-        res.status(404).send({estado:"Falla", mensaje: reclamoModificado.mensaje});
-      }
+      const { idUsuario } = req.user;
+      const resultado = await ReclamoService.obtenerReclamoEstado(idUsuario);
+      res.status(200).json(resultado);
     } catch (error) {
-      console.error("Error al cancelar reclamo:", error);
+      console.error("Error al obtener estado de reclamos:", error);
       res.status(400).json({ error: error.message });
     }
   },
 
-  obtenerReclamoEstado: async (req, res) => {
-    const { idUsuario } = req.user;
+  cancelarReclamo: async (req, res) => {
     try {
-      const {reclamos,message} = await ReclamoService.obtenerReclamoEstado(idUsuario);
-      res.status(200).json({ message, idCliente: idUsuario, reclamos });
+      const { idUsuario } = req.user;
+      const { idReclamo } = req.params;
+      
+      const resultado = await ReclamoService.cancelarReclamo(idUsuario, idReclamo);
+      res.status(200).json({
+        message: "Reclamo cancelado exitosamente",
+        notificacion: resultado
+      });
     } catch (error) {
-        console.error("Error al obtener el estado del reclamo:", error);
-        return res.status(404).json({ error: "No se encontraron reclamos para este cliente." });
-      }
-    },
-
-
+      console.error("Error al cancelar reclamo:", error);
+      res.status(400).json({ error: error.message });
+    }
+  }
 };
 
 export default ReclamoController;

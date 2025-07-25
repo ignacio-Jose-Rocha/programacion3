@@ -1,13 +1,11 @@
 import express from 'express';
-import reclamosTipoController from "../controllers/reclamosTipoController.js";
+import ReclamoTipoController from '../controllers/reclamoTipoController.js';
 
 const router = express.Router();
 
-// Rutas de ReclamoTipo
-router.get("/obtener", reclamosTipoController.getAllReclamosTipo);
-router.post("/crear", reclamosTipoController.crearReclamoTipo);
-router.patch("/actualizar/:idReclamoTipo", reclamosTipoController.actualizarReclamoTipo);
-router.put("/borrar/:idReclamoTipo", reclamosTipoController.borrarReclamoTipo);
-
+router.get('/obtener', ReclamoTipoController.getAllReclamosTipo);
+router.post('/crear', ReclamoTipoController.crearReclamoTipo);
+router.put('/actualizar/:id', ReclamoTipoController.actualizarReclamoTipo);
+router.delete('/borrar/:id', ReclamoTipoController.borrarReclamoTipo);
 
 export default router;
