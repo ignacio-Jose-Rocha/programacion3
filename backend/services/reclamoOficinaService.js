@@ -1,66 +1,60 @@
-
-import ReclamoOficinaDB from "../database/reclamoOficinaDB.js";
-import NotificacionEmail from "../services/notificacionEmailService.js";
-import ReclamoDB from "../database/reclamoDB.js"
-
+import ReclamoOficinaDB from '../database/reclamoOficinaDB.js';
+import NotificacionEmail from './notificacionEmailService.js';
 
 const ReclamoOficinaService = {
-  listarReclamosOficina: async (idEmpleado) => {
-    try{
-      const reclamos = await ReclamoOficinaDB.obtenerReclamosPorOficinaDB(idEmpleado);
+    obtenerReclamosOficina: async (idUsuario) => {
+        try {
+            const reclamos = await ReclamoOficinaDB.obtenerReclamosOficinaDB(idUsuario);
+            return reclamos;
+        } catch (error) {
+            throw new Error("Error al obtener reclamos de oficina: " + error.message);
+        }
+    },
 
-      if (reclamos.length === 0) {
-        throw new Error(
-          `No se encontraron reclamos para la oficina asignada al empleado con ID ${idEmpleado}`
-        );
-      }
-     return reclamos;
-    } catch (error){
-      throw new Error("error al listar reclamos oficina: " + error.message)
+    atenderReclamo: async (idReclamo, idUsuario, nuevoEstado) => {
+        try {
+            // Verificar que el empleado puede atender este reclamo
+            const puedeAtender = await ReclamoOficinaDB.verificarEmpleadoPuedeAtenderDB(idReclamo, idUsuario);
+            if (!puedeAtender) {
+                throw new Error("No tienes permisos para atender este reclamo");
+            }
+
+            // Actualizar estado del reclamo
+            await ReclamoOficinaDB.actualizarEstadoReclamoDB(idReclamo, nuevoEstado);
+
+            // Obtener datos del reclamo para notificación
+            const reclamo = await ReclamoOficinaDB.obtenerReclamoPorIdDB(idReclamo);
+            const estadoDescripcion = await ReclamoOficinaDB.obtenerEstadoDescripcionDB(nuevoEstado);
+
+            // Enviar notificación
+            const notificacion = await NotificacionEmail(reclamo, estadoDescripcion.descripcion);
+
+            return { reclamo, notificacion };
+        } catch (error) {
+            throw new Error("Error al atender reclamo: " + error.message);
+        }
+    },
+
+    finalizarReclamo: async (idReclamo, idUsuario) => {
+        try {
+            // Verificar que el empleado puede finalizar este reclamo
+            const puedeAtender = await ReclamoOficinaDB.verificarEmpleadoPuedeAtenderDB(idReclamo, idUsuario);
+            if (!puedeAtender) {
+                throw new Error("No tienes permisos para finalizar este reclamo");
+            }
+
+            // Finalizar reclamo (estado 4)
+            await ReclamoOficinaDB.finalizarReclamoDB(idReclamo, idUsuario);
+
+            // Obtener datos del reclamo para notificación
+            const reclamo = await ReclamoOficinaDB.obtenerReclamoPorIdDB(idReclamo);
+            const notificacion = await NotificacionEmail(reclamo, "Finalizado");
+
+            return { reclamo, notificacion };
+        } catch (error) {
+            throw new Error("Error al finalizar reclamo: " + error.message);
+        }
     }
-  },
-
-  actualizarEstadoReclamo: async (idEmpleado, idCliente, nuevoEstado, idReclamo) => {
-    try{
-      const estadoNumerico = parseInt(nuevoEstado, 10);
-      const reclamo = await ReclamoDB.obtenerReclamoPorClienteYReclamoDB(idCliente, idReclamo);
-
-      if (!reclamo) {
-        throw new Error("No se encontró el reclamo para este usuario.");
-      }
-    
-      const estaAsignado = await ReclamoOficinaDB.verificarEmpleadoAsignado(idEmpleado, reclamo.idOficina);
-    
-      if (!estaAsignado) {
-        throw new Error("Este reclamo no le corresponde a su oficina");
-      }
-
-      const estadoValido = await ReclamoDB.obtenerEstadoReclamoPorId(estadoNumerico);
-    
-      if (!estadoValido) {
-        throw new Error("El estado proporcionado no es válido. Debe ser un número entre 1 y 4.");
-      }
-
-      if (reclamo.idReclamoEstado === 3) {
-        throw new Error("Reclamo ya cancelado.");
-      }
-      if (reclamo.idReclamoEstado === 4) {
-        throw new Error("Reclamo ya finalizado.");
-      }
-
-      const resultado = await ReclamoOficinaDB.actualizarEstadoReclamoDB(idReclamo, idCliente, estadoNumerico, idEmpleado);
-
-      if (resultado.affectedRows === 0) {
-        throw new Error("El estado no se pudo actualizar.");
-      }
-
-      return await NotificacionEmail(reclamo, estadoValido.descripcion);
-    }
-    catch(error){
-      throw new Error ("error al actualizar estado reclamo: " + error.message);
-    }
-  } 
-
 };
 
 export default ReclamoOficinaService;

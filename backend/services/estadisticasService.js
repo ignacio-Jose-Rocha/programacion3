@@ -1,17 +1,41 @@
-import estadisticas from "../database/estadisticasCompletasDB.js";
+import EstadisticasDB from '../database/estadisticasCompletasDB.js';
+import redisClient from '../index.js';
 
 const EstadisticasService = {
-  getEstadisticasCompletas: async () => {
-    try {
-      const resultados = await estadisticas.getEstadisticasCompletasDB();
+    obtenerEstadisticasCompletas: async () => {
+        try {
+            const cacheKey = "estadisticas_completas";
+            const cachedData = await redisClient.get(cacheKey);
+            
+            if (cachedData) {
+                return JSON.parse(cachedData);
+            }
 
-  
-      return resultados
-    } catch (error) {
-      console.error("Error al obtener estadísticas completas", error);
-      throw error; // Propaga el error para manejarlo en el controlador
+            const estadisticas = await EstadisticasDB.obtenerEstadisticasCompletas();
+            await redisClient.setEx(cacheKey, 1800, JSON.stringify(estadisticas));
+            return estadisticas;
+        } catch (error) {
+            throw new Error("Error al obtener estadísticas: " + error.message);
+        }
+    },
+
+    obtenerEstadisticasPorTipo: async () => {
+        try {
+            const estadisticas = await EstadisticasDB.obtenerEstadisticasPorTipo();
+            return estadisticas;
+        } catch (error) {
+            throw new Error("Error al obtener estadísticas por tipo: " + error.message);
+        }
+    },
+
+    obtenerEstadisticasPorEstado: async () => {
+        try {
+            const estadisticas = await EstadisticasDB.obtenerEstadisticasPorEstado();
+            return estadisticas;
+        } catch (error) {
+            throw new Error("Error al obtener estadísticas por estado: " + error.message);
+        }
     }
-  }
 };
 
 export default EstadisticasService;

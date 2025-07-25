@@ -30,10 +30,23 @@ const ClienteController = {
 
     actualizarCliente: async (req, res) => {
         try {
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+            const { idUsuario } = req.user;
+            const datosActualizacion = req.body;
+            const imagen = req.file ? req.file.filename : null;
+            
+            if (imagen) {
+                datosActualizacion.imagen = imagen;
+            }
+
+            const clienteActualizado = await ClienteService.actualizarCliente(idUsuario, datosActualizacion);
+            res.status(200).json({
+                estado: "OK",
+                mensaje: "Cliente actualizado exitosamente",
+                data: clienteActualizado
+            });
         } catch (error) {
             console.error("Error en actualizarCliente:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            res.status(400).json({ error: error.message });
         }
     }
 };

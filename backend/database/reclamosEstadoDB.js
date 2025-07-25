@@ -1,63 +1,52 @@
 import pool from './config.js';
 
 const ReclamosEstadoDB = {
-    getAllReclamosEstadoDB: async () => {
+    getAllEstadosDB: async () => {
         try {
-            const [rows] = await pool.query(`
-                SELECT idReclamoEstado, descripcion, activo
-                FROM reclamosEstado 
-                WHERE activo = 1
-                ORDER BY idReclamoEstado
-            `);
+            const [rows] = await pool.query('SELECT * FROM reclamosEstado ORDER BY idReclamoEstado');
             return rows;
         } catch (error) {
-            throw new Error('Error al obtener estados de reclamos: ' + error.message);
+            throw new Error('Error al obtener estados: ' + error.message);
         }
     },
 
-    crearReclamoEstadoDB: async (descripcion) => {
+    buscarEstadoPorDescripcionDB: async (descripcion) => {
         try {
-            const [result] = await pool.query(`
-                INSERT INTO reclamosEstado (descripcion, activo)
-                VALUES (?, 1)
-            `, [descripcion]);
-            
-            return {
-                idReclamoEstado: result.insertId,
-                descripcion,
-                activo: 1
-            };
+            const [rows] = await pool.query('SELECT * FROM reclamosEstado WHERE descripcion = ?', [descripcion]);
+            return rows[0];
         } catch (error) {
-            throw new Error('Error al crear estado de reclamo: ' + error.message);
+            throw new Error('Error al buscar estado: ' + error.message);
         }
     },
 
-    actualizarReclamoEstadoDB: async (idReclamoEstado, descripcion) => {
+    crearEstadoDB: async (descripcion) => {
         try {
-            await pool.query(`
-                UPDATE reclamosEstado 
-                SET descripcion = ?
-                WHERE idReclamoEstado = ?
-            `, [descripcion, idReclamoEstado]);
-            
-            return {
-                idReclamoEstado,
-                descripcion
-            };
+            const [result] = await pool.query(
+                'INSERT INTO reclamosEstado (descripcion) VALUES (?)',
+                [descripcion]
+            );
+            return result.insertId;
         } catch (error) {
-            throw new Error('Error al actualizar estado de reclamo: ' + error.message);
+            throw new Error('Error al crear estado: ' + error.message);
         }
     },
 
-    borrarReclamoEstadoDB: async (idReclamoEstado) => {
+    actualizarEstadoDB: async (idEstado, descripcion) => {
         try {
-            await pool.query(`
-                UPDATE reclamosEstado 
-                SET activo = 0
-                WHERE idReclamoEstado = ?
-            `, [idReclamoEstado]);
+            await pool.query(
+                'UPDATE reclamosEstado SET descripcion = ? WHERE idReclamoEstado = ?',
+                [descripcion, idEstado]
+            );
         } catch (error) {
-            throw new Error('Error al eliminar estado de reclamo: ' + error.message);
+            throw new Error('Error al actualizar estado: ' + error.message);
+        }
+    },
+
+    eliminarEstadoDB: async (idEstado) => {
+        try {
+            await pool.query('DELETE FROM reclamosEstado WHERE idReclamoEstado = ?', [idEstado]);
+        } catch (error) {
+            throw new Error('Error al eliminar estado: ' + error.message);
         }
     }
 };

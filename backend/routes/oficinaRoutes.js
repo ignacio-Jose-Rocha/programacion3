@@ -5,9 +5,9 @@ const router = express.Router();
 
 // Rutas de Oficina
 router.get("/obtener", OficinaController.getAllOficinas);
-router.get("/:idOficina/empleados", OficinaController.getEmpleadosByOficina);
-router.post("/:idOficina/empleado/:idUsuario", OficinaController.asignarEmpleadoAOficina);
-router.put("/empleado/:idUsuario", OficinaController.eliminarEmpleadoDeOficina);
+router.post("/crear", OficinaController.crearOficina);
+router.put("/actualizar/:id", OficinaController.actualizarOficina);
+router.delete("/eliminar/:id", OficinaController.eliminarOficina);
 
 
 export default router;

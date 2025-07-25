@@ -3,9 +3,9 @@ import reclamosEstadoController from '../controllers/reclamosEstadoController.js
 
 const router = express.Router();
 
-router.get('/obtener', reclamosEstadoController.getAllReclamosEstado);
-router.post('/crear', reclamosEstadoController.crearReclamoEstado);
-router.put('/actualizar/:idReclamoEstado', reclamosEstadoController.actualizarReclamoEstado);
-router.delete('/borrar/:idReclamoEstado', reclamosEstadoController.borrarReclamoEstado);
+router.get('/obtener', reclamosEstadoController.getAllEstados);
+router.post('/crear', reclamosEstadoController.crearEstado);
+router.put('/actualizar/:id', reclamosEstadoController.actualizarEstado);
+router.delete('/eliminar/:id', reclamosEstadoController.eliminarEstado);
 
 export default router;

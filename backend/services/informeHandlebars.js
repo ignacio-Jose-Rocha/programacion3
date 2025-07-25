@@ -1,74 +1,53 @@
-import { createObjectCsvWriter } from 'csv-writer';
-import puppeteer, { Browser } from "puppeteer";
 import handlebars from 'handlebars';
-
+import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createObjectCsvWriter } from 'csv-writer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const InformeHandlebars = {
-    
-    informeReclamosCsv: async (datosReporte) => {
-        let ruta = path.resolve(__dirname, '..');
-        ruta = path.join(ruta, '/utiles/reclamos.csv'); 
+    informeReclamosPdf: async (datos) => {
+        try {
+            const templatePath = path.join(__dirname, '../utiles/handlebars/plantilla.hbs');
+            const templateHtml = fs.readFileSync(templatePath, 'utf8');
+            const template = handlebars.compile(templateHtml);
+            const html = template(datos);
 
-        // configuro un escrito csv
-        const csvWriter = createObjectCsvWriter({
-            path: ruta, 
-            header: [
-                {id: 'reclamo', title: 'RECLAMO'},
-                {id: 'tipo', title: 'TIPO'},
-                {id: 'estado', title: 'ESTADO'},
-                {id: 'fechaCreado', title: 'FECHA CREADO'},
-                {id: 'cliente', title: 'CLIENTE'},
-            ],
-            encoding:'utf-8' 
-        });
-
-        // genero csv
-        await csvWriter.writeRecords(datosReporte);
-
-        //
-        return ruta;
-    },
-
-    informeReclamosPdf: async (datosReporte) => {
-        try{
-            const filePath = path.join(__dirname, '../utiles/handlebars/plantilla-informe.html');
-            const htmlTemplate = fs.readFileSync(filePath, 'utf8');
-
-            const template = handlebars.compile(htmlTemplate);
-            const htmlFinal = template(datosReporte);
-
-            // lanzo puppeteer, 
-            const browser = await puppeteer.launch();
-
-            // abrir un pagina
+            const browser = await puppeteer.launch({ headless: true });
             const page = await browser.newPage();
-
-            // cargo la plantilla 
-            await page.setContent(htmlFinal, {waitUntil: 'load'});
-
-            // genero pdf
-            const pdfBuffer = await page.pdf({
-                format:'A4',
-                printBackground: true,
-                margin: {top: '10px', bottom: '10px' }
-            });
-
-            // 
+            await page.setContent(html);
+            const pdf = await page.pdf({ format: 'A4' });
             await browser.close();
 
-            return pdfBuffer;
+            return pdf;
+        } catch (error) {
+            throw new Error('Error al generar PDF: ' + error.message);
+        }
+    },
 
-        }catch(error){
-            console.error('Error generando el PDF:', error);
-            throw error;
+    informeReclamosCsv: async (datos) => {
+        try {
+            const csvPath = path.join(__dirname, '../utiles/reclamos.csv');
+            const csvWriter = createObjectCsvWriter({
+                path: csvPath,
+                header: [
+                    { id: 'reclamo', title: 'Reclamo' },
+                    { id: 'tipo', title: 'Tipo' },
+                    { id: 'estado', title: 'Estado' },
+                    { id: 'fechaCreado', title: 'Fecha Creado' },
+                    { id: 'cliente', title: 'Cliente' }
+                ]
+            });
+
+            await csvWriter.writeRecords(datos);
+            return csvPath;
+        } catch (error) {
+            throw new Error('Error al generar CSV: ' + error.message);
         }
     }
-}
+};
 
 export default InformeHandlebars;

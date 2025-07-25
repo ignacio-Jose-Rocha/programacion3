@@ -33,6 +33,19 @@ const ClienteService = {
         } catch (error) {
             throw new Error("Error al crear cliente: " + error.message);
         }
+    },
+
+    actualizarCliente: async (idUsuario, datosActualizacion) => {
+        try {
+            if (datosActualizacion.contrasenia) {
+                datosActualizacion.contrasenia = await bcrypt.hash(datosActualizacion.contrasenia, 10);
+            }
+
+            const clienteActualizado = await ClienteDB.actualizarClienteDB(idUsuario, datosActualizacion);
+            return clienteActualizado;
+        } catch (error) {
+            throw new Error("Error al actualizar cliente: " + error.message);
+        }
     }
 };
 

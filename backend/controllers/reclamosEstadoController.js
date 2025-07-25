@@ -1,20 +1,20 @@
-import ReclamosEstadoService from "../services/reclamosEstadoService.js";
+import ReclamosEstadoService from '../services/reclamosEstadoService.js';
 
-const reclamosEstadoController = {
-    getAllReclamosEstado: async (req, res) => {
+const ReclamosEstadoController = {
+    getAllEstados: async (req, res) => {
         try {
-            const estados = await ReclamosEstadoService.getAllReclamosEstado();
+            const estados = await ReclamosEstadoService.getAllEstados();
             res.status(200).json({
                 estado: "OK",
                 data: estados
             });
         } catch (error) {
-            console.error("Error en getAllReclamosEstado:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            console.error("Error al obtener estados:", error);
+            res.status(500).json({ error: error.message });
         }
     },
 
-    crearReclamoEstado: async (req, res) => {
+    crearEstado: async (req, res) => {
         try {
             const { descripcion } = req.body;
             
@@ -22,53 +22,53 @@ const reclamosEstadoController = {
                 return res.status(400).json({ error: "La descripción es requerida" });
             }
 
-            const nuevoEstado = await ReclamosEstadoService.crearReclamoEstado(descripcion);
+            const nuevoEstado = await ReclamosEstadoService.crearEstado(descripcion);
             res.status(201).json({
                 estado: "OK",
-                mensaje: "Estado de reclamo creado exitosamente",
+                mensaje: "Estado creado exitosamente",
                 data: nuevoEstado
             });
         } catch (error) {
-            console.error("Error en crearReclamoEstado:", error);
-            res.status(500).json({ error: error.message });
+            console.error("Error al crear estado:", error);
+            res.status(400).json({ error: error.message });
         }
     },
 
-    actualizarReclamoEstado: async (req, res) => {
+    actualizarEstado: async (req, res) => {
         try {
-            const { idReclamoEstado } = req.params;
+            const { id } = req.params;
             const { descripcion } = req.body;
 
             if (!descripcion) {
                 return res.status(400).json({ error: "La descripción es requerida" });
             }
 
-            const estadoActualizado = await ReclamosEstadoService.actualizarReclamoEstado(idReclamoEstado, descripcion);
+            const estadoActualizado = await ReclamosEstadoService.actualizarEstado(id, descripcion);
             res.status(200).json({
                 estado: "OK",
-                mensaje: "Estado de reclamo actualizado exitosamente",
+                mensaje: "Estado actualizado exitosamente",
                 data: estadoActualizado
             });
         } catch (error) {
-            console.error("Error en actualizarReclamoEstado:", error);
-            res.status(500).json({ error: error.message });
+            console.error("Error al actualizar estado:", error);
+            res.status(400).json({ error: error.message });
         }
     },
 
-    borrarReclamoEstado: async (req, res) => {
+    eliminarEstado: async (req, res) => {
         try {
-            const { idReclamoEstado } = req.params;
+            const { id } = req.params;
 
-            await ReclamosEstadoService.borrarReclamoEstado(idReclamoEstado);
+            await ReclamosEstadoService.eliminarEstado(id);
             res.status(200).json({
                 estado: "OK",
-                mensaje: "Estado de reclamo eliminado exitosamente"
+                mensaje: "Estado eliminado exitosamente"
             });
         } catch (error) {
-            console.error("Error en borrarReclamoEstado:", error);
-            res.status(500).json({ error: error.message });
+            console.error("Error al eliminar estado:", error);
+            res.status(400).json({ error: error.message });
         }
     }
 };
 
-export default reclamosEstadoController;
+export default ReclamosEstadoController;

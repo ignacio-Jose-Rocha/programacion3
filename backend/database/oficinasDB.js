@@ -1,70 +1,70 @@
-import pool from "./config.js";
+import pool from './config.js';
 
-const OficinasDB = {
-  getAllOficinasDB: async () => {
-    try {
-      const [rows] = await pool.query("SELECT * FROM oficinas WHERE activo = 1");
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener oficinas:", error);
-      throw error;
-    }
-  },
+const OficinaDB = {
+    getAllOficinasDB: async () => {
+        try {
+            const [rows] = await pool.query(`
+                SELECT o.idOficina, o.nombre, rt.descripcion as tipoReclamo,
+                       COUNT(uo.idUsuario) as cantidadEmpleados
+                FROM oficinas o
+                LEFT JOIN reclamosTipo rt ON o.idReclamoTipo = rt.idReclamoTipo
+                LEFT JOIN usuariosOficinas uo ON o.idOficina = uo.idOficina
+                GROUP BY o.idOficina, o.nombre, rt.descripcion
+            `);
+            return rows;
+        } catch (error) {
+            throw new Error('Error al obtener oficinas: ' + error.message);
+        }
+    },
 
-  getEmpleadosByOficinaDB: async (idOficina) => {
-    try {
-      const query = `
-      SELECT u.nombre, u.apellido, u.idUsuario
-      FROM usuarios AS u
-      INNER JOIN usuariosOficinas AS uo ON u.idUsuario = uo.idUsuario
-      WHERE uo.idOficina = ? AND uo.activo = 1`;
-      const [rows] = await pool.query(query, [idOficina]);
-      return rows;
-    } catch (error) {
-      console.error("Error al obtener empleados por oficina:", error);
-      throw error;
-    }
-  },
+    buscarOficinaPorNombreDB: async (nombre) => {
+        try {
+            const [rows] = await pool.query('SELECT * FROM oficinas WHERE nombre = ?', [nombre]);
+            return rows[0];
+        } catch (error) {
+            throw new Error('Error al buscar oficina por nombre: ' + error.message);
+        }
+    },
 
-  buscarEmpleadoDB: async (idUsuario) => {
-    try {
-      const [rows] = await pool.query(
-        "SELECT * FROM usuarios WHERE idUsuario = ?",
-        [idUsuario]
-      );
-      return rows[0];
-    } catch (error) {
-      console.error("Error al buscar empleado en la base de datos:", error);
-      throw error;
-    }
-  },
+    crearOficinaDB: async (datosOficina) => {
+        try {
+            const { nombre, idReclamoTipo } = datosOficina;
+            const [result] = await pool.query(
+                'INSERT INTO oficinas (nombre, idReclamoTipo) VALUES (?, ?)',
+                [nombre, idReclamoTipo]
+            );
+            return result.insertId;
+        } catch (error) {
+            throw new Error('Error al crear oficina: ' + error.message);
+        }
+    },
 
-  asignarEmpleadoDB: async (idOficina, idUsuario) => {
-    try {
-      const query =
-        "INSERT INTO usuariosOficinas (idUsuario, idOficina, activo) VALUES (?, ?, 1)";
-      const [result] = await pool.query(query, [idUsuario, idOficina]);
-      return result.insertId;
-    } catch (error) {
-      console.error("Error al asignar el empleado a la oficina", error);
-      throw new Error("Error al asignar el empleado a la oficina");
-    }
-  },
+    actualizarOficinaDB: async (idOficina, datosActualizacion) => {
+        try {
+            const campos = Object.keys(datosActualizacion);
+            const valores = Object.values(datosActualizacion);
+            
+            if (campos.length === 0) {
+                throw new Error('No hay datos para actualizar');
+            }
 
-  eliminarEmpleadoDeOficinaDB: async (idUsuario) => {
-    try {
-      const query =
-        "UPDATE usuariosOficinas SET activo = 0 WHERE idUsuario = ?";
-      const [result] = await pool.query(query, [idUsuario]);
-      return result;
-    } catch (error) {
-      console.error(
-        "Error al desactivar el usuario de la oficina en la base de datos:",
-        error
-      );
-      throw error;
+            const setClauses = campos.map(campo => `${campo} = ?`).join(', ');
+            valores.push(idOficina);
+
+            await pool.query(`UPDATE oficinas SET ${setClauses} WHERE idOficina = ?`, valores);
+            return { idOficina, ...datosActualizacion };
+        } catch (error) {
+            throw new Error('Error al actualizar oficina: ' + error.message);
+        }
+    },
+
+    eliminarOficinaDB: async (idOficina) => {
+        try {
+            await pool.query('DELETE FROM oficinas WHERE idOficina = ?', [idOficina]);
+        } catch (error) {
+            throw new Error('Error al eliminar oficina: ' + error.message);
+        }
     }
-  },
 };
 
-export default OficinasDB;
+export default OficinaDB;

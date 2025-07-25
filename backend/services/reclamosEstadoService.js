@@ -1,58 +1,43 @@
-import ReclamosEstadoDB from "../database/reclamosEstadoDB.js";
-import redisClient from "../index.js";
+import ReclamosEstadoDB from '../database/reclamosEstadoDB.js';
 
 const ReclamosEstadoService = {
-    getAllReclamosEstado: async () => {
+    getAllEstados: async () => {
         try {
-            const cacheKey = "reclamosEstado";
-            const cachedData = await redisClient.get(cacheKey);
-            
-            if (cachedData) {
-                return JSON.parse(cachedData);
-            }
-
-            const estados = await ReclamosEstadoDB.getAllReclamosEstadoDB();
-            await redisClient.setEx(cacheKey, 3600, JSON.stringify(estados));
+            const estados = await ReclamosEstadoDB.getAllEstadosDB();
             return estados;
         } catch (error) {
-            throw new Error("Error al obtener estados de reclamos: " + error.message);
+            throw new Error("Error al obtener estados: " + error.message);
         }
     },
 
-    crearReclamoEstado: async (descripcion) => {
+    crearEstado: async (descripcion) => {
         try {
-            const nuevoEstado = await ReclamosEstadoDB.crearReclamoEstadoDB(descripcion);
-            
-            // Limpiar caché
-            await redisClient.del("reclamosEstado");
-            
-            return nuevoEstado;
+            const estadoExistente = await ReclamosEstadoDB.buscarEstadoPorDescripcionDB(descripcion);
+            if (estadoExistente) {
+                throw new Error("Ya existe un estado con esa descripción");
+            }
+
+            const idEstado = await ReclamosEstadoDB.crearEstadoDB(descripcion);
+            return { idEstado, descripcion };
         } catch (error) {
-            throw new Error("Error al crear estado de reclamo: " + error.message);
+            throw new Error("Error al crear estado: " + error.message);
         }
     },
 
-    actualizarReclamoEstado: async (idReclamoEstado, descripcion) => {
+    actualizarEstado: async (idEstado, descripcion) => {
         try {
-            const estadoActualizado = await ReclamosEstadoDB.actualizarReclamoEstadoDB(idReclamoEstado, descripcion);
-            
-            // Limpiar caché
-            await redisClient.del("reclamosEstado");
-            
-            return estadoActualizado;
+            await ReclamosEstadoDB.actualizarEstadoDB(idEstado, descripcion);
+            return { idEstado, descripcion };
         } catch (error) {
-            throw new Error("Error al actualizar estado de reclamo: " + error.message);
+            throw new Error("Error al actualizar estado: " + error.message);
         }
     },
 
-    borrarReclamoEstado: async (idReclamoEstado) => {
+    eliminarEstado: async (idEstado) => {
         try {
-            await ReclamosEstadoDB.borrarReclamoEstadoDB(idReclamoEstado);
-            
-            // Limpiar caché
-            await redisClient.del("reclamosEstado");
+            await ReclamosEstadoDB.eliminarEstadoDB(idEstado);
         } catch (error) {
-            throw new Error("Error al eliminar estado de reclamo: " + error.message);
+            throw new Error("Error al eliminar estado: " + error.message);
         }
     }
 };

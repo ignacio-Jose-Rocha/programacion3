@@ -3,10 +3,8 @@ import usuariosOficinasController from '../controllers/usuariosOficinasControlle
 
 const router = express.Router();
 
-router.get('/obtener', usuariosOficinasController.getAllUsuariosOficinas);
-router.get('/usuario/:idUsuario', usuariosOficinasController.getOficinasByUsuario);
-router.get('/oficina/:idOficina', usuariosOficinasController.getUsuariosByOficina);
-router.post('/asignar', usuariosOficinasController.asignarUsuarioAOficina);
-router.put('/desasignar/:idUsuarioOficina', usuariosOficinasController.desasignarUsuarioDeOficina);
+router.get('/obtener', usuariosOficinasController.obtenerUsuariosOficina);
+router.post('/asignar', usuariosOficinasController.asignarUsuarioOficina);
+router.delete('/remover/:id', usuariosOficinasController.removerUsuarioOficina);
 
 export default router;

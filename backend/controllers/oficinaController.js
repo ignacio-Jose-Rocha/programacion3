@@ -1,73 +1,69 @@
-import oficinaService from '../services/oficinaService.js';
+import OficinaService from '../services/oficinaService.js';
 
 const OficinaController = {
     getAllOficinas: async (req, res) => {
         try {
-            const oficinas = await oficinaService.getAllOficinas();
+            const oficinas = await OficinaService.getAllOficinas();
             res.status(200).json({
                 estado: "OK",
                 data: oficinas
             });
         } catch (error) {
-            console.error("Error en getAllOficinas:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            console.error("Error al obtener oficinas:", error);
+            res.status(500).json({ error: error.message });
         }
     },
 
-    getEmpleadosByOficina: async (req, res) => {
-        try {
-            const { idOficina } = req.params;
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
-        } catch (error) {
-            console.error("Error en getEmpleadosByOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
-        }
-    },
-
-    asignarEmpleadoAOficina: async (req, res) => {
-        try {
-            const { idOficina, idUsuario } = req.params;
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
-        } catch (error) {
-            console.error("Error en asignarEmpleadoAOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
-        }
-    },
-
-    eliminarEmpleadoDeOficina: async (req, res) => {
-        try {
-            const { idUsuario } = req.params;
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
-        } catch (error) {
-            console.error("Error en eliminarEmpleadoDeOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
-        }
-    },
- 
     crearOficina: async (req, res) => {
         try {
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+            const { nombre, idReclamoTipo } = req.body;
+            
+            if (!nombre || !idReclamoTipo) {
+                return res.status(400).json({ 
+                    error: "Nombre y tipo de reclamo son requeridos" 
+                });
+            }
+
+            const nuevaOficina = await OficinaService.crearOficina(nombre, idReclamoTipo);
+            res.status(201).json({
+                estado: "OK",
+                mensaje: "Oficina creada exitosamente",
+                data: nuevaOficina
+            });
         } catch (error) {
-            console.error("Error en crearOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            console.error("Error al crear oficina:", error);
+            res.status(400).json({ error: error.message });
         }
     },
 
     actualizarOficina: async (req, res) => {
         try {
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+            const { id } = req.params;
+            const datosActualizacion = req.body;
+            
+            const oficinaActualizada = await OficinaService.actualizarOficina(id, datosActualizacion);
+            res.status(200).json({
+                estado: "OK",
+                mensaje: "Oficina actualizada exitosamente",
+                data: oficinaActualizada
+            });
         } catch (error) {
-            console.error("Error en actualizarOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            console.error("Error al actualizar oficina:", error);
+            res.status(400).json({ error: error.message });
         }
     },
 
-    borrarOficina: async (req, res) => {
+    eliminarOficina: async (req, res) => {
         try {
-            res.status(200).json({ mensaje: "Endpoint en desarrollo" });
+            const { id } = req.params;
+            await OficinaService.eliminarOficina(id);
+            res.status(200).json({ 
+                estado: "OK",
+                mensaje: "Oficina eliminada exitosamente" 
+            });
         } catch (error) {
-            console.error("Error en borrarOficina:", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            console.error("Error al eliminar oficina:", error);
+            res.status(400).json({ error: error.message });
         }
     }
 };

@@ -25,6 +25,26 @@ const ClienteDB = {
             console.error('Error al crear usuario:', error);
             throw error;
         }
+    },
+
+    actualizarClienteDB: async (idUsuario, datosActualizacion) => {
+        try {
+            const campos = Object.keys(datosActualizacion);
+            const valores = Object.values(datosActualizacion);
+            
+            if (campos.length === 0) {
+                throw new Error('No hay datos para actualizar');
+            }
+
+            const setClauses = campos.map(campo => `${campo} = ?`).join(', ');
+            valores.push(idUsuario);
+
+            await pool.query(`UPDATE usuarios SET ${setClauses} WHERE idUsuario = ?`, valores);
+            return { idUsuario, ...datosActualizacion };
+        } catch (error) {
+            console.error('Error al actualizar cliente:', error);
+            throw error;
+        }
     }
 };
 
